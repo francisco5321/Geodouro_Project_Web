@@ -5,11 +5,27 @@ namespace app\controllers;
 use app\models\Observation;
 use app\models\PlantSpecies;
 use yii\data\Pagination;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 
 class SpeciesController extends Controller
 {
+    public function behaviors(): array
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     public function actionIndex(): string
     {
         $queryText = trim((string) \Yii::$app->request->get('q', ''));

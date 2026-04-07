@@ -89,4 +89,23 @@ class Publication extends ActiveRecord
     {
         return $this->hasMany(PublicationImage::class, ['publication_id' => 'publication_id']);
     }
+
+    public function getImageGalleryPaths(): array
+    {
+        $paths = [];
+
+        foreach ($this->publicationImages as $image) {
+            $candidate = trim((string) ($image->thumbnail_path ?: $image->image_path));
+            if ($candidate !== '') {
+                $paths[] = $candidate;
+            }
+        }
+
+        return array_values(array_unique($paths));
+    }
+
+    public function getCoverImagePath(): ?string
+    {
+        return $this->getImageGalleryPaths()[0] ?? null;
+    }
 }

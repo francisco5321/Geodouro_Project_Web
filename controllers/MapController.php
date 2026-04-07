@@ -3,10 +3,26 @@
 namespace app\controllers;
 
 use app\models\Observation;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 
 class MapController extends Controller
 {
+    public function behaviors(): array
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     public function actionIndex(): string
     {
         $observations = Observation::find()

@@ -29,14 +29,20 @@ $this->beginPage();
         </a>
         <nav class="topbar-nav">
             <a href="<?= Yii::$app->homeUrl ?>">Dashboard</a>
-            <a href="<?= yii\helpers\Url::to(['species/index']) ?>">Especies</a>
-            <a href="<?= yii\helpers\Url::to(['observation/index']) ?>">Observacoes</a>
-            <a href="<?= yii\helpers\Url::to(['publication/index']) ?>">Publicacoes</a>
-            <a href="<?= yii\helpers\Url::to(['map/index']) ?>">Mapa</a>
+            <?php if (!Yii::$app->user->isGuest): ?>
+                <a href="<?= yii\helpers\Url::to(['species/index']) ?>">Especies</a>
+                <a href="<?= yii\helpers\Url::to(['observation/index']) ?>">Observacoes</a>
+                <a href="<?= yii\helpers\Url::to(['publication/index']) ?>">Publicacoes</a>
+                <a href="<?= yii\helpers\Url::to(['map/index']) ?>">Mapa</a>
+                <?php if (Yii::$app->user->identity?->isAdmin()): ?>
+                    <a href="<?= yii\helpers\Url::to(['user/index']) ?>">Utilizadores</a>
+                <?php endif; ?>
+            <?php endif; ?>
             <?php if (Yii::$app->user->isGuest): ?>
+                <a href="<?= yii\helpers\Url::to(['site/signup']) ?>">Criar conta</a>
                 <a class="btn btn-brand" href="<?= yii\helpers\Url::to(['site/login']) ?>">Entrar</a>
             <?php else: ?>
-                <span class="user-badge"><?= Html::encode(Yii::$app->user->identity->getFullName()) ?></span>
+                <a href="<?= yii\helpers\Url::to(['site/account']) ?>" class="user-badge user-badge-link"><?= Html::encode(Yii::$app->user->identity->getFullName()) ?></a>
                 <?= Html::beginForm(['site/logout'], 'post') ?>
                     <?= Html::submitButton('Sair', ['class' => 'btn btn-outline-brand']) ?>
                 <?= Html::endForm() ?>

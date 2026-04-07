@@ -18,8 +18,7 @@ return [
         ],
         'user' => [
             'identityClass' => app\models\AppUser::class,
-            'enableAutoLogin' => true,
-            'identityCookie' => ['name' => '_geoflora_identity', 'httpOnly' => true],
+            'enableAutoLogin' => false,
             'loginUrl' => ['site/login'],
         ],
         'session' => [

@@ -18,7 +18,7 @@ use yii\web\IdentityInterface;
  * @property string|null $email
  * @property string|null $username
  * @property string|null $password_hash
- * @property string|null $auth_key
+ * @property string|null $role
  * @property string $created_at
  * @property string $updated_at
  *
@@ -27,6 +27,9 @@ use yii\web\IdentityInterface;
  */
 class AppUser extends ActiveRecord implements IdentityInterface
 {
+    public const ROLE_USER = 'user';
+    public const ROLE_ADMIN = 'admin';
+
     public static function tableName(): string
     {
         return '{{%app_user}}';
@@ -46,12 +49,11 @@ class AppUser extends ActiveRecord implements IdentityInterface
 
     public function rules(): array
     {
-        return [
+        $rules = [
             [['guest_label'], 'required'],
             [['is_authenticated'], 'boolean'],
             [['created_at', 'updated_at'], 'safe'],
             [['guest_label', 'first_name', 'last_name', 'email', 'username', 'password_hash'], 'string'],
-            [['auth_key'], 'string', 'max' => 64],
             [['email'], 'email'],
             [['email', 'username', 'guest_label'], 'unique'],
             [['guest_label'], 'filter', 'filter' => 'trim'],
@@ -59,6 +61,17 @@ class AppUser extends ActiveRecord implements IdentityInterface
             [['guest_label'], 'validateGuestLabel'],
             [['first_name', 'last_name', 'email', 'username'], 'validateAuthenticatedFields'],
         ];
+
+        if ($this->hasAttribute('auth_key')) {
+            $rules[] = [['auth_key'], 'string', 'max' => 64];
+        }
+
+        if ($this->hasAttribute('role')) {
+            $rules[] = [['role'], 'string', 'max' => 32];
+            $rules[] = [['role'], 'in', 'range' => [self::ROLE_USER, self::ROLE_ADMIN]];
+        }
+
+        return $rules;
     }
 
     public function attributeLabels(): array
@@ -72,20 +85,20 @@ class AppUser extends ActiveRecord implements IdentityInterface
             'email' => 'Email',
             'username' => 'Username',
             'password_hash' => 'Password Hash',
-            'auth_key' => 'Auth Key',
+            'role' => 'Papel',
             'created_at' => 'Criado em',
             'updated_at' => 'Atualizado em',
         ];
     }
 
-    public function validateGuestLabel(string $attribute, array $params = []): void
+    public function validateGuestLabel(string $attribute, $params = null): void
     {
         if (trim((string) $this->$attribute) === '') {
             $this->addError($attribute, 'O guest label nao pode estar vazio.');
         }
     }
 
-    public function validateAuthenticatedFields(string $attribute, array $params = []): void
+    public function validateAuthenticatedFields(string $attribute, $params = null): void
     {
         if (!$this->is_authenticated) {
             return;
@@ -103,6 +116,26 @@ class AppUser extends ActiveRecord implements IdentityInterface
         return $fullName !== '' ? $fullName : ($this->username ?: $this->guest_label);
     }
 
+    public function getRoleName(): string
+    {
+        if ($this->hasAttribute('role') && !empty($this->role)) {
+            return (string) $this->role;
+        }
+
+        $adminUsernames = Yii::$app->params['adminUsernames'] ?? [];
+        return in_array((string) $this->username, $adminUsernames, true) ? self::ROLE_ADMIN : self::ROLE_USER;
+    }
+
+    public function getRoleLabel(): string
+    {
+        return $this->isAdmin() ? 'Administrador' : 'Utilizador';
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->getRoleName() === self::ROLE_ADMIN;
+    }
+
     public function setPassword(string $password): void
     {
         $this->password_hash = Yii::$app->security->generatePasswordHash($password);
@@ -110,7 +143,9 @@ class AppUser extends ActiveRecord implements IdentityInterface
 
     public function generateAuthKey(): void
     {
-        $this->auth_key = Yii::$app->security->generateRandomString();
+        if ($this->hasAttribute('auth_key')) {
+            $this->setAttribute('auth_key', Yii::$app->security->generateRandomString());
+        }
     }
 
     public function validatePassword(string $password): bool
@@ -153,11 +188,15 @@ class AppUser extends ActiveRecord implements IdentityInterface
 
     public function getAuthKey(): ?string
     {
-        return $this->auth_key;
+        return $this->hasAttribute('auth_key') ? $this->getAttribute('auth_key') : null;
     }
 
     public function validateAuthKey($authKey): bool
     {
-        return $this->auth_key === $authKey;
+        if (!$this->hasAttribute('auth_key')) {
+            return false;
+        }
+
+        return $this->getAttribute('auth_key') === $authKey;
     }
 }

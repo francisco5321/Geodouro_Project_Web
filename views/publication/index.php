@@ -29,17 +29,25 @@ $this->title = 'Publicacoes';
 
     <section class="publication-grid">
         <?php foreach ($publications as $publication): ?>
-            <article class="publication-card">
-                <p class="species-scientific-name"><?= Html::encode($publication->plantSpecies?->scientific_name ?? $publication->observation?->getResolvedScientificName() ?? 'Sem especie associada') ?></p>
-                <h2><?= Html::encode($publication->title ?: 'Publicacao botanica') ?></h2>
-                <p class="publication-copy"><?= Html::encode($publication->description ?: 'Sem descricao editorial registada para esta publicacao.') ?></p>
-                <div class="species-meta-row">
-                    <span class="species-meta-chip"><?= Html::encode($publication->user?->getFullName() ?? 'Sistema') ?></span>
-                    <span class="species-meta-chip"><?= Html::encode(Yii::$app->formatter->asDate($publication->published_at, 'php:d/m/Y')) ?></span>
-                </div>
-                <div class="timeline-card-actions">
-                    <a href="<?= Url::to(['publication/view', 'id' => $publication->publication_id]) ?>">Abrir publicacao</a>
-                    <?php if ($publication->plant_species_id): ?><a href="<?= Url::to(['species/view', 'id' => $publication->plant_species_id]) ?>">Abrir especie</a><?php endif; ?>
+            <article class="publication-card publication-card-rich">
+                <?php if ($publication->getCoverImagePath() !== null): ?>
+                    <a class="publication-cover" href="<?= Url::to(['publication/view', 'id' => $publication->publication_id]) ?>">
+                        <img src="<?= Url::to(['media/publication-image', 'id' => $publication->publication_id, 'index' => 0]) ?>" alt="Capa da publicacao <?= (int) $publication->publication_id ?>">
+                    </a>
+                <?php endif; ?>
+                <div class="publication-card-body">
+                    <p class="species-scientific-name"><?= Html::encode($publication->plantSpecies?->scientific_name ?? $publication->observation?->getResolvedScientificName() ?? 'Sem especie associada') ?></p>
+                    <h2><?= Html::encode($publication->title ?: 'Publicacao botanica') ?></h2>
+                    <p class="publication-copy"><?= Html::encode($publication->description ?: 'Sem descricao editorial registada para esta publicacao.') ?></p>
+                    <div class="species-meta-row">
+                        <span class="species-meta-chip"><?= Html::encode($publication->user?->getFullName() ?? 'Sistema') ?></span>
+                        <span class="species-meta-chip"><?= Html::encode(Yii::$app->formatter->asDate($publication->published_at, 'php:d/m/Y')) ?></span>
+                        <span class="species-meta-chip"><?= count($publication->publicationImages) ?> imagens</span>
+                    </div>
+                    <div class="timeline-card-actions">
+                        <a href="<?= Url::to(['publication/view', 'id' => $publication->publication_id]) ?>">Abrir publicacao</a>
+                        <?php if ($publication->plant_species_id): ?><a href="<?= Url::to(['species/view', 'id' => $publication->plant_species_id]) ?>">Abrir especie</a><?php endif; ?>
+                    </div>
                 </div>
             </article>
         <?php endforeach; ?>

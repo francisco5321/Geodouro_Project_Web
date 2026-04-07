@@ -32,7 +32,7 @@ class LoginForm extends Model
         ];
     }
 
-    public function validatePassword(string $attribute, array $params = []): void
+    public function validatePassword(string $attribute, $params = null): void
     {
         if ($this->hasErrors()) {
             return;
@@ -50,8 +50,7 @@ class LoginForm extends Model
             return false;
         }
 
-        $duration = $this->rememberMe ? 60 * 60 * 24 * 30 : 0;
-        return Yii::$app->user->login($this->getUser(), $duration);
+        return Yii::$app->user->login($this->getUser(), 0);
     }
 
     public function getUser(): ?AppUser

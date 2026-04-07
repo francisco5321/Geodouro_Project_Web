@@ -2,7 +2,10 @@
 
 namespace app\controllers;
 
+use app\models\ChangePasswordForm;
 use app\models\LoginForm;
+use app\models\ProfileForm;
+use app\models\SignupForm;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
@@ -16,10 +19,10 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::class,
-                'only' => ['logout'],
+                'only' => ['logout', 'account'],
                 'rules' => [
                     [
-                        'actions' => ['logout'],
+                        'actions' => ['logout', 'account'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -70,9 +73,61 @@ class SiteController extends Controller
         ]);
     }
 
+    public function actionSignup()
+    {
+        if (!Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }
+
+        $model = new SignupForm();
+        if ($model->load(Yii::$app->request->post())) {
+            $user = $model->signup();
+            if ($user !== null && Yii::$app->user->login($user, 0)) {
+                Yii::$app->session->setFlash('success', 'Conta criada com sucesso. Bem-vindo ao portal.');
+                return $this->goHome();
+            }
+        }
+
+        $model->password = '';
+        $model->passwordRepeat = '';
+        return $this->render('signup', [
+            'model' => $model,
+        ]);
+    }
+
+    public function actionAccount()
+    {
+        /** @var \app\models\AppUser $user */
+        $user = Yii::$app->user->identity;
+        $profileForm = new ProfileForm($user);
+        $passwordForm = new ChangePasswordForm($user);
+
+        $request = Yii::$app->request;
+        if ($request->isPost) {
+            $formType = $request->post('form_name');
+
+            if ($formType === 'profile' && $profileForm->load($request->post()) && $profileForm->save()) {
+                Yii::$app->session->setFlash('success', 'Perfil atualizado com sucesso.');
+                return $this->refresh();
+            }
+
+            if ($formType === 'password' && $passwordForm->load($request->post()) && $passwordForm->save()) {
+                Yii::$app->session->setFlash('success', 'Password atualizada com sucesso.');
+                return $this->refresh();
+            }
+        }
+
+        return $this->render('account', [
+            'profileForm' => $profileForm,
+            'passwordForm' => $passwordForm,
+            'user' => $user,
+        ]);
+    }
+
     public function actionLogout()
     {
         Yii::$app->user->logout();
         return $this->goHome();
     }
 }
+

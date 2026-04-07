@@ -788,3 +788,169 @@ body.app-shell {
     color: var(--gf-brand);
     font-weight: 800;
 }
+
+.publication-card-rich {
+    overflow: hidden;
+    padding: 0;
+}
+
+.publication-cover {
+    display: block;
+    text-decoration: none;
+}
+
+.publication-cover img,
+.publication-hero-media img {
+    display: block;
+    width: 100%;
+    object-fit: cover;
+    background: linear-gradient(135deg, rgba(62, 122, 87, 0.14), rgba(127, 192, 132, 0.18));
+}
+
+.publication-cover img {
+    aspect-ratio: 16 / 10;
+}
+
+.publication-card-body {
+    padding: 1.35rem;
+}
+
+.publication-hero {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.05fr);
+    gap: 1.5rem;
+    border-radius: 28px;
+    padding: 1.5rem;
+    background: var(--gf-surface);
+    border: 1px solid var(--gf-border);
+    box-shadow: var(--gf-shadow);
+}
+
+.publication-hero-media {
+    overflow: hidden;
+    border-radius: 24px;
+    min-height: 320px;
+    background: linear-gradient(135deg, rgba(62, 122, 87, 0.94), rgba(127, 192, 132, 0.86));
+}
+
+.publication-hero-media img {
+    height: 100%;
+}
+
+.publication-hero-placeholder {
+    height: 100%;
+    min-height: 320px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    text-align: center;
+}
+
+.publication-hero-placeholder strong {
+    display: block;
+    font-size: 1.8rem;
+}
+
+@media (max-width: 991.98px) {
+    .publication-hero {
+        grid-template-columns: 1fr;
+    }
+}
+
+.auth-shell {
+    min-height: calc(100vh - 180px);
+    display: grid;
+    place-items: center;
+}
+
+.signup-panel {
+    width: min(100%, 760px);
+}
+
+.auth-grid-two {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.auth-actions {
+    margin-top: 0.5rem;
+}
+
+.auth-switch-note {
+    margin-top: 1.25rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    color: var(--gf-muted);
+}
+
+.auth-switch-note a {
+    color: var(--gf-brand);
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.alert-geoflora {
+    border: 1px solid rgba(62, 122, 87, 0.18);
+    background: rgba(127, 192, 132, 0.18);
+    color: var(--gf-brand);
+    border-radius: 18px;
+}
+
+@media (max-width: 767.98px) {
+    .auth-grid-two {
+        grid-template-columns: 1fr;
+    }
+}
+
+.hero-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+}
+
+.user-badge-link {
+    text-decoration: none;
+}
+
+.user-admin-table-wrap {
+    overflow-x: auto;
+}
+
+.user-admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.user-admin-table th,
+.user-admin-table td {
+    padding: 0.95rem 0.85rem;
+    border-bottom: 1px solid rgba(62, 122, 87, 0.1);
+    text-align: left;
+    vertical-align: top;
+}
+
+.user-admin-table th {
+    color: var(--gf-muted);
+    font-size: 0.82rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.table-subtext {
+    color: var(--gf-muted);
+    font-size: 0.9rem;
+}
+
+.table-action-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.table-action-row a {
+    color: var(--gf-brand);
+    font-weight: 800;
+    text-decoration: none;
+}
