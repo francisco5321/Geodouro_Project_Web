@@ -1,0 +1,8 @@
+/vendor
+/runtime
+/web/assets
+/.idea
+/.vscode
+/.env
+/.phpunit.result.cache
+
