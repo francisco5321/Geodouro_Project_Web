@@ -1,0 +1,82 @@
+<?php
+
+use app\models\Observation;
+use yii\helpers\Html;
+use yii\helpers\Url;
+
+/** @var yii\web\View $this */
+/** @var Observation $observation */
+
+$this->title = 'Observacao #' . $observation->observation_id;
+$statusLabel = $observation->is_published ? 'Publicada' : ($observation->sync_status === Observation::SYNC_SYNCED ? 'Sincronizada' : ($observation->sync_status === Observation::SYNC_FAILED ? 'Falha de sincronizacao' : 'Pendente'));
+$imagePaths = $observation->getImageGalleryPaths();
+?>
+<div class="module-shell">
+    <a class="back-link" href="<?= Url::to(['observation/index']) ?>">&larr; Voltar as observacoes</a>
+
+    <section class="species-detail-hero mb-4">
+        <div class="species-detail-copy">
+            <span class="eyebrow">Observacao de campo</span>
+            <h1 class="hero-title hero-title-tight"><?= Html::encode($observation->getResolvedCommonName() ?: 'Observacao botanica') ?></h1>
+            <p class="species-detail-scientific"><?= Html::encode($observation->getResolvedScientificName() ?: 'Sem classificacao enriquecida') ?></p>
+            <div class="species-meta-row">
+                <span class="species-meta-chip"><?= Html::encode($statusLabel) ?></span>
+                <span class="species-meta-chip"><?= Html::encode($observation->getResolvedFamily() ?: 'Familia desconhecida') ?></span>
+                <?php if ($observation->publication !== null): ?><span class="species-meta-chip">Ja publicada</span><?php endif; ?>
+            </div>
+            <p class="hero-text"><?= Html::encode($observation->notes ?: 'Sem notas de campo registadas para esta observacao.') ?></p>
+        </div>
+        <div class="detail-stat-grid">
+            <article class="detail-stat-card"><span>Confianca</span><strong><?= $observation->confidence !== null ? (int) round($observation->confidence * 100) . '%' : 'N/D' ?></strong></article>
+            <article class="detail-stat-card"><span>Autor</span><strong><?= Html::encode($observation->user?->getFullName() ?? 'Sistema') ?></strong></article>
+            <article class="detail-stat-card"><span>Data</span><strong><?= Html::encode(Yii::$app->formatter->asDate($observation->observed_at, 'php:d/m/Y')) ?></strong></article>
+            <article class="detail-stat-card"><span>Imagens</span><strong><?= count($imagePaths) ?></strong></article>
+        </div>
+    </section>
+
+    <section class="detail-section">
+        <div class="detail-split-grid">
+            <article class="content-card">
+                <h2>Contexto</h2>
+                <div class="info-list">
+                    <div><span>ID</span><strong>#<?= (int) $observation->observation_id ?></strong></div>
+                    <div><span>Dispositivo</span><strong><?= Html::encode($observation->device_observation_id ?: 'N/D') ?></strong></div>
+                    <div><span>Coordenadas</span><strong><?= $observation->hasCoordinates() ? Html::encode(number_format((float) $observation->latitude, 5) . ', ' . number_format((float) $observation->longitude, 5)) : 'Sem localizacao' ?></strong></div>
+                    <div><span>Wikipedia</span><strong><?= $observation->enriched_wikipedia_url ? Html::a('Abrir referencia', $observation->enriched_wikipedia_url, ['target' => '_blank', 'rel' => 'noopener']) : 'Sem referencia' ?></strong></div>
+                </div>
+            </article>
+            <article class="content-card content-card-soft">
+                <h2>Ligacoes</h2>
+                <div class="module-link-list">
+                    <?php if ($observation->plant_species_id): ?><a href="<?= Url::to(['species/view', 'id' => $observation->plant_species_id]) ?>">Abrir ficha da especie</a><?php endif; ?>
+                    <?php if ($observation->publication !== null): ?><a href="<?= Url::to(['publication/view', 'id' => $observation->publication->publication_id]) ?>">Abrir publicacao associada</a><?php endif; ?>
+                    <?php if ($observation->hasCoordinates()): ?><a href="<?= Url::to(['map/index']) ?>">Ver no mapa</a><?php endif; ?>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="detail-section">
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow">Galeria</span>
+                <h2>Imagens da observacao</h2>
+            </div>
+        </div>
+        <?php if (empty($imagePaths)): ?>
+            <div class="empty-state-card">
+                <h3>Sem imagem acessivel</h3>
+                <p>Esta observacao nao tem ficheiros de imagem que a web consiga servir neste momento.</p>
+            </div>
+        <?php else: ?>
+            <div class="observation-gallery-grid">
+                <?php foreach ($imagePaths as $index => $path): ?>
+                    <a class="observation-gallery-card" href="<?= Url::to(['media/observation-image', 'id' => $observation->observation_id, 'index' => $index]) ?>" target="_blank" rel="noopener">
+                        <img src="<?= Url::to(['media/observation-image', 'id' => $observation->observation_id, 'index' => $index]) ?>" alt="Imagem da observacao <?= (int) $observation->observation_id ?>">
+                        <span>Abrir imagem <?= $index + 1 ?></span>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </section>
+</div>

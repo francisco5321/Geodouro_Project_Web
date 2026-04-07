@@ -161,4 +161,30 @@ class Observation extends ActiveRecord
     {
         return $this->latitude !== null && $this->longitude !== null;
     }
+
+    public function getImageGalleryPaths(): array
+    {
+        $paths = [];
+
+        foreach ($this->observationImages as $image) {
+            $candidate = trim((string) ($image->thumbnail_path ?: $image->image_path));
+            if ($candidate !== '') {
+                $paths[] = $candidate;
+            }
+        }
+
+        if (empty($paths)) {
+            $fallback = trim((string) $this->image_uri);
+            if ($fallback !== '' && !str_starts_with($fallback, 'file://')) {
+                $paths[] = $fallback;
+            }
+        }
+
+        return array_values(array_unique($paths));
+    }
+
+    public function hasGalleryImages(): bool
+    {
+        return !empty($this->getImageGalleryPaths());
+    }
 }

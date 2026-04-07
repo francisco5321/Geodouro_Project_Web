@@ -26,6 +26,10 @@ return [
             'name' => 'GEOFLORASESSID',
         ],
         'db' => $db,
+        'assetManager' => [
+            'basePath' => dirname(__DIR__) . '/web/assets',
+            'baseUrl' => '/assets',
+        ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [

@@ -78,23 +78,21 @@ class AppUser extends ActiveRecord implements IdentityInterface
         ];
     }
 
-    public function validateGuestLabel(string $attribute): void
+    public function validateGuestLabel(string $attribute, array $params = []): void
     {
         if (trim((string) $this->$attribute) === '') {
             $this->addError($attribute, 'O guest label nao pode estar vazio.');
         }
     }
 
-    public function validateAuthenticatedFields(): void
+    public function validateAuthenticatedFields(string $attribute, array $params = []): void
     {
         if (!$this->is_authenticated) {
             return;
         }
 
-        foreach (['first_name', 'last_name', 'email', 'username'] as $attribute) {
-            if (trim((string) $this->$attribute) === '') {
-                $this->addError($attribute, 'Este campo e obrigatorio para utilizadores autenticados.');
-            }
+        if (trim((string) $this->$attribute) === '') {
+            $this->addError($attribute, 'Este campo e obrigatorio para utilizadores autenticados.');
         }
     }
 
