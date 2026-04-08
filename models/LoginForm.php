@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use RuntimeException;
 use Yii;
 use yii\base\Model;
 
@@ -47,6 +48,13 @@ class LoginForm extends Model
     public function login(): bool
     {
         if (!$this->validate()) {
+            return false;
+        }
+
+        try {
+            Yii::$app->backendAuthSession->syncLogin($this->username, $this->password);
+        } catch (RuntimeException $exception) {
+            $this->addError('password', 'Nao foi possivel ligar ao backend comum: ' . $exception->getMessage());
             return false;
         }
 

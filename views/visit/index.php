@@ -22,6 +22,14 @@ const toggleObservationUrl = '__TOGGLE_URL__';
 const visitMap = L.map('visit-planner-map').setView([41.3, -7.7], 8);
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
 const csrfParam = document.querySelector('meta[name="csrf-param"]')?.content || '_csrf';
+const startMapElement = document.getElementById('visit-route-start-map');
+const startLatitudeInput = document.getElementById('routeplan-start_latitude');
+const startLongitudeInput = document.getElementById('routeplan-start_longitude');
+const startLabelInput = document.getElementById('routeplan-start_label');
+const clearStartButton = document.getElementById('clear-visit-route-start-point');
+const startStatus = document.getElementById('visit-route-start-status');
+let visitStartMarker = null;
+
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; OpenStreetMap contributors'
@@ -76,6 +84,66 @@ visitMarkers.forEach((marker) => {
 if (visitBounds.length > 0) {
     visitMap.fitBounds(visitBounds, {padding: [28, 28]});
 }
+
+if (startMapElement && startLatitudeInput && startLongitudeInput) {
+    const startMap = L.map(startMapElement).setView([41.3, -7.7], 8);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(startMap);
+
+    function updateStartStatus(message) {
+        if (startStatus) {
+            startStatus.textContent = message;
+        }
+    }
+
+    function setStartPoint(lat, lng) {
+        startLatitudeInput.value = Number(lat).toFixed(7);
+        startLongitudeInput.value = Number(lng).toFixed(7);
+
+        if (visitStartMarker) {
+            startMap.removeLayer(visitStartMarker);
+        }
+
+        visitStartMarker = L.marker([lat, lng]).addTo(startMap).bindPopup(
+            `<strong>${startLabelInput?.value?.trim() || 'Ponto de partida'}</strong><p>${Number(lat).toFixed(5)}, ${Number(lng).toFixed(5)}</p>`
+        );
+        visitStartMarker.openPopup();
+        startMap.setView([lat, lng], Math.max(startMap.getZoom(), 13));
+        updateStartStatus('Ponto de partida definido. O percurso vai comecar e terminar aqui.');
+    }
+
+    startMap.on('click', (event) => {
+        setStartPoint(event.latlng.lat, event.latlng.lng);
+    });
+
+    if (clearStartButton) {
+        clearStartButton.addEventListener('click', () => {
+            startLatitudeInput.value = '';
+            startLongitudeInput.value = '';
+            if (startLabelInput) {
+                startLabelInput.value = '';
+            }
+            if (visitStartMarker) {
+                startMap.removeLayer(visitStartMarker);
+                visitStartMarker = null;
+            }
+            startMap.setView([41.3, -7.7], 8);
+            updateStartStatus('Sem ponto de partida personalizado. O percurso comeca na primeira paragem marcada.');
+        });
+    }
+
+    if (startLabelInput) {
+        startLabelInput.addEventListener('input', () => {
+            if (visitStartMarker) {
+                visitStartMarker.bindPopup(`<strong>${startLabelInput.value.trim() || 'Ponto de partida'}</strong><p>${startLatitudeInput.value}, ${startLongitudeInput.value}</p>`);
+            }
+        });
+    }
+
+    updateStartStatus('Clica no mapa para definires um ponto de partida opcional para o novo percurso.');
+}
 JS;
 $js = str_replace('__MARKERS__', $markersJson, $js);
 $js = str_replace('__TOGGLE_URL__', $toggleUrl, $js);
@@ -86,7 +154,7 @@ $this->registerJs($js, View::POS_END);
         <div>
             <span class="eyebrow">Planeamento</span>
             <h1 class="hero-title hero-title-tight">Quero visitar</h1>
-            <p class="hero-text">Tudo acontece aqui: clica nas observacoes do mapa, marca "Quero passar aqui" e depois cria logo o percurso com nome e descricao.</p>
+            <p class="hero-text">Tudo acontece aqui: clica nas observacoes do mapa, marca "Quero passar aqui" e depois cria logo o percurso com nome, descricao e ponto de partida opcional.</p>
         </div>
         <div class="detail-stat-grid">
             <article class="detail-stat-card"><span>Alvos</span><strong><?= count($targets) ?></strong></article>
@@ -132,8 +200,33 @@ $this->registerJs($js, View::POS_END);
                     ]) ?>
                 </div>
             </div>
+            <section class="detail-section route-start-section">
+                <div class="section-heading">
+                    <div>
+                        <span class="eyebrow">Partida</span>
+                        <h2>Escolher ponto de partida</h2>
+                    </div>
+                </div>
+                <p id="visit-route-start-status" class="route-start-status">Clica no mapa para definires um ponto de partida opcional para o novo percurso.</p>
+                <div id="visit-route-start-map" class="route-start-map"></div>
+                <div class="visit-route-builder-grid mt-3">
+                    <div>
+                        <?= Html::activeLabel($newPlan, 'start_label', ['class' => 'form-label']) ?>
+                        <?= Html::activeTextInput($newPlan, 'start_label', ['class' => 'form-control', 'placeholder' => 'Ex.: Miradouro / estacionamento']) ?>
+                    </div>
+                    <div class="route-start-coordinates">
+                        <?= Html::activeLabel($newPlan, 'start_latitude', ['class' => 'form-label']) ?>
+                        <?= Html::activeTextInput($newPlan, 'start_latitude', ['class' => 'form-control', 'readonly' => true, 'placeholder' => 'Latitude escolhida no mapa']) ?>
+                        <?= Html::activeLabel($newPlan, 'start_longitude', ['class' => 'form-label mt-2']) ?>
+                        <?= Html::activeTextInput($newPlan, 'start_longitude', ['class' => 'form-control', 'readonly' => true, 'placeholder' => 'Longitude escolhida no mapa']) ?>
+                    </div>
+                </div>
+                <div class="form-action-row route-start-actions">
+                    <button type="button" id="clear-visit-route-start-point" class="btn btn-outline-brand">Limpar ponto de partida</button>
+                </div>
+            </section>
             <div class="visit-route-builder-actions">
-                <span class="table-subtext">O caminho inicial sera desenhado a partir dos pontos selecionados no mapa e depois podes afiná-lo no detalhe do percurso.</span>
+                <span class="table-subtext">O caminho inicial sera desenhado pelos caminhos do mapa e regressa ao ponto de partida definido.</span>
                 <?= Html::submitButton('Criar percurso com os pontos selecionados', ['class' => 'btn btn-brand']) ?>
             </div>
         <?= Html::endForm() ?>

@@ -15,6 +15,7 @@ use yii\web\View;
 /** @var string $markersJson */
 /** @var string $backgroundMarkersJson */
 /** @var string $routeCoordinatesJson */
+/** @var string $startPointJson */
 
 $this->title = $plan->name;
 $this->registerCssFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
@@ -24,15 +25,102 @@ $js = <<<'JS'
 const routeMarkers = __ROUTE_MARKERS__ || [];
 const backgroundMarkers = __BACKGROUND_MARKERS__ || [];
 const routeCoordinates = __ROUTE_COORDS__ || [];
+const startPoint = __START_POINT__ || null;
 const toggleObservationUrl = '__TOGGLE_URL__';
 const routeMap = L.map('route-plan-map').setView([41.3, -7.7], 8);
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
 const csrfParam = document.querySelector('meta[name="csrf-param"]')?.content || '_csrf';
+const routeTraceStatus = document.getElementById('route-trace-status');
+let routePolyline = null;
+
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; OpenStreetMap contributors'
 }).addTo(routeMap);
+
 const bounds = [];
+const hasCustomStart = !!(startPoint && startPoint.latitude && startPoint.longitude);
+const closedRouteCoordinates = hasCustomStart
+    ? [[startPoint.latitude, startPoint.longitude], ...routeCoordinates, [startPoint.latitude, startPoint.longitude]]
+    : (routeCoordinates.length > 1 ? [...routeCoordinates, routeCoordinates[0]] : routeCoordinates);
+
+function setRouteTraceStatus(message, state = 'idle') {
+    if (!routeTraceStatus) {
+        return;
+    }
+    routeTraceStatus.textContent = message;
+    routeTraceStatus.dataset.state = state;
+}
+
+function drawFallbackRoute() {
+    if (closedRouteCoordinates.length <= 1) {
+        return;
+    }
+    if (routePolyline) {
+        routeMap.removeLayer(routePolyline);
+    }
+    routePolyline = L.polyline(closedRouteCoordinates, {
+        color: '#44685a',
+        weight: 4,
+        opacity: 0.8,
+        dashArray: '10 8',
+    }).addTo(routeMap);
+    const endingText = hasCustomStart ? 'com regresso ao ponto de partida escolhido' : 'com regresso ao primeiro ponto';
+    setRouteTraceStatus(`Nao foi possivel calcular o trajeto pelos caminhos. A mostrar circuito direto entre paragens, ${endingText}.`, 'fallback');
+}
+
+async function drawPlannedRoute() {
+    if (closedRouteCoordinates.length <= 2) {
+        setRouteTraceStatus('Adiciona pelo menos duas paragens para calcular um circuito com regresso ao ponto inicial.', 'idle');
+        return;
+    }
+
+    setRouteTraceStatus('A calcular circuito pedonal pelos caminhos do mapa...', 'loading');
+
+    const coordinatesQuery = closedRouteCoordinates
+        .map(([latitude, longitude]) => `${longitude},${latitude}`)
+        .join(';');
+
+    try {
+        const response = await fetch(`https://router.project-osrm.org/route/v1/foot/${coordinatesQuery}?overview=full&geometries=geojson`);
+        if (!response.ok) {
+            throw new Error(`Routing HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        const route = data?.routes?.[0];
+        if (!route?.geometry?.coordinates?.length) {
+            throw new Error('Sem geometria de rota');
+        }
+
+        const routedCoordinates = route.geometry.coordinates.map(([longitude, latitude]) => [latitude, longitude]);
+        if (routePolyline) {
+            routeMap.removeLayer(routePolyline);
+        }
+        routePolyline = L.polyline(routedCoordinates, {
+            color: '#1f5f43',
+            weight: 5,
+            opacity: 0.9,
+            lineJoin: 'round',
+        }).addTo(routeMap);
+
+        const distanceKm = route.distance ? (route.distance / 1000).toFixed(1) : null;
+        const durationMin = route.duration ? Math.round(route.duration / 60) : null;
+        const parts = ['Circuito calculado pelos caminhos existentes no mapa'];
+        if (distanceKm !== null) {
+            parts.push(`${distanceKm} km`);
+        }
+        if (durationMin !== null) {
+            parts.push(`~${durationMin} min a pe`);
+        }
+        parts.push(hasCustomStart ? 'termina no ponto de partida escolhido' : 'termina no primeiro ponto');
+        setRouteTraceStatus(parts.join(' • '), 'success');
+    } catch (error) {
+        console.warn('Falha ao calcular trajeto por caminhos:', error);
+        drawFallbackRoute();
+    }
+}
+
 function buildObservationPopup(marker) {
     const buttonLabel = marker.isInRoute ? 'Remover do percurso' : 'Quero passar aqui';
     return `
@@ -47,6 +135,7 @@ function buildObservationPopup(marker) {
         </div>
     `;
 }
+
 backgroundMarkers.forEach((marker) => {
     const point = [marker.latitude, marker.longitude];
     bounds.push(point);
@@ -57,6 +146,7 @@ backgroundMarkers.forEach((marker) => {
         fillOpacity: marker.isInRoute ? 0.9 : 0.35,
         weight: marker.isInRoute ? 2 : 1,
     }).addTo(routeMap).bindPopup(buildObservationPopup(marker));
+
     circle.on('popupopen', () => {
         const button = document.querySelector(`.map-popup-button[data-observation-id="${marker.id}"]`);
         if (!button) {
@@ -79,13 +169,15 @@ backgroundMarkers.forEach((marker) => {
         }, {once: true});
     });
 });
-if (routeCoordinates.length > 1) {
-    L.polyline(routeCoordinates, {
-        color: '#1f5f43',
-        weight: 4,
-        opacity: 0.85,
-    }).addTo(routeMap);
+
+if (hasCustomStart) {
+    const startCoordinates = [startPoint.latitude, startPoint.longitude];
+    bounds.push(startCoordinates);
+    L.marker(startCoordinates, {
+        title: startPoint.label || 'Ponto de partida',
+    }).addTo(routeMap).bindPopup(`<strong>${startPoint.label || 'Ponto de partida'}</strong><p>O circuito comeca e termina aqui.</p>`);
 }
+
 routeMarkers.forEach((marker) => {
     const point = [marker.latitude, marker.longitude];
     bounds.push(point);
@@ -97,13 +189,17 @@ routeMarkers.forEach((marker) => {
         weight: 2.5,
     }).addTo(routeMap).bindPopup(`<strong>${marker.order}. ${marker.title}</strong><p>${marker.subtitle}</p>`);
 });
+
 if (bounds.length > 0) {
     routeMap.fitBounds(bounds, {padding: [28, 28]});
 }
+
+drawPlannedRoute();
 JS;
 $js = str_replace('__ROUTE_MARKERS__', $markersJson, $js);
 $js = str_replace('__BACKGROUND_MARKERS__', $backgroundMarkersJson, $js);
 $js = str_replace('__ROUTE_COORDS__', $routeCoordinatesJson, $js);
+$js = str_replace('__START_POINT__', $startPointJson ?: 'null', $js);
 $js = str_replace('__TOGGLE_URL__', $toggleUrl, $js);
 $this->registerJs($js, View::POS_END);
 ?>
@@ -118,8 +214,8 @@ $this->registerJs($js, View::POS_END);
         </div>
         <div class="detail-stat-grid">
             <article class="detail-stat-card"><span>Paragens</span><strong><?= count($plan->routePlanPoints) ?></strong></article>
-            <article class="detail-stat-card"><span>Mapa</span><strong>Selecao direta</strong></article>
-            <article class="detail-stat-card"><span>Estado</span><strong>Planeado</strong></article>
+            <article class="detail-stat-card"><span>Partida</span><strong><?= Html::encode($plan->start_label ?: 'Primeira paragem') ?></strong></article>
+            <article class="detail-stat-card"><span>Trajeto</span><strong>Circuito fechado</strong></article>
         </div>
     </section>
 
@@ -131,7 +227,7 @@ $this->registerJs($js, View::POS_END);
         <div class="toolbar-row">
             <div>
                 <strong>Fluxo simplificado</strong>
-                <p class="table-subtext mb-0">Seleciona diretamente uma observacao no mapa e usa "Quero passar aqui". A paragem entra logo neste percurso.</p>
+                <p class="table-subtext mb-0">Seleciona diretamente uma observacao no mapa e usa "Quero passar aqui". O percurso passa pelas paragens e regressa ao ponto de partida definido.</p>
             </div>
             <div class="toolbar-actions">
                 <a class="btn btn-outline-brand" href="<?= Url::to(['route-plan/update', 'id' => $plan->route_plan_id]) ?>">Editar percurso</a>
@@ -140,6 +236,7 @@ $this->registerJs($js, View::POS_END);
                 <?= Html::endForm() ?>
             </div>
         </div>
+        <p id="route-trace-status" class="route-trace-status" data-state="idle">A preparar o trajeto circular do percurso...</p>
     </section>
 
     <section class="map-layout mb-4">
@@ -147,6 +244,13 @@ $this->registerJs($js, View::POS_END);
         <aside class="map-sidebar">
             <h2>Ordem de visita</h2>
             <div class="map-observation-list">
+                <?php if ($plan->hasCustomStartPoint()): ?>
+                    <article class="map-observation-item target-item-card route-start-sidebar-card">
+                        <p class="species-scientific-name">Partida</p>
+                        <h3><?= Html::encode($plan->start_label ?: 'Ponto de partida') ?></h3>
+                        <p><?= Html::encode(number_format((float) $plan->start_latitude, 5, '.', '') . ', ' . number_format((float) $plan->start_longitude, 5, '.', '')) ?></p>
+                    </article>
+                <?php endif; ?>
                 <?php if (empty($plan->routePlanPoints)): ?>
                     <div class="empty-state-card compact-empty-state">
                         <h3>Sem paragens ainda</h3>

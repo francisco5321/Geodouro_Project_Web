@@ -11,7 +11,7 @@ $this->title = 'Editar percurso';
         <div>
             <span class="eyebrow">Planeamento</span>
             <h1 class="hero-title hero-title-tight">Editar percurso</h1>
-            <p class="hero-text">Atualiza o nome e a descricao do percurso sem perder as paragens que ja definiste.</p>
+            <p class="hero-text">Atualiza o nome, a descricao e o ponto de partida do percurso sem perder as paragens que ja definiste.</p>
         </div>
     </section>
     <?= $this->render('_form', ['model' => $model]) ?>

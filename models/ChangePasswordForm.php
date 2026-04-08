@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use RuntimeException;
+use Yii;
 use yii\base\Model;
 
 class ChangePasswordForm extends Model
@@ -55,6 +57,17 @@ class ChangePasswordForm extends Model
         }
 
         $this->user->setPassword($this->newPassword);
-        return $this->user->save(false, ['password_hash', 'updated_at']);
+        if (!$this->user->save(false, ['password_hash', 'updated_at'])) {
+            return false;
+        }
+
+        try {
+            Yii::$app->backendAuthSession->refreshForUser($this->user, $this->newPassword);
+        } catch (RuntimeException $exception) {
+            $this->addError('newPassword', 'A password foi atualizada localmente, mas a sessao com o backend nao foi renovada: ' . $exception->getMessage());
+            return false;
+        }
+
+        return true;
     }
 }

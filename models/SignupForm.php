@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use RuntimeException;
 use Yii;
 use yii\base\Model;
 
@@ -82,7 +83,18 @@ class SignupForm extends Model
         $user->setPassword($this->password);
         $user->generateAuthKey();
 
-        return $user->save() ? $user : null;
+        if (!$user->save()) {
+            return null;
+        }
+
+        try {
+            Yii::$app->backendAuthSession->refreshForUser($user, $this->password);
+        } catch (RuntimeException $exception) {
+            $this->addError('password', 'A conta foi criada, mas nao foi possivel sincronizar a sessao com o backend: ' . $exception->getMessage());
+            return null;
+        }
+
+        return $user;
     }
 
     private function generateGuestLabel(): string

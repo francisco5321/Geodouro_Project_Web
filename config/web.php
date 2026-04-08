@@ -25,6 +25,17 @@ return [
             'name' => 'GEOFLORASESSID',
         ],
         'db' => $db,
+        'backendApi' => [
+            'class' => app\components\BackendApiClient::class,
+            'baseUrl' => $params['backendBaseUrl'] ?? '',
+            'timeoutSeconds' => (int) ($params['backendTimeoutSeconds'] ?? 15),
+        ],
+        'backendAuthSession' => [
+            'class' => app\components\BackendAuthSession::class,
+        ],
+        'routePlanApi' => [
+            'class' => app\services\RoutePlanApiService::class,
+        ],
         'assetManager' => [
             'basePath' => dirname(__DIR__) . '/web/assets',
             'baseUrl' => '/assets',

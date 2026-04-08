@@ -1245,3 +1245,61 @@ body.app-shell {
         align-items: stretch;
     }
 }
+
+.route-trace-status {
+    margin: 0.9rem 0 0;
+    padding: 0.85rem 1rem;
+    border-radius: 16px;
+    background: rgba(31, 95, 67, 0.06);
+    color: #1f3f31;
+    font-weight: 600;
+}
+
+.route-trace-status[data-state="loading"] {
+    background: rgba(201, 164, 57, 0.12);
+    color: #6a5412;
+}
+
+.route-trace-status[data-state="success"] {
+    background: rgba(31, 95, 67, 0.1);
+    color: #174734;
+}
+
+.route-trace-status[data-state="fallback"] {
+    background: rgba(180, 94, 42, 0.12);
+    color: #7f3d12;
+}
+
+.route-start-section {
+    display: grid;
+    gap: 1rem;
+}
+
+.route-start-map {
+    min-height: 320px;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid rgba(31, 95, 67, 0.12);
+}
+
+.route-start-status {
+    margin: 0;
+    padding: 0.85rem 1rem;
+    border-radius: 16px;
+    background: rgba(31, 95, 67, 0.06);
+    color: #1f3f31;
+    font-weight: 600;
+}
+
+.route-start-coordinates {
+    display: grid;
+    gap: 0.25rem;
+}
+
+.route-start-actions {
+    justify-content: flex-start;
+}
+
+.route-start-sidebar-card {
+    border-style: dashed;
+}

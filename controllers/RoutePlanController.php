@@ -6,6 +6,7 @@ use app\models\RoutePlan;
 use app\models\RoutePlanPoint;
 use app\models\SavedVisitTarget;
 use app\models\Observation;
+use RuntimeException;
 use Yii;
 use yii\data\Pagination;
 use yii\filters\AccessControl;
@@ -44,24 +45,37 @@ class RoutePlanController extends Controller
 
     public function actionIndex(): string
     {
-        $query = RoutePlan::find()
-            ->with(['routePlanPoints.savedVisitTarget'])
-            ->where(['user_id' => Yii::$app->user->id])
-            ->orderBy(['updated_at' => SORT_DESC, 'route_plan_id' => SORT_DESC]);
+        $plans = [];
+        $pagination = null;
+        $backendError = null;
 
-        $pagination = new Pagination([
-            'totalCount' => (clone $query)->count(),
-            'pageSize' => 12,
-        ]);
+        try {
+            $plans = Yii::$app->routePlanApi->listRoutePlans();
+        } catch (RuntimeException $exception) {
+            $backendError = $exception->getMessage();
+        }
 
-        $plans = $query
-            ->offset($pagination->offset)
-            ->limit($pagination->limit)
-            ->all();
+        if ($backendError !== null) {
+            $query = RoutePlan::find()
+                ->with(['routePlanPoints.savedVisitTarget'])
+                ->where(['user_id' => Yii::$app->user->id])
+                ->orderBy(['updated_at' => SORT_DESC, 'route_plan_id' => SORT_DESC]);
+
+            $pagination = new Pagination([
+                'totalCount' => (clone $query)->count(),
+                'pageSize' => 12,
+            ]);
+
+            $plans = $query
+                ->offset($pagination->offset)
+                ->limit($pagination->limit)
+                ->all();
+        }
 
         return $this->render('index', [
             'plans' => $plans,
             'pagination' => $pagination,
+            'backendError' => $backendError,
         ]);
     }
 
@@ -126,6 +140,7 @@ class RoutePlanController extends Controller
             'markersJson' => json_encode($markers, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             'backgroundMarkersJson' => json_encode($backgroundMarkers, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             'routeCoordinatesJson' => json_encode($routeCoordinates, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            'startPointJson' => json_encode($plan->getStartPoint(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
         ]);
     }
 
