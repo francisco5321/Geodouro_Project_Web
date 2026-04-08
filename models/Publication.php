@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -14,16 +15,22 @@ use yii\db\Expression;
  * @property int|null $plant_species_id
  * @property string|null $title
  * @property string|null $description
+ * @property string $status
  * @property string $published_at
  * @property string $created_at
+ * @property string $updated_at
  *
  * @property Observation $observation
  * @property AppUser $user
  * @property PlantSpecies|null $plantSpecies
  * @property PublicationImage[] $publicationImages
+ * @property SavedVisitTarget[] $savedVisitTargets
  */
 class Publication extends ActiveRecord
 {
+    public const STATUS_DRAFT = 'draft';
+    public const STATUS_PUBLISHED = 'published';
+
     public static function tableName(): string
     {
         return '{{%publication}}';
@@ -35,7 +42,7 @@ class Publication extends ActiveRecord
             [
                 'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
-                'updatedAtAttribute' => false,
+                'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('CURRENT_TIMESTAMP'),
             ],
         ];
@@ -47,8 +54,9 @@ class Publication extends ActiveRecord
             [['observation_id', 'user_id'], 'required'],
             [['observation_id', 'user_id', 'plant_species_id'], 'integer'],
             [['description'], 'string'],
-            [['published_at', 'created_at'], 'safe'],
-            [['title'], 'string'],
+            [['published_at', 'created_at', 'updated_at'], 'safe'],
+            [['title', 'status'], 'string'],
+            [['status'], 'in', 'range' => [self::STATUS_DRAFT, self::STATUS_PUBLISHED]],
             [['observation_id'], 'unique'],
             [['observation_id'], 'exist', 'targetClass' => Observation::class, 'targetAttribute' => ['observation_id' => 'observation_id']],
             [['user_id'], 'exist', 'targetClass' => AppUser::class, 'targetAttribute' => ['user_id' => 'user_id']],
@@ -65,9 +73,52 @@ class Publication extends ActiveRecord
             'plant_species_id' => 'Especie',
             'title' => 'Titulo',
             'description' => 'Descricao',
+            'status' => 'Estado editorial',
             'published_at' => 'Publicada em',
             'created_at' => 'Criada em',
+            'updated_at' => 'Atualizada em',
         ];
+    }
+
+    public static function statusOptions(): array
+    {
+        return [
+            self::STATUS_DRAFT => 'Rascunho',
+            self::STATUS_PUBLISHED => 'Publicada',
+        ];
+    }
+
+    public function getStatusLabel(): string
+    {
+        return self::statusOptions()[$this->status] ?? ucfirst((string) $this->status);
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->status === self::STATUS_PUBLISHED;
+    }
+
+    public function canBeManagedBy(?AppUser $user): bool
+    {
+        if ($user === null) {
+            return false;
+        }
+
+        return $user->isAdmin() || (int) $user->user_id === (int) $this->user_id;
+    }
+
+    public function isSavedForUser(?AppUser $user): bool
+    {
+        if ($user === null) {
+            return false;
+        }
+
+        return SavedVisitTarget::find()
+            ->where([
+                'user_id' => $user->user_id,
+                'publication_id' => $this->publication_id,
+            ])
+            ->exists();
     }
 
     public function getObservation(): ActiveQuery
@@ -88,6 +139,11 @@ class Publication extends ActiveRecord
     public function getPublicationImages(): ActiveQuery
     {
         return $this->hasMany(PublicationImage::class, ['publication_id' => 'publication_id']);
+    }
+
+    public function getSavedVisitTargets(): ActiveQuery
+    {
+        return $this->hasMany(SavedVisitTarget::class, ['publication_id' => 'publication_id']);
     }
 
     public function getImageGalleryPaths(): array

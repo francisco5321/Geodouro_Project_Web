@@ -18,7 +18,7 @@ $this->title = 'A minha conta';
         <div class="species-detail-copy">
             <span class="eyebrow">Conta</span>
             <h1 class="hero-title hero-title-tight">Gerir perfil e credenciais</h1>
-            <p class="hero-text">Atualiza os teus dados de acesso ao portal e mantém a conta alinhada com o resto da plataforma.</p>
+            <p class="hero-text">Atualiza os teus dados de acesso ao portal e mantÃ©m a conta alinhada com o resto da plataforma.</p>
             <div class="species-meta-row">
                 <span class="species-meta-chip"><?= Html::encode($user->getFullName()) ?></span>
                 <span class="species-meta-chip"><?= Html::encode($user->email ?: 'Sem email') ?></span>

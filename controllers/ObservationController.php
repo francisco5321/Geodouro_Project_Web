@@ -2,10 +2,14 @@
 
 namespace app\controllers;
 
+use app\models\AppUser;
 use app\models\Observation;
+use app\models\PlantSpecies;
+use Yii;
 use yii\data\Pagination;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 
 class ObservationController extends Controller
@@ -18,16 +22,26 @@ class ObservationController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
+                        'actions' => ['index', 'view'],
                         'roles' => ['@'],
                     ],
+                    [
+                        'allow' => true,
+                        'actions' => ['create'],
+                        'roles' => ['@'],
+                        'matchCallback' => static fn() => Yii::$app->user->identity?->isAdmin() ?? false,
+                    ],
                 ],
+                'denyCallback' => static function () {
+                    throw new ForbiddenHttpException('Nao tens permissao para criar observacoes manualmente.');
+                },
             ],
         ];
     }
 
     public function actionIndex(): string
     {
-        $status = trim((string) \Yii::$app->request->get('status', 'all'));
+        $status = trim((string) Yii::$app->request->get('status', 'all'));
         $allowedStatuses = ['all', Observation::SYNC_PENDING, Observation::SYNC_SYNCED, Observation::SYNC_FAILED, 'PUBLISHED'];
 
         if (!in_array($status, $allowedStatuses, true)) {
@@ -83,5 +97,92 @@ class ObservationController extends Controller
         return $this->render('view', [
             'observation' => $observation,
         ]);
+    }
+
+    public function actionCreate()
+    {
+        $model = new Observation();
+        $model->user_id = (int) Yii::$app->user->id;
+        $model->observed_at = date('Y-m-d\TH:i');
+        $model->captured_at = time();
+        $model->sync_status = Observation::SYNC_PENDING;
+        $model->is_synced = false;
+        $model->is_published = false;
+
+        $latitude = Yii::$app->request->get('latitude');
+        $longitude = Yii::$app->request->get('longitude');
+        if (is_numeric($latitude) && is_numeric($longitude)) {
+            $model->latitude = (float) $latitude;
+            $model->longitude = (float) $longitude;
+        }
+
+        if ($model->load(Yii::$app->request->post())) {
+            if (!empty($model->observed_at)) {
+                $observedAt = str_replace('T', ' ', (string) $model->observed_at);
+                $model->observed_at = strlen($observedAt) === 16 ? $observedAt . ':00' : $observedAt;
+            }
+            if (empty($model->captured_at)) {
+                $model->captured_at = time();
+            }
+            if (trim((string) $model->sync_status) === '') {
+                $model->sync_status = Observation::SYNC_PENDING;
+            }
+
+            foreach ([
+                'device_observation_id',
+                'image_uri',
+                'predicted_scientific_name',
+                'enriched_scientific_name',
+                'enriched_common_name',
+                'enriched_family',
+                'enriched_wikipedia_url',
+                'enriched_photo_url',
+                'notes',
+            ] as $attribute) {
+                if (trim((string) $model->$attribute) === '') {
+                    $model->$attribute = null;
+                }
+            }
+
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Observacao criada com sucesso.');
+                return $this->redirect(['observation/view', 'id' => $model->observation_id]);
+            }
+        }
+
+        return $this->render('create', [
+            'model' => $model,
+            'userOptions' => $this->getUserOptions(),
+            'speciesOptions' => $this->getSpeciesOptions(),
+        ]);
+    }
+
+    private function getUserOptions(): array
+    {
+        $users = AppUser::find()
+            ->where(['is_authenticated' => true])
+            ->orderBy(['first_name' => SORT_ASC, 'last_name' => SORT_ASC, 'username' => SORT_ASC])
+            ->all();
+
+        $options = [];
+        foreach ($users as $user) {
+            $options[$user->user_id] = $user->getFullName() . ' (@' . ($user->username ?: 'sem-username') . ')';
+        }
+
+        return $options;
+    }
+
+    private function getSpeciesOptions(): array
+    {
+        $species = PlantSpecies::find()
+            ->orderBy(['common_name' => SORT_ASC, 'scientific_name' => SORT_ASC])
+            ->all();
+
+        $options = [];
+        foreach ($species as $item) {
+            $options[$item->plant_species_id] = $item->getDisplayName() . ' (' . $item->scientific_name . ')';
+        }
+
+        return $options;
     }
 }

@@ -21,6 +21,7 @@ use yii\db\Expression;
  *
  * @property Observation[] $observations
  * @property Publication[] $publications
+ * @property SavedVisitTarget[] $savedVisitTargets
  */
 class PlantSpecies extends ActiveRecord
 {
@@ -79,6 +80,20 @@ class PlantSpecies extends ActiveRecord
         return $this->common_name ?: $this->scientific_name;
     }
 
+    public function isSavedForUser(?AppUser $user): bool
+    {
+        if ($user === null) {
+            return false;
+        }
+
+        return SavedVisitTarget::find()
+            ->where([
+                'user_id' => $user->user_id,
+                'plant_species_id' => $this->plant_species_id,
+            ])
+            ->exists();
+    }
+
     public function getObservations(): ActiveQuery
     {
         return $this->hasMany(Observation::class, ['plant_species_id' => 'plant_species_id']);
@@ -87,5 +102,10 @@ class PlantSpecies extends ActiveRecord
     public function getPublications(): ActiveQuery
     {
         return $this->hasMany(Publication::class, ['plant_species_id' => 'plant_species_id']);
+    }
+
+    public function getSavedVisitTargets(): ActiveQuery
+    {
+        return $this->hasMany(SavedVisitTarget::class, ['plant_species_id' => 'plant_species_id']);
     }
 }

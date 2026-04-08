@@ -6,6 +6,7 @@ use app\models\AppUser;
 use Yii;
 use yii\data\Pagination;
 use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 
@@ -27,18 +28,39 @@ class UserController extends Controller
                     throw new \yii\web\ForbiddenHttpException('Apenas administradores podem aceder a esta area.');
                 },
             ],
+            'verbs' => [
+                'class' => VerbFilter::class,
+                'actions' => [
+                    'set-role' => ['post'],
+                ],
+            ],
         ];
     }
 
     public function actionIndex(): string
     {
+        $search = trim((string) Yii::$app->request->get('q', ''));
+
         $query = AppUser::find()
-            ->where(['is_authenticated' => true])
-            ->orderBy(['created_at' => SORT_DESC, 'user_id' => SORT_DESC]);
+            ->where(['is_authenticated' => true]);
+
+        if ($search !== '') {
+            $query->andWhere([
+                'or',
+                ['ilike', 'username', $search],
+                ['ilike', 'email', $search],
+                ['ilike', 'first_name', $search],
+                ['ilike', 'last_name', $search],
+                ['ilike', 'guest_label', $search],
+            ]);
+        }
+
+        $query->orderBy(['created_at' => SORT_DESC, 'user_id' => SORT_DESC]);
 
         $pagination = new Pagination([
             'totalCount' => (clone $query)->count(),
             'pageSize' => 20,
+            'params' => array_merge(Yii::$app->request->get(), ['q' => $search]),
         ]);
 
         $users = $query
@@ -50,6 +72,7 @@ class UserController extends Controller
             'users' => $users,
             'pagination' => $pagination,
             'roleColumnAvailable' => (new AppUser())->hasAttribute('role'),
+            'search' => $search,
         ]);
     }
 
@@ -71,13 +94,13 @@ class UserController extends Controller
 
         if ((int) $user->user_id === (int) Yii::$app->user->id) {
             Yii::$app->session->setFlash('success', 'Por seguranca, nao podes alterar o teu proprio papel por aqui.');
-            return $this->redirect(['user/index']);
+            return $this->redirect(['user/index', 'q' => Yii::$app->request->post('q', '')]);
         }
 
         $user->role = $role;
         $user->save(false, ['role', 'updated_at']);
         Yii::$app->session->setFlash('success', 'Papel do utilizador atualizado com sucesso.');
 
-        return $this->redirect(['user/index']);
+        return $this->redirect(['user/index', 'q' => Yii::$app->request->post('q', '')]);
     }
 }

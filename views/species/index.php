@@ -25,10 +25,7 @@ $sortOptions = [
         <div>
             <span class="eyebrow">Catalogo botanico</span>
             <h1 class="hero-title hero-title-tight">Especies observadas no ecossistema GeoDouro</h1>
-            <p class="hero-text">
-                Pesquisa, organiza e consulta o catalogo numa linguagem visual alinhada com a app mobile.
-                A estrutura replica a leitura por especie, familia e genero que ja existe no Android.
-            </p>
+            
         </div>
         <div class="hero-stack">
             <article class="hero-stat-card">

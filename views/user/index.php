@@ -9,6 +9,7 @@ use yii\widgets\LinkPager;
 /** @var AppUser[] $users */
 /** @var yii\data\Pagination $pagination */
 /** @var bool $roleColumnAvailable */
+/** @var string $search */
 
 $this->title = 'Utilizadores';
 ?>
@@ -31,6 +32,22 @@ $this->title = 'Utilizadores';
         <div class="alert alert-success alert-geoflora mb-4"><?= Yii::$app->session->getFlash('success') ?></div>
     <?php endif; ?>
 
+    <section class="toolbar-card mb-4">
+        <div class="toolbar-row user-search-row">
+            <?= Html::beginForm(['user/index'], 'get', ['class' => 'user-search-form']) ?>
+                <div class="user-search-input-wrap">
+                    <?= Html::textInput('q', $search, ['class' => 'form-control user-search-input', 'placeholder' => 'Pesquisar por nome, username ou email']) ?>
+                </div>
+                <div class="toolbar-actions">
+                    <?= Html::submitButton('Pesquisar', ['class' => 'btn btn-brand']) ?>
+                    <?php if ($search !== ''): ?>
+                        <a class="btn btn-outline-brand" href="<?= Url::to(['user/index']) ?>">Limpar</a>
+                    <?php endif; ?>
+                </div>
+            <?= Html::endForm() ?>
+        </div>
+    </section>
+
     <section class="content-card">
         <h2>Lista de utilizadores</h2>
         <div class="user-admin-table-wrap">
@@ -45,6 +62,16 @@ $this->title = 'Utilizadores';
                     </tr>
                 </thead>
                 <tbody>
+                    <?php if (empty($users)): ?>
+                        <tr>
+                            <td colspan="5">
+                                <div class="empty-state-card compact-empty-state mb-0">
+                                    <h3>Sem resultados</h3>
+                                    <p>Nao encontramos utilizadores para a pesquisa atual.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
                     <?php foreach ($users as $user): ?>
                         <tr>
                             <td>
@@ -58,9 +85,15 @@ $this->title = 'Utilizadores';
                                 <div class="table-action-row">
                                     <?php if ($roleColumnAvailable && (int) $user->user_id !== (int) Yii::$app->user->id): ?>
                                         <?php if ($user->isAdmin()): ?>
-                                            <a href="<?= Url::to(['user/set-role', 'id' => $user->user_id, 'role' => AppUser::ROLE_USER]) ?>">Tornar utilizador</a>
+                                            <?= Html::beginForm(['user/set-role', 'id' => $user->user_id, 'role' => AppUser::ROLE_USER], 'post') ?>
+                                                <?= Html::hiddenInput('q', $search) ?>
+                                                <?= Html::submitButton('Tornar utilizador', ['class' => 'btn btn-link table-action-button', 'data-confirm' => 'Tens a certeza que queres remover privilegios de administrador a este utilizador?']) ?>
+                                            <?= Html::endForm() ?>
                                         <?php else: ?>
-                                            <a href="<?= Url::to(['user/set-role', 'id' => $user->user_id, 'role' => AppUser::ROLE_ADMIN]) ?>">Tornar admin</a>
+                                            <?= Html::beginForm(['user/set-role', 'id' => $user->user_id, 'role' => AppUser::ROLE_ADMIN], 'post') ?>
+                                                <?= Html::hiddenInput('q', $search) ?>
+                                                <?= Html::submitButton('Tornar admin', ['class' => 'btn btn-link table-action-button', 'data-confirm' => 'Tens a certeza que queres promover este utilizador a administrador?']) ?>
+                                            <?= Html::endForm() ?>
                                         <?php endif; ?>
                                     <?php else: ?>
                                         <span class="table-subtext">Sem acao</span>

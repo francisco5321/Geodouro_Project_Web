@@ -24,6 +24,7 @@ use yii\web\IdentityInterface;
  *
  * @property Observation[] $observations
  * @property Publication[] $publications
+ * @property SavedVisitTarget[] $savedVisitTargets
  */
 class AppUser extends ActiveRecord implements IdentityInterface
 {
@@ -162,6 +163,11 @@ class AppUser extends ActiveRecord implements IdentityInterface
     public function getPublications(): ActiveQuery
     {
         return $this->hasMany(Publication::class, ['user_id' => 'user_id']);
+    }
+
+    public function getSavedVisitTargets(): ActiveQuery
+    {
+        return $this->hasMany(SavedVisitTarget::class, ['user_id' => 'user_id']);
     }
 
     public static function findIdentity($id): ?self

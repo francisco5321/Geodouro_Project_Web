@@ -26,8 +26,7 @@ $filters = [
         <div>
             <span class="eyebrow">Modulo de observacoes</span>
             <h1 class="hero-title hero-title-tight">Registos captados e sincronizados a partir da app mobile</h1>
-            <p class="hero-text">A web passa a dar visibilidade aos estados de sincronizacao, classificacao e publicacao que ja existem no ecossistema GeoDouro.</p>
-        </div>
+            </div>
         <div class="detail-stat-grid">
             <article class="detail-stat-card"><span>Total</span><strong><?= (int) $summary['total'] ?></strong></article>
             <article class="detail-stat-card"><span>Publicadas</span><strong><?= (int) $summary['published'] ?></strong></article>
@@ -43,6 +42,21 @@ $filters = [
             <?php endforeach; ?>
         </div>
     </section>
+
+    <?php if (Yii::$app->user->identity?->isAdmin()): ?>
+        <section class="toolbar-card mb-4">
+            <div class="toolbar-row">
+                <div>
+                    <strong>Criacao manual</strong>
+                    <p class="table-subtext mb-0">Como admin, podes criar uma observacao manual a partir do mapa ou abrir diretamente o formulario.</p>
+                </div>
+                <div class="toolbar-actions">
+                    <a class="btn btn-outline-brand" href="<?= Url::to(['map/index']) ?>">Abrir mapa</a>
+                    <a class="btn btn-brand" href="<?= Url::to(['observation/create']) ?>">Nova observacao</a>
+                </div>
+            </div>
+        </section>
+    <?php endif; ?>
 
     <section class="timeline-grid">
         <?php foreach ($observations as $observation): ?>

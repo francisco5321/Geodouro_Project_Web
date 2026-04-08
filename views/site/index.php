@@ -6,11 +6,9 @@ $this->title = 'Dashboard';
 ?>
 <div class="hero-panel mb-4">
     <div>
-        <span class="eyebrow">GeoDouro x GeoFlora</span>
-        <h1 class="hero-title">Portal de administracao e monitorizacao botanica</h1>
-        <p class="hero-text">
-            Esta base web usa a mesma base de dados do projeto mobile para consultar especies, observacoes, publicacoes e leitura geografica no mapa.
-        </p>
+        <span class="eyebrow">GeoFlora</span>
+        <h1 class="hero-title">Portal de administracao, planeamento e monitorizacao botanica</h1>
+        
         <?php if (Yii::$app->user->isGuest): ?>
             <div class="hero-cta-row mt-4">
                 <a class="btn btn-brand btn-lg" href="<?= yii\helpers\Url::to(['site/login']) ?>">Entrar</a>
@@ -18,7 +16,6 @@ $this->title = 'Dashboard';
             </div>
         <?php endif; ?>
     </div>
-    <div class="hero-accent"></div>
 </div>
 
 <?php if (Yii::$app->session->hasFlash('success')): ?>
@@ -76,7 +73,7 @@ $this->title = 'Dashboard';
     <article class="hub-card">
         <span class="eyebrow">Editorial</span>
         <h2>Publicacoes</h2>
-        <p>Consulta a camada publica e editorial gerada a partir das observacoes confirmadas.</p>
+        <p>Cria, edita e publica conteudo editorial a partir das observacoes confirmadas.</p>
         <?php if (Yii::$app->user->isGuest): ?>
             <a href="<?= yii\helpers\Url::to(['site/login']) ?>">Entrar para aceder</a>
         <?php else: ?>
@@ -84,9 +81,29 @@ $this->title = 'Dashboard';
         <?php endif; ?>
     </article>
     <article class="hub-card">
+        <span class="eyebrow">Planeamento</span>
+        <h2>Quero visitar</h2>
+        <p>Marca especies e publicacoes e transforma essa lista em objetivos de visita.</p>
+        <?php if (Yii::$app->user->isGuest): ?>
+            <a href="<?= yii\helpers\Url::to(['site/login']) ?>">Entrar para aceder</a>
+        <?php else: ?>
+            <a href="<?= yii\helpers\Url::to(['visit/index']) ?>">Abrir modulo</a>
+        <?php endif; ?>
+    </article>
+    <article class="hub-card">
+        <span class="eyebrow">Roteiro</span>
+        <h2>Percursos</h2>
+        <p>Cria percursos planeados com ordem de visita e prepara o que queres depois seguir na mobile.</p>
+        <?php if (Yii::$app->user->isGuest): ?>
+            <a href="<?= yii\helpers\Url::to(['site/login']) ?>">Entrar para aceder</a>
+        <?php else: ?>
+            <a href="<?= yii\helpers\Url::to(['route-plan/index']) ?>">Abrir modulo</a>
+        <?php endif; ?>
+    </article>
+    <article class="hub-card">
         <span class="eyebrow">Territorio</span>
         <h2>Mapa Leaflet</h2>
-        <p>Visualiza os registos com coordenadas num mapa navegavel, pronto para filtros futuros.</p>
+        <p>Visualiza os registos com coordenadas e os alvos de visita destacados para apoio ao planeamento.</p>
         <?php if (Yii::$app->user->isGuest): ?>
             <a href="<?= yii\helpers\Url::to(['site/login']) ?>">Entrar para aceder</a>
         <?php else: ?>

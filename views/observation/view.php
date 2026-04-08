@@ -10,6 +10,7 @@ use yii\helpers\Url;
 $this->title = 'Observacao #' . $observation->observation_id;
 $statusLabel = $observation->is_published ? 'Publicada' : ($observation->sync_status === Observation::SYNC_SYNCED ? 'Sincronizada' : ($observation->sync_status === Observation::SYNC_FAILED ? 'Falha de sincronizacao' : 'Pendente'));
 $imagePaths = $observation->getImageGalleryPaths();
+$canCreatePublication = Yii::$app->user->identity?->isAdmin() || (int) $observation->user_id === (int) Yii::$app->user->id;
 ?>
 <div class="module-shell">
     <a class="back-link" href="<?= Url::to(['observation/index']) ?>">&larr; Voltar as observacoes</a>
@@ -22,9 +23,16 @@ $imagePaths = $observation->getImageGalleryPaths();
             <div class="species-meta-row">
                 <span class="species-meta-chip"><?= Html::encode($statusLabel) ?></span>
                 <span class="species-meta-chip"><?= Html::encode($observation->getResolvedFamily() ?: 'Familia desconhecida') ?></span>
-                <?php if ($observation->publication !== null): ?><span class="species-meta-chip">Ja publicada</span><?php endif; ?>
+                <?php if ($observation->publication !== null): ?><span class="species-meta-chip chip-highlight">Ja publicada</span><?php endif; ?>
             </div>
             <p class="hero-text"><?= Html::encode($observation->notes ?: 'Sem notas de campo registadas para esta observacao.') ?></p>
+            <div class="hero-cta-row mt-4">
+                <?php if ($observation->publication !== null): ?>
+                    <a class="btn btn-brand" href="<?= Url::to(['publication/view', 'id' => $observation->publication->publication_id]) ?>">Abrir publicacao</a>
+                <?php elseif ($canCreatePublication): ?>
+                    <a class="btn btn-brand" href="<?= Url::to(['publication/create', 'observationId' => $observation->observation_id]) ?>">Criar publicacao</a>
+                <?php endif; ?>
+            </div>
         </div>
         <div class="detail-stat-grid">
             <article class="detail-stat-card"><span>Confianca</span><strong><?= $observation->confidence !== null ? (int) round($observation->confidence * 100) . '%' : 'N/D' ?></strong></article>

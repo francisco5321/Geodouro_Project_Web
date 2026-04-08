@@ -21,7 +21,6 @@ $this->beginPage();
 <header class="topbar">
     <div class="container-fluid topbar-inner">
         <a class="brand" href="<?= Yii::$app->homeUrl ?>">
-            <span class="brand-mark"></span>
             <span>
                 <strong>GeoFlora</strong>
                 <small>Portal Web</small>
@@ -33,6 +32,8 @@ $this->beginPage();
                 <a href="<?= yii\helpers\Url::to(['species/index']) ?>">Especies</a>
                 <a href="<?= yii\helpers\Url::to(['observation/index']) ?>">Observacoes</a>
                 <a href="<?= yii\helpers\Url::to(['publication/index']) ?>">Publicacoes</a>
+                <a href="<?= yii\helpers\Url::to(['visit/index']) ?>">Quero visitar</a>
+                <a href="<?= yii\helpers\Url::to(['route-plan/index']) ?>">Percursos</a>
                 <a href="<?= yii\helpers\Url::to(['map/index']) ?>">Mapa</a>
                 <?php if (Yii::$app->user->identity?->isAdmin()): ?>
                     <a href="<?= yii\helpers\Url::to(['user/index']) ?>">Utilizadores</a>
