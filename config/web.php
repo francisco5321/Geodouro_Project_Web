@@ -36,6 +36,9 @@ return [
         'routePlanApi' => [
             'class' => app\services\RoutePlanApiService::class,
         ],
+        'visitTargetApi' => [
+            'class' => app\services\VisitTargetApiService::class,
+        ],
         'assetManager' => [
             'basePath' => dirname(__DIR__) . '/web/assets',
             'baseUrl' => '/assets',
@@ -60,3 +63,4 @@ return [
     ],
     'params' => $params,
 ];
+

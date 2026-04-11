@@ -4,7 +4,6 @@ namespace app\controllers;
 
 use app\models\RoutePlan;
 use app\models\RoutePlanPoint;
-use app\models\SavedVisitTarget;
 use app\models\Observation;
 use RuntimeException;
 use Yii;
@@ -140,7 +139,6 @@ class RoutePlanController extends Controller
             'markersJson' => json_encode($markers, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             'backgroundMarkersJson' => json_encode($backgroundMarkers, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             'routeCoordinatesJson' => json_encode($routeCoordinates, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-            'startPointJson' => json_encode($plan->getStartPoint(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
         ]);
     }
 
@@ -149,9 +147,14 @@ class RoutePlanController extends Controller
         $plan = new RoutePlan();
         $plan->user_id = (int) Yii::$app->user->id;
 
-        if ($plan->load(Yii::$app->request->post()) && $plan->save()) {
-            Yii::$app->session->setFlash('success', 'Percurso criado com sucesso.');
-            return $this->redirect(['route-plan/view', 'id' => $plan->route_plan_id]);
+        if ($plan->load(Yii::$app->request->post()) && $plan->validate()) {
+            try {
+                $response = Yii::$app->routePlanApi->createRoutePlan($this->routePlanPayload($plan));
+                Yii::$app->session->setFlash('success', $response['message'] ?? 'Percurso criado com sucesso.');
+                return $this->redirect(['route-plan/view', 'id' => (int) ($response['routePlanId'] ?? 0)]);
+            } catch (RuntimeException $exception) {
+                Yii::$app->session->setFlash('error', 'Nao foi possivel criar o percurso no backend comum: ' . $exception->getMessage());
+            }
         }
 
         return $this->render('create', [
@@ -163,9 +166,14 @@ class RoutePlanController extends Controller
     {
         $plan = $this->findOwnedPlan($id);
 
-        if ($plan->load(Yii::$app->request->post()) && $plan->save()) {
-            Yii::$app->session->setFlash('success', 'Percurso atualizado com sucesso.');
-            return $this->redirect(['route-plan/view', 'id' => $plan->route_plan_id]);
+        if ($plan->load(Yii::$app->request->post()) && $plan->validate()) {
+            try {
+                $response = Yii::$app->routePlanApi->updateRoutePlan((int) $plan->route_plan_id, $this->routePlanPayload($plan));
+                Yii::$app->session->setFlash('success', $response['message'] ?? 'Percurso atualizado com sucesso.');
+                return $this->redirect(['route-plan/view', 'id' => $plan->route_plan_id]);
+            } catch (RuntimeException $exception) {
+                Yii::$app->session->setFlash('error', 'Nao foi possivel atualizar o percurso no backend comum: ' . $exception->getMessage());
+            }
         }
 
         return $this->render('update', [
@@ -176,21 +184,27 @@ class RoutePlanController extends Controller
     public function actionDelete(int $id)
     {
         $plan = $this->findOwnedPlan($id);
-        $plan->delete();
 
-        Yii::$app->session->setFlash('success', 'Percurso removido com sucesso.');
+        try {
+            Yii::$app->routePlanApi->deleteRoutePlan((int) $plan->route_plan_id);
+            Yii::$app->session->setFlash('success', 'Percurso removido com sucesso.');
+        } catch (RuntimeException $exception) {
+            Yii::$app->session->setFlash('error', 'Nao foi possivel remover o percurso no backend comum: ' . $exception->getMessage());
+        }
+
         return $this->redirect(['route-plan/index']);
     }
 
     public function actionAddTarget(int $id, int $targetId)
     {
         $plan = $this->findOwnedPlan($id);
-        $target = SavedVisitTarget::findOne(['saved_visit_target_id' => $targetId, 'user_id' => Yii::$app->user->id]);
-        if ($target === null) {
-            throw new NotFoundHttpException('Alvo de visita nao encontrado.');
-        }
 
-        $this->attachTargetToPlan($plan, $target);
+        try {
+            $response = Yii::$app->routePlanApi->addTarget((int) $plan->route_plan_id, $targetId);
+            Yii::$app->session->setFlash('success', $response['message'] ?? 'Alvo adicionado ao percurso.');
+        } catch (RuntimeException $exception) {
+            Yii::$app->session->setFlash('error', 'Nao foi possivel adicionar o alvo no backend comum: ' . $exception->getMessage());
+        }
 
         return $this->redirect(['route-plan/view', 'id' => $plan->route_plan_id]);
     }
@@ -198,73 +212,32 @@ class RoutePlanController extends Controller
     public function actionAddSpecies(int $id, int $speciesId)
     {
         $plan = $this->findOwnedPlan($id);
+        $speciesQ = Yii::$app->request->post('speciesQ', '');
 
-        $target = SavedVisitTarget::findOne([
-            'user_id' => Yii::$app->user->id,
-            'plant_species_id' => $speciesId,
-        ]);
-
-        if ($target === null) {
-            $target = new SavedVisitTarget([
-                'user_id' => Yii::$app->user->id,
-                'plant_species_id' => $speciesId,
-            ]);
-            if (!$target->save()) {
-                Yii::$app->session->setFlash('success', 'Nao foi possivel guardar essa planta para o percurso.');
-                return $this->redirect(['route-plan/view', 'id' => $plan->route_plan_id, 'speciesQ' => Yii::$app->request->post('speciesQ', '')]);
-            }
+        try {
+            $response = Yii::$app->routePlanApi->addSpecies((int) $plan->route_plan_id, $speciesId);
+            Yii::$app->session->setFlash('success', $response['message'] ?? 'Planta adicionada ao percurso.');
+        } catch (RuntimeException $exception) {
+            Yii::$app->session->setFlash('error', 'Nao foi possivel adicionar a planta no backend comum: ' . $exception->getMessage());
         }
 
-        $this->attachTargetToPlan($plan, $target);
-
-        return $this->redirect(['route-plan/view', 'id' => $plan->route_plan_id, 'speciesQ' => Yii::$app->request->post('speciesQ', '')]);
+        return $this->redirect(['route-plan/view', 'id' => $plan->route_plan_id, 'speciesQ' => $speciesQ]);
     }
 
     public function actionToggleObservationPoint(int $id, int $observationId): array|Response
     {
         $plan = $this->findOwnedPlan($id);
-        $observation = Observation::findOne(['observation_id' => $observationId]);
-        if ($observation === null || !$observation->hasCoordinates()) {
-            throw new NotFoundHttpException('Observacao nao encontrada.');
+
+        try {
+            $response = Yii::$app->routePlanApi->toggleObservationPoint((int) $plan->route_plan_id, $observationId);
+            return $this->jsonToggleResponse(
+                (bool) ($response['success'] ?? true),
+                (bool) ($response['inRoute'] ?? false),
+                $response['message'] ?? 'Percurso atualizado.'
+            );
+        } catch (RuntimeException $exception) {
+            return $this->jsonToggleResponse(false, false, 'Nao foi possivel atualizar o percurso no backend comum: ' . $exception->getMessage(), true);
         }
-
-        $target = SavedVisitTarget::findOne([
-            'user_id' => Yii::$app->user->id,
-            'observation_id' => $observationId,
-        ]);
-
-        if ($target === null) {
-            $target = new SavedVisitTarget([
-                'user_id' => Yii::$app->user->id,
-                'observation_id' => $observationId,
-            ]);
-            if (!$target->save()) {
-                return $this->jsonToggleResponse(false, false, 'Nao foi possivel guardar a observacao para este percurso.');
-            }
-        }
-
-        $existingPoint = RoutePlanPoint::findOne([
-            'route_plan_id' => $plan->route_plan_id,
-            'saved_visit_target_id' => $target->saved_visit_target_id,
-        ]);
-
-        if ($existingPoint !== null) {
-            $existingPoint->delete();
-            $this->resequenceRoutePlan((int) $plan->route_plan_id);
-            return $this->jsonToggleResponse(true, false, 'Observacao removida do percurso.');
-        }
-
-        $point = new RoutePlanPoint([
-            'route_plan_id' => $plan->route_plan_id,
-            'saved_visit_target_id' => $target->saved_visit_target_id,
-            'visit_order' => $plan->getNextVisitOrder(),
-        ]);
-
-        if (!$point->save()) {
-            return $this->jsonToggleResponse(false, false, 'Nao foi possivel adicionar a observacao ao percurso.');
-        }
-
-        return $this->jsonToggleResponse(true, true, 'Observacao adicionada ao percurso.');
     }
 
     public function actionRemovePoint(int $id)
@@ -279,56 +252,28 @@ class RoutePlanController extends Controller
         }
 
         $routePlanId = (int) $point->route_plan_id;
-        $point->delete();
-        $this->resequenceRoutePlan($routePlanId);
+        try {
+            $response = Yii::$app->routePlanApi->removePoint($id);
+            Yii::$app->session->setFlash('success', $response['message'] ?? 'Ponto removido do percurso.');
+        } catch (RuntimeException $exception) {
+            Yii::$app->session->setFlash('error', 'Nao foi possivel remover o ponto no backend comum: ' . $exception->getMessage());
+        }
 
-        Yii::$app->session->setFlash('success', 'Ponto removido do percurso.');
         return $this->redirect(['route-plan/view', 'id' => $routePlanId]);
     }
 
-    private function attachTargetToPlan(RoutePlan $plan, SavedVisitTarget $target): void
+    private function routePlanPayload(RoutePlan $plan): array
     {
-        $existingPoint = RoutePlanPoint::findOne([
-            'route_plan_id' => $plan->route_plan_id,
-            'saved_visit_target_id' => $target->saved_visit_target_id,
-        ]);
-
-        if ($existingPoint !== null) {
-            Yii::$app->session->setFlash('success', 'Esse alvo ja esta neste percurso.');
-            return;
-        }
-
-        $point = new RoutePlanPoint([
-            'route_plan_id' => $plan->route_plan_id,
-            'saved_visit_target_id' => $target->saved_visit_target_id,
-            'visit_order' => $plan->getNextVisitOrder(),
-        ]);
-
-        if ($point->save()) {
-            Yii::$app->session->setFlash('success', 'Alvo adicionado ao percurso.');
-        } else {
-            Yii::$app->session->setFlash('success', 'Nao foi possivel adicionar esse alvo ao percurso.');
-        }
+        return [
+            'name' => $plan->name,
+            'description' => $plan->description,
+            'startLabel' => null,
+            'startLatitude' => null,
+            'startLongitude' => null,
+        ];
     }
 
-    private function resequenceRoutePlan(int $routePlanId): void
-    {
-        $remaining = RoutePlanPoint::find()
-            ->where(['route_plan_id' => $routePlanId])
-            ->orderBy(['visit_order' => SORT_ASC, 'route_plan_point_id' => SORT_ASC])
-            ->all();
-
-        $order = 1;
-        foreach ($remaining as $item) {
-            if ((int) $item->visit_order !== $order) {
-                $item->visit_order = $order;
-                $item->save(false, ['visit_order']);
-            }
-            $order++;
-        }
-    }
-
-    private function jsonToggleResponse(bool $success, bool $inRoute, string $message): array|Response
+    private function jsonToggleResponse(bool $success, bool $inRoute, string $message, bool $isError = false): array|Response
     {
         if (Yii::$app->request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -339,7 +284,7 @@ class RoutePlanController extends Controller
             ];
         }
 
-        Yii::$app->session->setFlash('success', $message);
+        Yii::$app->session->setFlash($isError ? 'error' : 'success', $message);
         return $this->redirect(Yii::$app->request->referrer ?: ['route-plan/index']);
     }
 

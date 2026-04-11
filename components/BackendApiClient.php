@@ -19,6 +19,15 @@ class BackendApiClient
         return $this->request('POST', $path, $payload, $headers);
     }
 
+    public function patchJson(string $path, array $payload, array $headers = []): array
+    {
+        return $this->request('PATCH', $path, $payload, $headers);
+    }
+
+    public function deleteJson(string $path, array $headers = []): array
+    {
+        return $this->request('DELETE', $path, null, $headers);
+    }
     private function request(string $method, string $path, ?array $payload, array $headers): array
     {
         $baseUrl = rtrim(trim($this->baseUrl), '/');
