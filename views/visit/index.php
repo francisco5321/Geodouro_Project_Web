@@ -1,5 +1,6 @@
 <?php
 
+use app\components\StatCard;
 use app\models\RoutePlan;
 use app\models\SavedVisitTarget;
 use yii\helpers\Html;
@@ -22,6 +23,47 @@ const toggleObservationUrl = '__TOGGLE_URL__';
 const visitMap = L.map('visit-planner-map').setView([41.3, -7.7], 8);
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
 const csrfParam = document.querySelector('meta[name="csrf-param"]')?.content || '_csrf';
+
+// Restaurar estado do mapa se existir
+let mapStateRestored = false;
+const savedMapState = sessionStorage.getItem('visitMapState');
+if (savedMapState) {
+    try {
+        const state = JSON.parse(savedMapState);
+        visitMap.setView(state.center, state.zoom);
+        mapStateRestored = true;
+        sessionStorage.removeItem('visitMapState');
+    } catch (e) {
+        console.error('Erro ao restaurar estado do mapa:', e);
+    }
+}
+
+// Restaurar posição de scroll após a página estar carregada
+function restoreVisitScrollPosition() {
+    const savedScrollPosition = sessionStorage.getItem('visitScrollPosition');
+    if (savedScrollPosition) {
+        try {
+            const scrollPos = JSON.parse(savedScrollPosition);
+            window.scrollTo(scrollPos.x, scrollPos.y);
+            sessionStorage.removeItem('visitScrollPosition');
+        } catch (e) {
+            console.error('Erro ao restaurar posição de scroll:', e);
+        }
+    }
+}
+
+// Tentar restaurar múltiplas vezes para garantir
+document.addEventListener('DOMContentLoaded', () => {
+    restoreVisitScrollPosition();
+    requestAnimationFrame(restoreVisitScrollPosition);
+    setTimeout(restoreVisitScrollPosition, 50);
+    setTimeout(restoreVisitScrollPosition, 200);
+    setTimeout(restoreVisitScrollPosition, 500);
+});
+window.addEventListener('load', () => {
+    requestAnimationFrame(restoreVisitScrollPosition);
+    setTimeout(restoreVisitScrollPosition, 100);
+});
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
@@ -58,6 +100,20 @@ visitMarkers.forEach((marker) => {
             return;
         }
         button.addEventListener('click', async () => {
+            // Guardar estado do mapa antes de fazer reload
+            const mapState = {
+                zoom: visitMap.getZoom(),
+                center: visitMap.getCenter()
+            };
+            sessionStorage.setItem('visitMapState', JSON.stringify(mapState));
+            
+            // Guardar posição de scroll
+            const scrollPosition = {
+                x: window.scrollX,
+                y: window.scrollY
+            };
+            sessionStorage.setItem('visitScrollPosition', JSON.stringify(scrollPosition));
+            
             const body = new URLSearchParams();
             body.append(csrfParam, csrfToken);
             const response = await fetch(`${toggleObservationUrl}?id=${marker.id}`, {
@@ -74,7 +130,7 @@ visitMarkers.forEach((marker) => {
         }, {once: true});
     });
 });
-if (visitBounds.length > 0) {
+if (visitBounds.length > 0 && !mapStateRestored) {
     visitMap.fitBounds(visitBounds, {padding: [28, 28]});
 }
 
@@ -86,34 +142,53 @@ $this->registerJs($js, View::POS_END);
 <div class="module-shell">
     <section class="species-hero mb-4">
         <div>
-            <span class="eyebrow">Planeamento</span>
-            <h1 class="hero-title hero-title-tight">Quero visitar</h1>
-            <p class="hero-text">Tudo acontece aqui: clica nas observacoes do mapa, marca "Quero passar aqui" e depois cria logo o percurso com nome e descricao.</p>
+            <span class="eyebrow">
+                <i class="fas fa-heart" aria-hidden="true"></i>
+                Planeamento
+            </span>
+            <h1 class="hero-title hero-title-tight">Quero Visitar</h1>
+            <p class="hero-text">Marca observações no mapa, seleciona "Quero passar aqui" e cria percursos com nome e descrição para planear a tua exploração do território.</p>
         </div>
         <div class="detail-stat-grid">
-            <article class="detail-stat-card"><span>Alvos</span><strong><?= count($targets) ?></strong></article>
-            <article class="detail-stat-card"><span>Percursos</span><strong><?= count($plans) ?></strong></article>
-            <article class="detail-stat-card"><span>Mapa</span><strong>Observacoes clicaveis</strong></article>
-            <article class="detail-stat-card"><span>Estado</span><strong>Planeado</strong></article>
+            <?= StatCard::widget([
+                'label' => 'Alvos',
+                'value' => (int) count($targets),
+                'icon' => 'fas fa-map-pin',
+            ]) ?>
+            <?= StatCard::widget([
+                'label' => 'Percursos',
+                'value' => (int) count($plans),
+                'icon' => 'fas fa-route',
+            ]) ?>
         </div>
     </section>
 
     <?php if (Yii::$app->session->hasFlash('success')): ?>
-        <div class="alert alert-success alert-geoflora mb-4"><?= Yii::$app->session->getFlash('success') ?></div>
+        <div class="alert-success-custom mb-4">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            <?= Yii::$app->session->getFlash('success') ?>
+        </div>
     <?php endif; ?>
     <?php if (Yii::$app->session->hasFlash('error')): ?>
-        <div class="alert alert-danger mb-4"><?= Yii::$app->session->getFlash('error') ?></div>
+        <div class="alert-danger-custom mb-4">
+            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+            <?= Yii::$app->session->getFlash('error') ?>
+        </div>
     <?php endif; ?>
 
-    <section class="toolbar-card mb-4 visit-route-builder-card">
-        <div class="toolbar-row visit-route-builder-header">
-            <div>
-                <strong>Criar percurso a partir do mapa</strong>
-                <p class="table-subtext mb-0">Os pontos que marcares com "Quero passar aqui" ficam guardados e entram logo no novo percurso pela ordem em que os foste escolhendo.</p>
-            </div>
-            <div class="toolbar-actions">
-                <a class="btn btn-outline-brand" href="<?= Url::to(['route-plan/index']) ?>">Ver percursos</a>
-            </div>
+    <section class="catalog-toolbar mb-4 visit-route-builder-card">
+        <div class="toolbar-header">
+            <h2 class="section-title">
+                <i class="fas fa-plus-circle" aria-hidden="true"></i>
+                Criar Percurso
+            </h2>
+            <p class="section-description mb-0">Os pontos que marcares com "Quero passar aqui" ficam guardados e entram no novo percurso pela ordem de escolha.</p>
+        </div>
+        <div class="toolbar-actions">
+            <a class="btn btn-outline" href="<?= Url::to(['route-plan/index']) ?>">
+                <i class="fas fa-eye" aria-hidden="true"></i>
+                Ver Percursos
+            </a>
         </div>
         <?= Html::beginForm(['visit/create-route'], 'post', ['class' => 'visit-route-builder-form']) ?>
             <div class="visit-route-builder-grid">
@@ -130,13 +205,13 @@ $this->registerJs($js, View::POS_END);
                     <?= Html::activeTextarea($newPlan, 'description', [
                         'class' => 'form-control',
                         'rows' => 2,
-                        'placeholder' => 'Objetivo do percurso, especies a validar e notas para a visita de campo.',
+                        'placeholder' => 'Objetivo do percurso, espécies a validar e notas para a visita de campo.',
                     ]) ?>
                 </div>
             </div>
             <div class="visit-route-builder-actions">
-                <span class="table-subtext">Ao criar o percurso, esta lista fica limpa e as paragens passam para o percurso. No mobile, a partida sera a localizacao atual.</span>
-                <?= Html::submitButton('Criar percurso com os pontos selecionados', ['class' => 'btn btn-brand']) ?>
+                <span class="section-description mb-0">Ao criar o percurso, esta lista fica limpa e as paragens passam para o percurso. Na aplicação mobile, a partida será a localização atual.</span>
+                <?= Html::submitButton('Criar Percurso com os Pontos Selecionados', ['class' => 'btn btn-brand']) ?>
             </div>
         <?= Html::endForm() ?>
     </section>
@@ -144,7 +219,10 @@ $this->registerJs($js, View::POS_END);
     <section class="map-layout">
         <div id="visit-planner-map" class="leaflet-shell"></div>
         <aside class="map-sidebar">
-            <h2>Lista guardada</h2>
+            <h2 class="sidebar-title">
+                <i class="fas fa-bookmark" aria-hidden="true"></i>
+                Lista Guardada
+            </h2>
             <div class="map-observation-list">
                 <?php if (empty($targets)): ?>
                     <div class="empty-state-card compact-empty-state">

@@ -42,6 +42,7 @@ class ObservationController extends Controller
     public function actionIndex(): string
     {
         $status = trim((string) Yii::$app->request->get('status', 'all'));
+        $myObservationsOnly = (bool) Yii::$app->request->get('my', false);
         $allowedStatuses = ['all', Observation::SYNC_PENDING, Observation::SYNC_SYNCED, Observation::SYNC_FAILED, 'PUBLISHED'];
 
         if (!in_array($status, $allowedStatuses, true)) {
@@ -51,6 +52,11 @@ class ObservationController extends Controller
         $query = Observation::find()
             ->with(['user', 'plantSpecies'])
             ->orderBy(['observed_at' => SORT_DESC, 'observation_id' => SORT_DESC]);
+
+        // Filtrar por utilizador actual se my=1
+        if ($myObservationsOnly) {
+            $query->andWhere(['user_id' => Yii::$app->user->id]);
+        }
 
         if ($status === 'PUBLISHED') {
             $query->andWhere(['is_published' => true]);
@@ -69,10 +75,34 @@ class ObservationController extends Controller
             ->all();
 
         $summary = [
-            'total' => Observation::find()->count(),
-            'published' => Observation::find()->where(['is_published' => true])->count(),
-            'pending' => Observation::find()->where(['sync_status' => Observation::SYNC_PENDING])->count(),
-            'failed' => Observation::find()->where(['sync_status' => Observation::SYNC_FAILED])->count(),
+            'total' => (function() use ($myObservationsOnly) {
+                $q = Observation::find();
+                if ($myObservationsOnly) {
+                    $q->andWhere(['user_id' => Yii::$app->user->id]);
+                }
+                return $q->count();
+            })(),
+            'published' => (function() use ($myObservationsOnly) {
+                $q = Observation::find()->where(['is_published' => true]);
+                if ($myObservationsOnly) {
+                    $q->andWhere(['user_id' => Yii::$app->user->id]);
+                }
+                return $q->count();
+            })(),
+            'pending' => (function() use ($myObservationsOnly) {
+                $q = Observation::find()->where(['sync_status' => Observation::SYNC_PENDING]);
+                if ($myObservationsOnly) {
+                    $q->andWhere(['user_id' => Yii::$app->user->id]);
+                }
+                return $q->count();
+            })(),
+            'failed' => (function() use ($myObservationsOnly) {
+                $q = Observation::find()->where(['sync_status' => Observation::SYNC_FAILED]);
+                if ($myObservationsOnly) {
+                    $q->andWhere(['user_id' => Yii::$app->user->id]);
+                }
+                return $q->count();
+            })(),
         ];
 
         return $this->render('index', [

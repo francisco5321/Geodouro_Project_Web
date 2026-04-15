@@ -12,12 +12,20 @@ class AppAsset extends AssetBundle
     public $basePath = '@webroot';
     public $baseUrl = '@web';
     public $css = [
+        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
         'css/site.css',
+        'css/components.css',
+        'css/accessibility.css',
     ];
-    public $js = [];
+    public $js = [
+        'https://cdn.jsdelivr.net/npm/sweetalert2@11',
+        'js/notifications.js',
+        'js/ui-helpers.js',
+    ];
     public $depends = [
         YiiAsset::class,
         BootstrapAsset::class,
         BootstrapPluginAsset::class,
     ];
 }
+

@@ -4,6 +4,7 @@
 /** @var yii\data\Pagination|null $pagination */
 /** @var string|null $backendError */
 
+use app\components\StatCard;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\LinkPager;
@@ -16,46 +17,49 @@ $planCount = is_array($plans) ? count($plans) : 0;
     <!-- Hero melhorado: ícone decorativo + stats mais destacadas -->
     <section class="species-hero mb-4">
         <div class="species-detail-copy">
-            <span class="eyebrow">Planeamento</span>
-            <h1 class="hero-title">Percursos planeados</h1>
-            <p class="hero-text">Organiza os teus alvos de visita por ordem e prepara percursos que mais tarde podem ser seguidos no mobile.</p>
+            <span class="eyebrow">
+                <i class="fas fa-route" aria-hidden="true"></i>
+                Planeamento
+            </span>
+            <h1 class="hero-title hero-title-tight">Percursos Planeados</h1>
+            <p class="hero-text">Organiza os teus alvos de visita por ordem e prepara percursos que podem ser seguidos no telemóvel em expedição no terreno.</p>
         </div>
         <div class="detail-stat-grid">
-            <article class="detail-stat-card">
-                <span>Percursos</span>
-                <strong><?= $planCount ?></strong>
-            </article>
-            <article class="detail-stat-card">
-                <span>Origem</span>
-                <strong style="font-size: 1.1rem; margin-top: 0.4rem;">
-                    <?= $backendError === null ? 'Backend comum' : 'Fallback local' ?>
-                </strong>
-            </article>
+            <?= StatCard::widget([
+                'label' => 'Percursos',
+                'value' => is_array($plans) ? count($plans) : 0,
+                'icon' => 'fas fa-map-pin',
+            ]) ?>
+            <?= StatCard::widget([
+                'label' => 'Origem',
+                'value' => $backendError === null ? 'Backend' : 'Local',
+                'icon' => 'fas fa-database',
+            ]) ?>
         </div>
     </section>
 
     <?php if (Yii::$app->session->hasFlash('success')): ?>
-        <div class="alert alert-success alert-geoflora mb-4">
+        <div class="alert-success-custom mb-4">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
             <?= Yii::$app->session->getFlash('success') ?>
         </div>
     <?php endif; ?>
 
     <?php if ($backendError !== null): ?>
-        <div class="alert alert-warning alert-geoflora mb-4">
+        <div class="alert-danger-custom mb-4">
+            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
             A listagem foi carregada pela base de dados local — o backend não respondeu:
             <strong><?= Html::encode($backendError) ?></strong>
         </div>
     <?php endif; ?>
 
     <!-- Toolbar: contagem + botão criar -->
-    <div class="toolbar-card mb-4">
-        <div class="toolbar-row">
-            <div class="d-flex align-items-center gap-2">
-                <span class="species-meta-chip chip-highlight"><?= $planCount ?> percurso<?= $planCount !== 1 ? 's' : '' ?></span>
-            </div>
-            <div class="toolbar-actions">
-                <?= Html::a('+ Novo percurso', Url::to(['route-plan/create']), ['class' => 'btn btn-brand btn-sm']) ?>
-            </div>
+    <div class="catalog-toolbar mb-4">
+        <div class="toolbar-header">
+            <h2 class="section-title">
+                <i class="fas fa-list" aria-hidden="true"></i>
+                Os teus Percursos
+            </h2>
         </div>
     </div>
 
@@ -64,12 +68,13 @@ $planCount = is_array($plans) ? count($plans) : 0;
 
         <?php if (empty($plans)): ?>
             <div class="empty-state-card content-card w-100 text-center py-5">
-                <div class="mb-3" style="font-size: 2.5rem; opacity: .35;">🗺️</div>
+                <div class="mb-3" style="font-size: 2.5rem; opacity: .35;">
+                    <i class="fas fa-sitemap" aria-hidden="true"></i>
+                </div>
                 <h3 class="mb-2">Ainda não tens percursos</h3>
-                <p class="hero-text mx-auto mb-4">
-                    Cria o teu primeiro percurso e começa a ordenar as plantas e publicações que queres visitar no terreno.
+                <p class="hero-text mx-auto mb-0">
+                    Vai a "Quero Visitar" para criar o teu primeiro percurso ordenando as plantas e publicações que queres visitar no terreno.
                 </p>
-                <?= Html::a('Criar percurso', Url::to(['route-plan/create']), ['class' => 'btn btn-brand']) ?>
             </div>
         <?php endif; ?>
 
@@ -81,51 +86,45 @@ $planCount = is_array($plans) ? count($plans) : 0;
             $description = $isApiPlan ? ($plan['description'] ?? null)      : $plan->description;
             $stopCount   = $isApiPlan ? (int)($plan['stopCount'] ?? 0)      : count($plan->routePlanPoints);
             ?>
-            <article class="publication-card publication-card-rich">
+            <article class="route-plan-card">
 
-                <!-- Cabeçalho colorido com ícone SVG -->
-                <div class="species-card-media" style="min-height: 90px; padding: 1.1rem 1.35rem; align-items: center;">
-                    <div class="species-orb" style="width: 120px; height: 120px; right: -20px; top: -20px;"></div>
-                    <div class="species-media-copy d-flex align-items-center gap-3">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
-                             stroke="rgba(255,255,255,0.9)" stroke-width="1.8"
-                             stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/>
-                            <circle cx="19" cy="19" r="2"/>
-                            <line x1="12" y1="7" x2="5" y2="17"/>
-                            <line x1="12" y1="7" x2="19" y2="17"/>
-                        </svg>
-                        <div>
-                            <span class="species-media-label">Percurso</span>
-                            <strong style="font-size: 1.05rem;"><?= Html::encode($name) ?></strong>
-                        </div>
+                <!-- Header com ícone e informações -->
+                <div class="route-card-header">
+                    <div class="route-card-icon">
+                        <i class="fas fa-route" aria-hidden="true"></i>
+                    </div>
+                    <div class="route-card-info">
+                        <h3><?= Html::encode($name) ?></h3>
+                        <p class="route-card-subtitle">
+                            <i class="fas fa-map-pin" aria-hidden="true"></i>
+                            <?= $stopCount ?> paragem<?= $stopCount !== 1 ? 's' : '' ?>
+                        </p>
                     </div>
                 </div>
 
-                <div class="publication-card-body">
+                <!-- Descrição -->
+                <div class="route-card-body">
+                    <p class="route-card-description">
+                        <?= Html::encode($description ?: 'Sem descrição definida.') ?>
+                    </p>
+                </div>
 
-                    <!-- Badges de metadados -->
-                    <div class="card-chip-row mb-3">
-                        <span class="species-meta-chip chip-highlight"><?= $stopCount ?> paragem<?= $stopCount !== 1 ? 's' : '' ?></span>
+                <!-- Rodapé com ações -->
+                <div class="route-card-footer">
+                    <div class="route-card-stops">
                         <?php if ($stopCount > 0): ?>
-                            <span class="species-meta-chip">
-                                <?= str_repeat('● ', min($stopCount, 5)) ?>
-                                <?php if ($stopCount > 5): ?>+<?= $stopCount - 5 ?><?php endif; ?>
+                            <span class="stops-indicator">
+                                <?= str_repeat('●', min($stopCount, 5)) ?>
+                                <?php if ($stopCount > 5): ?><span class="stops-more">+<?= $stopCount - 5 ?></span><?php endif; ?>
                             </span>
                         <?php endif; ?>
                     </div>
-
-                    <p class="publication-copy">
-                        <?= Html::encode($description ?: 'Sem descrição definida para este percurso.') ?>
-                    </p>
-
-                    <!-- Acções com separação visual clara -->
-                    <div class="timeline-card-actions" style="margin-top: 1.1rem; padding-top: 0.9rem; border-top: 1px solid rgba(62,122,87,0.08);">
-                        <?= Html::a('Abrir percurso →', Url::to(['route-plan/view',   'id' => $routePlanId]), ['class' => 'btn btn-brand btn-sm']) ?>
-                        <?= Html::a('Editar',           Url::to(['route-plan/update', 'id' => $routePlanId]), ['class' => 'btn btn-outline-brand btn-sm']) ?>
+                    <div class="route-card-actions">
+                        <?= Html::a('Abrir', Url::to(['route-plan/view',   'id' => $routePlanId]), ['class' => 'btn-link']) ?>
+                        <?= Html::a('Editar', Url::to(['route-plan/update', 'id' => $routePlanId]), ['class' => 'btn-link']) ?>
                     </div>
-
                 </div>
+
             </article>
         <?php endforeach; ?>
 

@@ -1,5 +1,8 @@
 <?php
 
+use app\components\StatCard;
+use app\components\FilterChips;
+use app\components\EmptyState;
 use app\models\PlantSpecies;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -12,77 +15,101 @@ use yii\widgets\LinkPager;
 /** @var string $sort */
 /** @var array $summary */
 
-$this->title = 'Especies';
+$this->title = 'Espécies';
 
 $sortOptions = [
-    'species' => 'Especie',
-    'family' => 'Familia',
-    'genus' => 'Genero',
+    ['label' => 'Espécie', 'value' => 'species', 'icon' => 'fas fa-sort-alpha-down'],
+    ['label' => 'Família', 'value' => 'family', 'icon' => 'fas fa-sitemap'],
+    ['label' => 'Gênero', 'value' => 'genus', 'icon' => 'fas fa-layer-group'],
 ];
 ?>
 <div class="species-shell">
     <section class="species-hero mb-4">
         <div>
-            <span class="eyebrow">Catalogo botanico</span>
-            <h1 class="hero-title hero-title-tight">Especies observadas no ecossistema GeoDouro</h1>
-            
+            <span class="eyebrow">
+                <i class="fas fa-leaf" aria-hidden="true"></i>
+                Catálogo Botânico
+            </span>
+            <h1 class="hero-title hero-title-tight">Espécies observadas no ecossistema GeoDouro</h1>
+            <p class="hero-text">Explora o catálogo completo de espécies, organisadas por família e género, com informações detalhadas e imagens.</p>
         </div>
-        <div class="hero-stack">
-            <article class="hero-stat-card">
-                <span>Especies</span>
-                <strong><?= (int) $summary['speciesCount'] ?></strong>
-            </article>
-            <article class="hero-stat-card">
-                <span>Observacoes</span>
-                <strong><?= (int) $summary['observationsCount'] ?></strong>
-            </article>
-            <article class="hero-stat-card">
-                <span>Familias</span>
-                <strong><?= (int) $summary['familiesCount'] ?></strong>
-            </article>
+        <div class="detail-stat-grid">
+            <?= StatCard::widget([
+                'label' => 'Espécies',
+                'value' => (int) $summary['speciesCount'],
+                'icon' => 'fas fa-leaf',
+            ]) ?>
+            <?= StatCard::widget([
+                'label' => 'Observações',
+                'value' => (int) $summary['observationsCount'],
+                'icon' => 'fas fa-camera',
+            ]) ?>
+            <?= StatCard::widget([
+                'label' => 'Famílias',
+                'value' => (int) $summary['familiesCount'],
+                'icon' => 'fas fa-sitemap',
+            ]) ?>
         </div>
     </section>
 
     <section class="catalog-toolbar mb-4">
-        <form class="catalog-search" method="get" action="<?= Url::to(['species/index']) ?>">
+        <div class="toolbar-header">
+            <h2 class="section-title">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                Pesquisar e Filtrar
+            </h2>
+        </div>
+        <form class="catalog-search" method="get" action="<?= Url::to(['species/index']) ?>" role="search">
             <label class="search-field">
-                <span class="search-icon">&#9906;</span>
+                <span class="search-icon" aria-hidden="true">
+                    <i class="fas fa-search"></i>
+                </span>
                 <input
                     type="search"
                     name="q"
                     value="<?= Html::encode($queryText) ?>"
-                    placeholder="Pesquisar por especie, nome comum, familia ou genero"
+                    placeholder="Pesquisar por espécie, nome comum, família ou gênero"
+                    aria-label="Pesquisar espécies"
                 >
             </label>
             <input type="hidden" name="sort" value="<?= Html::encode($sort) ?>">
-            <button type="submit" class="btn btn-brand">Pesquisar</button>
+            <button type="submit" class="btn btn-brand">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                Pesquisar
+            </button>
         </form>
 
         <div class="filter-row">
-            <?php foreach ($sortOptions as $value => $label): ?>
-                <?php $isActive = $sort === $value; ?>
+            <?php foreach ($sortOptions as $option): ?>
+                <?php $isActive = $sort === $option['value']; ?>
                 <a
                     class="filter-chip<?= $isActive ? ' is-active' : '' ?>"
-                    href="<?= Url::to(['species/index', 'sort' => $value, 'q' => $queryText ?: null]) ?>"
+                    href="<?= Url::to(['species/index', 'sort' => $option['value'], 'q' => $queryText ?: null]) ?>"
+                    title="Ordenar por <?= Html::encode($option['label']) ?>"
+                    role="button"
+                    tabindex="0"
                 >
-                    <?= Html::encode($label) ?>
+                    <i class="<?= $option['icon'] ?>" aria-hidden="true"></i>
+                    <?= Html::encode($option['label']) ?>
                 </a>
             <?php endforeach; ?>
         </div>
     </section>
 
     <?php if (empty($species)): ?>
-        <section class="empty-state-card">
-            <h2>Nenhuma especie encontrada</h2>
-            <p>
-                Ajusta a pesquisa ou limpa os filtros para voltar a ver o catalogo completo.
-            </p>
-        </section>
+        <?= EmptyState::widget([
+            'icon' => 'fas fa-search',
+            'title' => 'Nenhuma espécie encontrada',
+            'message' => 'Ajusta a pesquisa ou limpa os filtros para voltar a ver o catálogo completo.',
+            'actions' => [
+                ['label' => 'Voltar ao início', 'url' => ['species/index'], 'icon' => 'fas fa-redo', 'class' => 'btn-outline-brand'],
+            ],
+        ]) ?>
     <?php else: ?>
         <section class="species-grid">
             <?php foreach ($species as $item): ?>
                 <article class="species-card-web">
-                    <a class="species-card-link" href="<?= Url::to(['species/view', 'id' => $item->plant_species_id]) ?>">
+                    <a class="species-card-link" href="<?= Url::to(['species/view', 'id' => $item->plant_species_id]) ?>" title="Ver detalhes de <?= Html::encode($item->common_name ?: $item->scientific_name) ?>">
                         <div class="species-card-media">
                             <div class="species-orb"></div>
                             <div class="species-media-copy">
@@ -91,15 +118,27 @@ $sortOptions = [
                             </div>
                         </div>
                         <div class="species-card-body">
-                            <p class="species-scientific-name"><?= Html::encode($item->scientific_name) ?></p>
+                            <p class="species-scientific-name" lang="la"><?= Html::encode($item->scientific_name) ?></p>
                             <h2><?= Html::encode($item->common_name ?: 'Sem nome comum registado') ?></h2>
                             <div class="species-meta-row">
-                                <span class="species-meta-chip"><?= Html::encode($item->family) ?></span>
-                                <span class="species-meta-chip"><?= Html::encode($item->genus) ?></span>
+                                <span class="species-meta-chip" title="Família">
+                                    <i class="fas fa-sitemap" aria-hidden="true"></i>
+                                    <?= Html::encode($item->family) ?>
+                                </span>
+                                <span class="species-meta-chip" title="Gênero">
+                                    <i class="fas fa-layer-group" aria-hidden="true"></i>
+                                    <?= Html::encode($item->genus) ?>
+                                </span>
                             </div>
                             <div class="species-card-footer">
-                                <span><?= (int) $item->image_count ?> imagens de referencia</span>
-                                <span class="species-card-cta">Abrir detalhe</span>
+                                <span class="icon-text">
+                                    <i class="fas fa-image" aria-hidden="true"></i>
+                                    <?= (int) $item->image_count ?> imagens
+                                </span>
+                                <span class="species-card-cta">
+                                    Abrir detalhe
+                                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                                </span>
                             </div>
                         </div>
                     </a>

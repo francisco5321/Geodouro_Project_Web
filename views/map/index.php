@@ -1,5 +1,6 @@
 <?php
 
+use app\components\StatCard;
 use app\models\Observation;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -75,38 +76,61 @@ $this->registerJs($js, View::POS_END);
 <div class="module-shell">
     <section class="species-hero mb-4">
         <div>
-            <span class="eyebrow">Mapa de observacoes</span>
-            <h1 class="hero-title hero-title-tight">Observa��es</h1>
-            <p class="hero-text">Os pontos assinalados em Quero visitar aparecem destacados para j� ires desenhando o teu futuro roteiro de campo.</p>
+            <span class="eyebrow">
+                <i class="fas fa-map" aria-hidden="true"></i>
+                Mapa Interativo
+            </span>
+            <h1 class="hero-title hero-title-tight">Observações no Território</h1>
+            <p class="hero-text">Explora todas as observações botânicas num mapa interativo. Os pontos marcados em "Quero visitar" aparecem destacados para ajudarte a desenhar o teu futuro roteiro de campo.</p>
         </div>
         <div class="detail-stat-grid">
-            <article class="detail-stat-card"><span>Observa��es</span><strong><?= count($observations) ?></strong></article>
-            <article class="detail-stat-card"><span>Quero visitar</span><strong><?= (int) $visitTargetCount ?></strong></article>
+            <?= StatCard::widget([
+                'label' => 'Observações',
+                'value' => (int) count($observations),
+                'icon' => 'fas fa-binoculars',
+            ]) ?>
+            <?= StatCard::widget([
+                'label' => 'Quero Visitar',
+                'value' => (int) $visitTargetCount,
+                'icon' => 'fas fa-heart',
+            ]) ?>
         </div>
     </section>
 
     <?php if (Yii::$app->session->hasFlash('success')): ?>
-        <div class="alert alert-success alert-geoflora mb-4"><?= Yii::$app->session->getFlash('success') ?></div>
+        <div class="alert-success-custom mb-4">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            <?= Yii::$app->session->getFlash('success') ?>
+        </div>
     <?php endif; ?>
 
-    <section class="toolbar-card mb-4">
-        <div class="toolbar-row">
-            <div>
-                <strong><?= $canCreateObservation ? 'Criacao manual ativa' : 'Mapa operacional' ?></strong>
-                <p class="table-subtext mb-0"><?= $canCreateObservation ? 'Sendo admin, podes clicar em qualquer ponto do mapa para criar uma observacao com coordenadas pre-preenchidas.' : 'Explora o territorio e abre o detalhe das observacoes registadas.' ?></p>
-            </div>
-            <?php if ($canCreateObservation): ?>
-                <div class="toolbar-actions">
-                    <a class="btn btn-brand" href="<?= Url::to(['observation/create']) ?>">Nova observacao manual</a>
-                </div>
-            <?php endif; ?>
+    <section class="catalog-toolbar mb-4">
+        <div class="toolbar-header">
+            <h2 class="section-title">
+                <i class="fas fa-info-circle" aria-hidden="true"></i>
+                <?= $canCreateObservation ? 'Modo Criação Ativo' : 'Modo Consulta' ?>
+            </h2>
+            <p class="section-description mb-0">
+                <?= $canCreateObservation ? 'Sendo administrador, podes clicar em qualquer ponto do mapa para criar uma observação com coordenadas pré-preenchidas.' : 'Explora o território e abre o detalhe das observações registadas.' ?>
+            </p>
         </div>
+        <?php if ($canCreateObservation): ?>
+            <div class="toolbar-actions">
+                <a class="btn btn-brand" href="<?= Url::to(['observation/create']) ?>">
+                    <i class="fas fa-plus" aria-hidden="true"></i>
+                    Nova Observação Manual
+                </a>
+            </div>
+        <?php endif; ?>
     </section>
 
     <section class="map-layout">
         <div id="geodouro-map" class="leaflet-shell"></div>
         <aside class="map-sidebar">
-            <h2>Ultimas observacoes com coordenadas</h2>
+            <h2 class="sidebar-title">
+                <i class="fas fa-list" aria-hidden="true"></i>
+                Últimas Observações
+            </h2>
             <div class="map-observation-list">
                 <?php foreach (array_slice($observations, 0, 8) as $observation): ?>
                     <article class="map-observation-item">

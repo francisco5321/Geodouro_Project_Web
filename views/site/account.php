@@ -1,5 +1,6 @@
 <?php
 
+use app\components\StatCard;
 use app\models\AppUser;
 use app\models\ChangePasswordForm;
 use app\models\ProfileForm;
@@ -16,8 +17,11 @@ $this->title = 'A minha conta';
 <div class="module-shell">
     <section class="species-detail-hero mb-4">
         <div class="species-detail-copy">
-            <span class="eyebrow">Conta</span>
-            <h1 class="hero-title hero-title-tight">Gerir perfil e credenciais</h1>
+            <span class="eyebrow">
+                <i class="fas fa-user-circle" aria-hidden="true"></i>
+                Conta
+            </span>
+            <h1 class="hero-title hero-title-tight">Gerir Perfil e Credenciais</h1>
             <p class="hero-text">Atualiza os teus dados de acesso ao portal e mantém a conta alinhada com o resto da plataforma.</p>
             <div class="species-meta-row">
                 <span class="species-meta-chip"><?= Html::encode($user->getFullName()) ?></span>
@@ -26,20 +30,32 @@ $this->title = 'A minha conta';
             </div>
         </div>
         <div class="detail-stat-grid">
-            <article class="detail-stat-card"><span>Observacoes</span><strong><?= count($user->observations) ?></strong></article>
-            <article class="detail-stat-card"><span>Publicacoes</span><strong><?= count($user->publications) ?></strong></article>
-            <article class="detail-stat-card"><span>Username</span><strong><?= Html::encode($user->username ?: 'N/D') ?></strong></article>
-            <article class="detail-stat-card"><span>Papel</span><strong><?= Html::encode($user->getRoleLabel()) ?></strong></article>
+            <?= StatCard::widget([
+                'label' => 'Observações',
+                'value' => count($user->observations),
+                'icon' => 'fas fa-eye',
+            ]) ?>
+            <?= StatCard::widget([
+                'label' => 'Publicações',
+                'value' => count($user->publications),
+                'icon' => 'fas fa-file-alt',
+            ]) ?>
         </div>
     </section>
 
     <?php if (Yii::$app->session->hasFlash('success')): ?>
-        <div class="alert alert-success alert-geoflora mb-4"><?= Yii::$app->session->getFlash('success') ?></div>
+        <div class="alert-success-custom mb-4">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            <?= Yii::$app->session->getFlash('success') ?>
+        </div>
     <?php endif; ?>
 
     <section class="detail-split-grid">
         <article class="content-card">
-            <h2>Dados do perfil</h2>
+            <h2 class="section-title mb-3">
+                <i class="fas fa-user" aria-hidden="true"></i>
+                Dados do Perfil
+            </h2>
             <?php $profile = ActiveForm::begin(); ?>
                 <?= Html::hiddenInput('form_name', 'profile') ?>
                 <div class="auth-grid-two">
@@ -49,20 +65,23 @@ $this->title = 'A minha conta';
                 <?= $profile->field($profileForm, 'email')->input('email') ?>
                 <?= $profile->field($profileForm, 'username')->textInput() ?>
                 <div class="d-grid auth-actions">
-                    <?= Html::submitButton('Guardar perfil', ['class' => 'btn btn-brand']) ?>
+                    <?= Html::submitButton('Guardar Perfil', ['class' => 'btn btn-brand']) ?>
                 </div>
             <?php ActiveForm::end(); ?>
         </article>
 
         <article class="content-card content-card-soft">
-            <h2>Seguranca</h2>
+            <h2 class="section-title mb-3">
+                <i class="fas fa-lock" aria-hidden="true"></i>
+                Segurança
+            </h2>
             <?php $password = ActiveForm::begin(); ?>
                 <?= Html::hiddenInput('form_name', 'password') ?>
                 <?= $password->field($passwordForm, 'currentPassword')->passwordInput() ?>
                 <?= $password->field($passwordForm, 'newPassword')->passwordInput() ?>
                 <?= $password->field($passwordForm, 'newPasswordRepeat')->passwordInput() ?>
                 <div class="d-grid auth-actions">
-                    <?= Html::submitButton('Atualizar password', ['class' => 'btn btn-outline-brand']) ?>
+                    <?= Html::submitButton('Atualizar Password', ['class' => 'btn btn-outline']) ?>
                 </div>
             <?php ActiveForm::end(); ?>
             <?php if ($user->isAdmin()): ?>

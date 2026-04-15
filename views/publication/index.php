@@ -1,5 +1,6 @@
 <?php
 
+use app\components\StatCard;
 use app\models\Publication;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -16,33 +17,67 @@ $this->title = 'Publicacoes';
 <div class="module-shell">
     <section class="species-hero mb-4">
         <div>
-            <span class="eyebrow">Modulo editorial</span>
-            <h1 class="hero-title hero-title-tight">Publicacoes geridas por autores e administradores</h1>
-            <p class="hero-text">Cada utilizador autenticado pode trabalhar as suas publicacoes e o admin ganha controlo editorial total sobre o catalogo.</p>
+            <span class="eyebrow">
+                <i class="fas fa-newspaper" aria-hidden="true"></i>
+                Módulo Editorial
+            </span>
+            <h1 class="hero-title hero-title-tight">Publicações geridas por autores e administradores</h1>
+            <p class="hero-text">Cada utilizador autenticado pode gerir as suas publicações e o administrador ganha controlo editorial total sobre o catálogo.</p>
         </div>
         <div class="detail-stat-grid">
-            <article class="detail-stat-card"><span>Total</span><strong><?= (int) $summary['total'] ?></strong></article>
-            <article class="detail-stat-card"><span>Rascunhos</span><strong><?= (int) $summary['drafts'] ?></strong></article>
-            <article class="detail-stat-card"><span>Publicadas</span><strong><?= (int) $summary['published'] ?></strong></article>
-            <article class="detail-stat-card"><span>Observacoes prontas</span><strong><?= (int) $summary['availableObservationCount'] ?></strong></article>
+            <?= StatCard::widget([
+                'label' => 'Total',
+                'value' => (int) $summary['total'],
+                'icon' => 'fas fa-chart-line',
+            ]) ?>
+            <?= StatCard::widget([
+                'label' => 'Rascunhos',
+                'value' => (int) $summary['drafts'],
+                'icon' => 'fas fa-file-alt',
+            ]) ?>
+            <?= StatCard::widget([
+                'label' => 'Publicadas',
+                'value' => (int) $summary['published'],
+                'icon' => 'fas fa-star',
+            ]) ?>
+            <?= StatCard::widget([
+                'label' => 'Observações Prontas',
+                'value' => (int) $summary['availableObservationCount'],
+                'icon' => 'fas fa-check',
+            ]) ?>
         </div>
     </section>
 
     <?php if (Yii::$app->session->hasFlash('success')): ?>
-        <div class="alert alert-success alert-geoflora mb-4"><?= Yii::$app->session->getFlash('success') ?></div>
+        <div class="alert-success-custom mb-4">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            <?= Yii::$app->session->getFlash('success') ?>
+        </div>
     <?php endif; ?>
 
-    <section class="toolbar-card mb-4">
+    <section class="catalog-toolbar mb-4">
+        <div class="toolbar-header">
+            <h2 class="section-title">
+                <i class="fas fa-filter" aria-hidden="true"></i>
+                Filtrar Publicações
+            </h2>
+        </div>
         <div class="toolbar-row">
-            <div class="segmented-links">
-                <a class="<?= $scope === 'all' ? 'is-active' : '' ?>" href="<?= Url::to(['publication/index', 'scope' => 'all']) ?>">Todas</a>
-                <a class="<?= $scope === 'mine' ? 'is-active' : '' ?>" href="<?= Url::to(['publication/index', 'scope' => 'mine']) ?>">Minhas</a>
+            <div class="filter-row">
+                <a class="filter-chip<?= $scope === 'all' ? ' is-active' : '' ?>" href="<?= Url::to(['publication/index', 'scope' => 'all']) ?>">
+                    <i class="fas fa-list" aria-hidden="true"></i>
+                    Todas
+                </a>
+                <a class="filter-chip<?= $scope === 'mine' ? ' is-active' : '' ?>" href="<?= Url::to(['publication/index', 'scope' => 'mine']) ?>">
+                    <i class="fas fa-user-edit" aria-hidden="true"></i>
+                    Minhas
+                </a>
             </div>
             <div class="toolbar-actions">
-                <a class="btn btn-outline-brand" href="<?= Url::to(['visit/index']) ?>">Quero visitar</a>
-                <?php if ($summary['availableObservationCount'] > 0): ?>
-                    <a class="btn btn-brand" href="<?= Url::to(['publication/create']) ?>">Nova publicacao</a>
-                <?php endif; ?>
+                <a class="btn btn-outline" href="<?= Url::to(['visit/index']) ?>">
+                    <i class="fas fa-heart" aria-hidden="true"></i>
+                    Quero visitar
+                </a>
             </div>
         </div>
     </section>

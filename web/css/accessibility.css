@@ -1,0 +1,262 @@
+/* ================================================================
+   ACCESSIBILITY IMPROVEMENTS
+   Focus states, ARIA support, contrast ratios
+   ================================================================ */
+
+/* Focus visible - standard keyboard navigation */
+:focus-visible {
+    outline: 2px solid var(--gf-brand);
+    outline-offset: 2px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--gf-brand);
+    outline-offset: 2px;
+}
+
+/* Skip to main content link */
+.skip-to-main {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--gf-brand);
+    color: white;
+    padding: 8px 12px;
+    text-decoration: none;
+    z-index: 2000;
+    border-radius: 0 0 4px 0;
+}
+
+.skip-to-main:focus {
+    top: 0;
+}
+
+/* Screen reader only content */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* ARIA live regions for updates */
+[aria-live] {
+    position: relative;
+}
+
+/* Loading states with accessible messaging */
+.is-loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 2px solid rgba(62, 122, 87, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--gf-brand);
+    animation: spinner-rotation 0.8s linear infinite;
+    margin-right: 0.5rem;
+}
+
+@keyframes spinner-rotation {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Improve form field contrast and accessibility */
+.form-control:not(:disabled),
+.form-select:not(:disabled) {
+    color: var(--gf-text);
+    background-color: var(--gf-surface);
+    border-color: var(--gf-border);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--gf-brand);
+    box-shadow: 0 0 0 0.2rem rgba(62, 122, 87, 0.25);
+}
+
+/* Field labels - improved readability */
+.form-label {
+    color: var(--gf-text);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.form-label .is-required {
+    color: #dc3545;
+    margin-left: 4px;
+}
+
+/* Help text for form fields */
+.form-text {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--gf-muted);
+    font-size: 0.875rem;
+}
+
+/* Improved error message visibility */
+.is-invalid {
+    border-color: #dc3545;
+}
+
+.invalid-feedback {
+    display: block;
+    margin-top: 0.25rem;
+    color: #dc3545;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* Icon labels - ensure proper spacing for icon + text combinations */
+.icon-label,
+.btn i {
+    margin-right: 0.4em;
+}
+
+.icon-label[aria-label],
+.btn[aria-label] {
+    /* Icons with aria-label for screen readers */
+}
+
+/* Tooltip improvements */
+[data-bs-toggle="tooltip"],
+[role="tooltip"] {
+    text-decoration: underline;
+    text-decoration-style: dashed;
+    text-decoration-color: var(--gf-brand);
+}
+
+/* Tables - accessibility for data */
+table {
+    border-collapse: collapse;
+}
+
+th {
+    text-align: left;
+    font-weight: 600;
+    background: var(--gf-surface-soft);
+    border-bottom: 2px solid var(--gf-border);
+}
+
+td {
+    border-bottom: 1px solid var(--gf-border);
+}
+
+/* Links - underline for better accessibility */
+a:not(.btn):not([class*="badge"]):not([class*="pill"]) {
+    position: relative;
+}
+
+a:not(.btn):not([class*="badge"]):not([class*="pill"]):hover {
+    text-decoration: underline;
+}
+
+/* Card improvements */
+.card,
+.content-card {
+    position: relative;
+}
+
+/* Checkbox and radio button accessibility */
+.form-check {
+    padding-left: 0;
+    margin-bottom: 1rem;
+}
+
+.form-check-input {
+    cursor: pointer;
+    margin-left: 0;
+    margin-right: 0.5rem;
+}
+
+.form-check-label {
+    cursor: pointer;
+    margin-bottom: 0.25rem;
+    user-select: none;
+}
+
+/* Status indicators - accessible colors */
+.status-pill {
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    display: inline-block;
+    background: var(--gf-surface-soft);
+    color: var(--gf-muted);
+}
+
+.status-pill[class*="published"],
+.status-pill.is-published {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-pill[class*="pending"] {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-pill[class*="failed"] {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Contrast improvements for hover effects */
+.filter-chip {
+    transition: all 0.16s ease;
+}
+
+.filter-chip:hover {
+    background-color: var(--gf-surface-soft);
+}
+
+/* Media query for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .loading-spinner {
+        animation: none;
+    }
+}
+
+/* Dark mode support (future) - high contrast */
+@media (prefers-color-scheme: dark) {
+    /* Will be implemented when dark mode is added */
+}
+
+/* Print styles for accessibility */
+@media print {
+    .skip-to-main,
+    .topbar-nav .btn,
+    .toolbar-actions {
+        display: none;
+    }
+
+    a[href]:not([href^="#"]) {
+        text-decoration: underline;
+    }
+}

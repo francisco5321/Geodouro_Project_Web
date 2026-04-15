@@ -31,6 +31,47 @@ const csrfParam = document.querySelector('meta[name="csrf-param"]')?.content || 
 const routeTraceStatus = document.getElementById('route-trace-status');
 let routePolyline = null;
 
+// Restaurar estado do mapa se existir
+let mapStateRestored = false;
+const savedMapState = sessionStorage.getItem('routeMapState');
+if (savedMapState) {
+    try {
+        const state = JSON.parse(savedMapState);
+        routeMap.setView(state.center, state.zoom);
+        mapStateRestored = true;
+        sessionStorage.removeItem('routeMapState');
+    } catch (e) {
+        console.error('Erro ao restaurar estado do mapa:', e);
+    }
+}
+
+// Restaurar posição de scroll após a página estar carregada
+function restoreScrollPosition() {
+    const savedScrollPosition = sessionStorage.getItem('routeScrollPosition');
+    if (savedScrollPosition) {
+        try {
+            const scrollPos = JSON.parse(savedScrollPosition);
+            window.scrollTo(scrollPos.x, scrollPos.y);
+            sessionStorage.removeItem('routeScrollPosition');
+        } catch (e) {
+            console.error('Erro ao restaurar posição de scroll:', e);
+        }
+    }
+}
+
+// Tentar restaurar múltiplas vezes para garantir
+document.addEventListener('DOMContentLoaded', () => {
+    restoreScrollPosition();
+    requestAnimationFrame(restoreScrollPosition);
+    setTimeout(restoreScrollPosition, 50);
+    setTimeout(restoreScrollPosition, 200);
+    setTimeout(restoreScrollPosition, 500);
+});
+window.addEventListener('load', () => {
+    requestAnimationFrame(restoreScrollPosition);
+    setTimeout(restoreScrollPosition, 100);
+});
+
 function refreshRouteMapSize() {
     routeMap.invalidateSize({animate: false});
 }
@@ -156,6 +197,20 @@ backgroundMarkers.forEach((marker) => {
             return;
         }
         button.addEventListener('click', async () => {
+            // Guardar estado do mapa antes de fazer reload
+            const mapState = {
+                zoom: routeMap.getZoom(),
+                center: routeMap.getCenter()
+            };
+            sessionStorage.setItem('routeMapState', JSON.stringify(mapState));
+            
+            // Guardar posição de scroll
+            const scrollPosition = {
+                x: window.scrollX,
+                y: window.scrollY
+            };
+            sessionStorage.setItem('routeScrollPosition', JSON.stringify(scrollPosition));
+            
             const body = new URLSearchParams();
             body.append(csrfParam, csrfToken);
             const response = await fetch(`${toggleObservationUrl}&observationId=${marker.id}`, {
@@ -186,7 +241,7 @@ routeMarkers.forEach((marker) => {
     }).addTo(routeMap).bindPopup(`<strong>${marker.order}. ${marker.title}</strong><p>${marker.subtitle}</p>`);
 });
 
-if (bounds.length > 0) {
+if (bounds.length > 0 && !mapStateRestored) {
     routeMap.fitBounds(bounds, {padding: [28, 28]});
 }
 
@@ -295,7 +350,7 @@ $this->registerJs($js, View::POS_END);
         <?php if (empty($plannableSpecies)): ?>
             <div class="empty-state-card">
                 <h3>Sem plantas disponiveis</h3>
-                <p>Nao encontrÃ¡mos plantas com coordenadas para esta pesquisa, ou ja estao todas neste percurso.</p>
+                <p>Não encontrámos plantas com coordenadas para esta pesquisa, ou já estão todas neste percurso.</p>
             </div>
         <?php else: ?>
             <div class="observation-list">

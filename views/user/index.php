@@ -1,5 +1,6 @@
 <?php
 
+use app\components\StatCard;
 use app\models\AppUser;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -16,24 +17,47 @@ $this->title = 'Utilizadores';
 <div class="module-shell">
     <section class="species-hero mb-4">
         <div>
-            <span class="eyebrow">Administracao</span>
-            <h1 class="hero-title hero-title-tight">Gestao de utilizadores autenticados</h1>
-            <p class="hero-text">Define quem fica com permissoes de administracao na web e acompanha a base de utilizadores do portal.</p>
+            <span class="eyebrow">
+                <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                Administração
+            </span>
+            <h1 class="hero-title hero-title-tight">Gestão de Utilizadores</h1>
+            <p class="hero-text">Define quem fica com permissões de administração na web e acompanha a base de utilizadores do portal.</p>
         </div>
         <div class="detail-stat-grid">
-            <article class="detail-stat-card"><span>Utilizadores</span><strong><?= count($users) ?></strong></article>
-            <article class="detail-stat-card"><span>Role column</span><strong><?= $roleColumnAvailable ? 'Ativa' : 'Pendente' ?></strong></article>
-            <article class="detail-stat-card"><span>Admins</span><strong><?= count(array_filter($users, static fn($user) => $user->isAdmin())) ?></strong></article>
-            <article class="detail-stat-card"><span>Estado</span><strong>Operacional</strong></article>
+            <?= StatCard::widget([
+                'label' => 'Utilizadores',
+                'value' => count($users),
+                'icon' => 'fas fa-users',
+            ]) ?>
+            <?= StatCard::widget([
+                'label' => 'Admins',
+                'value' => count(array_filter($users, static fn($user) => $user->isAdmin())),
+                'icon' => 'fas fa-crown',
+            ]) ?>
+            <?= StatCard::widget([
+                'label' => 'Roles',
+                'value' => $roleColumnAvailable ? 'Ativo' : 'Pendente',
+                'icon' => 'fas fa-cogs',
+            ]) ?>
         </div>
     </section>
 
     <?php if (Yii::$app->session->hasFlash('success')): ?>
-        <div class="alert alert-success alert-geoflora mb-4"><?= Yii::$app->session->getFlash('success') ?></div>
+        <div class="alert-success-custom mb-4">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            <?= Yii::$app->session->getFlash('success') ?>
+        </div>
     <?php endif; ?>
 
-    <section class="toolbar-card mb-4">
-        <div class="toolbar-row user-search-row">
+    <section class="catalog-toolbar mb-4">
+        <div class="toolbar-header">
+            <h2 class="section-title">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                Filtrar Utilizadores
+            </h2>
+        </div>
+        <div class="toolbar-body">
             <?= Html::beginForm(['user/index'], 'get', ['class' => 'user-search-form']) ?>
                 <div class="user-search-input-wrap">
                     <?= Html::textInput('q', $search, ['class' => 'form-control user-search-input', 'placeholder' => 'Pesquisar por nome, username ou email']) ?>
@@ -41,7 +65,7 @@ $this->title = 'Utilizadores';
                 <div class="toolbar-actions">
                     <?= Html::submitButton('Pesquisar', ['class' => 'btn btn-brand']) ?>
                     <?php if ($search !== ''): ?>
-                        <a class="btn btn-outline-brand" href="<?= Url::to(['user/index']) ?>">Limpar</a>
+                        <a class="btn btn-outline" href="<?= Url::to(['user/index']) ?>">Limpar</a>
                     <?php endif; ?>
                 </div>
             <?= Html::endForm() ?>
@@ -49,7 +73,10 @@ $this->title = 'Utilizadores';
     </section>
 
     <section class="content-card">
-        <h2>Lista de utilizadores</h2>
+        <h2 class="section-title mb-4">
+            <i class="fas fa-list" aria-hidden="true"></i>
+            Lista de Utilizadores
+        </h2>
         <div class="user-admin-table-wrap">
             <table class="user-admin-table">
                 <thead>
