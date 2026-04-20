@@ -70,7 +70,7 @@ $this->title = 'Publicacoes';
                 </a>
                 <a class="filter-chip<?= $scope === 'mine' ? ' is-active' : '' ?>" href="<?= Url::to(['publication/index', 'scope' => 'mine']) ?>">
                     <i class="fas fa-user-edit" aria-hidden="true"></i>
-                    Minhas
+                    Minhas publicações
                 </a>
             </div>
             <div class="toolbar-actions">

@@ -158,7 +158,7 @@ async function drawPlannedRoute() {
             parts.push(`~${durationMin} min a pe`);
         }
         parts.push('termina no primeiro ponto');
-        setRouteTraceStatus(parts.join(' â€¢ '), 'success');
+        setRouteTraceStatus(parts.join(' - '), 'success');
     } catch (error) {
         console.warn('Falha ao calcular trajeto por caminhos:', error);
         drawFallbackRoute();

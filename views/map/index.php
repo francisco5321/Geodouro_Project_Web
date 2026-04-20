@@ -92,7 +92,7 @@ $this->registerJs($js, View::POS_END);
             <?= StatCard::widget([
                 'label' => 'Quero Visitar',
                 'value' => (int) $visitTargetCount,
-                'icon' => 'fas fa-heart',
+                'icon' => 'fas fa-route',
             ]) ?>
         </div>
     </section>

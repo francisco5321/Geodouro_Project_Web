@@ -81,7 +81,7 @@ $imagePaths = $publication->getImageGalleryPaths();
         <section class="detail-section">
             <div class="content-card danger-zone-card">
                 <h2>Gestao administrativa</h2>
-                <p>Podes continuar a editar esta publicacao ou removê-la por completo do portal.</p>
+                <p>Podes continuar a editar esta publicacao ou removÃª-la por completo do portal.</p>
                 <?= Html::beginForm(['publication/delete', 'id' => $publication->publication_id], 'post') ?>
                     <?= Html::submitButton('Eliminar publicacao', ['class' => 'btn btn-outline-danger', 'data-confirm' => 'Queres mesmo eliminar esta publicacao?']) ?>
                 <?= Html::endForm() ?>

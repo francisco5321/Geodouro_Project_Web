@@ -2,8 +2,13 @@
 
 use app\assets\AppAsset;
 use yii\bootstrap5\Html;
+use yii\helpers\Url;
 
 AppAsset::register($this);
+
+$adminEmail = 'admin@geoflora.pt';
+$adminPhone = '+351 912 345 678';
+$supportHours = 'Segunda a Sexta, 09:00-18:00';
 
 $this->beginPage();
 ?>
@@ -78,7 +83,7 @@ $this->beginPage();
                     <a href="<?= yii\helpers\Url::to(['visit/index']) ?>" 
                        class="nav-link<?= Yii::$app->controller->id === 'visit' ? ' is-active' : '' ?>"
                        title="Quero Visitar">
-                        <i class="fas fa-heart" aria-hidden="true"></i>
+                        <i class="fas fa-route" aria-hidden="true"></i>
                         <span>Visitas</span>
                     </a>
                     <a href="<?= yii\helpers\Url::to(['route-plan/index']) ?>" 
@@ -99,7 +104,7 @@ $this->beginPage();
             <?php else: ?>
                 <!-- Guest Menu -->
                 <div class="nav-section">
-                    <span class="nav-text">Bem-vindo ao GeoFlora</span>
+                    <span class="nav-text">Bem vindo à GeoFlora</span>
                 </div>
             <?php endif; ?>
         </nav>
@@ -166,6 +171,83 @@ $this->beginPage();
         <?= $content ?>
     </div>
 </main>
+
+<footer class="site-footer" aria-label="Rodapé do site">
+    <div class="container-fluid app-content-wrap">
+        <div class="site-footer-grid">
+            <section class="footer-block footer-brand-block">
+                <div class="footer-logo">
+                    <span class="footer-logo-icon"><i class="fas fa-leaf" aria-hidden="true"></i></span>
+                    <div>
+                        <strong>GeoFlora</strong>
+                        <small>Portal</small>
+                    </div>
+                </div>
+                <p class="footer-brand-text">Plataforma para explorar observações, organizar visitas e planear percursos botânicos no território.</p>
+                <div class="footer-social-row">
+                    <span class="footer-social-badge" aria-hidden="true"><i class="fas fa-envelope"></i></span>
+                    <span class="footer-social-badge" aria-hidden="true"><i class="fas fa-phone-alt"></i></span>
+                    <span class="footer-social-badge" aria-hidden="true"><i class="fas fa-map-marked-alt"></i></span>
+                    <span class="footer-social-badge" aria-hidden="true"><i class="fas fa-route"></i></span>
+                </div>
+            </section>
+
+            <section class="footer-block">
+                <span class="footer-kicker">Contactos</span>
+                <h2>Fala com a administração</h2>
+                <p>Suporte técnico, ajuda com acessos e questões sobre o conteúdo da plataforma.</p>
+                <div class="footer-contact-stack">
+                    <a href="mailto:<?= Html::encode($adminEmail) ?>" class="footer-contact-link">
+                        <i class="fas fa-envelope" aria-hidden="true"></i>
+                        <span><?= Html::encode($adminEmail) ?></span>
+                    </a>
+                    <a href="tel:<?= Html::encode(str_replace(' ', '', $adminPhone)) ?>" class="footer-contact-link">
+                        <i class="fas fa-phone-alt" aria-hidden="true"></i>
+                        <span><?= Html::encode($adminPhone) ?></span>
+                    </a>
+                </div>
+                <p class="footer-meta">Horário de apoio: <?= Html::encode($supportHours) ?></p>
+            </section>
+
+            <section class="footer-block">
+                <span class="footer-kicker">Links Úteis</span>
+                <ul class="footer-link-list">
+                    <li><a href="<?= Url::to(['site/index']) ?>"><i class="fas fa-home" aria-hidden="true"></i><span>Dashboard</span></a></li>
+                    <li><a href="<?= Url::to(['map/index']) ?>"><i class="fas fa-map" aria-hidden="true"></i><span>Mapa interativo</span></a></li>
+                    <li><a href="<?= Url::to(['visit/index']) ?>"><i class="fas fa-map-pin" aria-hidden="true"></i><span>Quero visitar</span></a></li>
+                    <li><a href="<?= Url::to(['route-plan/index']) ?>"><i class="fas fa-route" aria-hidden="true"></i><span>Percursos</span></a></li>
+                </ul>
+            </section>
+
+            <section class="footer-block">
+                <span class="footer-kicker">Atualizações</span>
+                <h2>Acompanha o portal</h2>
+                <p>Consulta o mapa, guarda pontos em "Quero visitar" e constrói percursos antes de ires para o terreno.</p>
+                <div class="footer-pill-row">
+                    <span class="footer-pill">
+                        <i class="fas fa-life-ring" aria-hidden="true"></i>
+                        Suporte ao utilizador
+                    </span>
+                    <span class="footer-pill">
+                        <i class="fas fa-seedling" aria-hidden="true"></i>
+                        Planeamento botânico
+                    </span>
+                </div>
+                <div class="footer-note">
+                    <i class="fas fa-leaf" aria-hidden="true"></i>
+                    <p class="footer-meta">Portal GeoFlora para gestão de espécies, observações, publicações e planeamento de visitas.</p>
+                </div>
+            </section>
+        </div>
+        <div class="site-footer-bottom">
+            <div class="footer-brand-mark">
+                <i class="fas fa-leaf" aria-hidden="true"></i>
+                <span>GeoFlora</span>
+            </div>
+            <p class="footer-bottom-text">Planeamento botânico, exploração no território e apoio à visita num só lugar.</p>
+        </div>
+    </div>
+</footer>
 
 <?php $this->endBody() ?>
 </body>

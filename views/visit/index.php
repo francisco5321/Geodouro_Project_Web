@@ -143,7 +143,7 @@ $this->registerJs($js, View::POS_END);
     <section class="species-hero mb-4">
         <div>
             <span class="eyebrow">
-                <i class="fas fa-heart" aria-hidden="true"></i>
+                <i class="fas fa-route" aria-hidden="true"></i>
                 Planeamento
             </span>
             <h1 class="hero-title hero-title-tight">Quero Visitar</h1>

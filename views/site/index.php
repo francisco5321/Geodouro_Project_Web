@@ -144,7 +144,7 @@ $this->title = 'Dashboard';
             <!-- Visits -->
             <div class="module-card">
                 <div class="module-icon visit">
-                    <i class="fas fa-heart" aria-hidden="true"></i>
+                    <i class="fas fa-route" aria-hidden="true"></i>
                 </div>
                 <div class="module-content">
                     <h3>Quero Visitar</h3>
@@ -179,7 +179,7 @@ $this->title = 'Dashboard';
                     </a>
                 <?php else: ?>
                     <a href="<?= Url::to(['route-plan/index']) ?>" class="module-link">
-                        Planear percursos
+                        Ver os meus percursos
                         <i class="fas fa-arrow-right" aria-hidden="true"></i>
                     </a>
                 <?php endif; ?>
@@ -209,14 +209,4 @@ $this->title = 'Dashboard';
         </div>
     </section>
 </div>
-    <article class="hub-card">
-        <span class="eyebrow">Territorio</span>
-        <h2>Mapa Leaflet</h2>
-        <p>Visualiza os registos com coordenadas e os alvos de visita destacados para apoio ao planeamento.</p>
-        <?php if (Yii::$app->user->isGuest): ?>
-            <a href="<?= yii\helpers\Url::to(['site/login']) ?>">Entrar para aceder</a>
-        <?php else: ?>
-            <a href="<?= yii\helpers\Url::to(['map/index']) ?>">Abrir modulo</a>
-        <?php endif; ?>
-    </article>
 </section>
