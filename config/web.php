@@ -42,6 +42,7 @@ return [
         'assetManager' => [
             'basePath' => dirname(__DIR__) . '/web/assets',
             'baseUrl' => '/assets',
+            'appendTimestamp' => true,
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
