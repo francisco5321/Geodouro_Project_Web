@@ -386,7 +386,7 @@ $this->title = 'Observações';
     }
 
     .timeline-item-meta {
-        grid-template-columns: repeat(2, 1fr) !important;
+        grid-template-columns: 1fr !important;
     }
 }
 </style>
