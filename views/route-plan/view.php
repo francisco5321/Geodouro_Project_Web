@@ -284,6 +284,31 @@ document.addEventListener('submit', async (event) => {
     form.submit();
 });
 
+document.addEventListener('click', async (event) => {
+    const button = event.target.closest('.js-route-observation-toggle');
+    if (!button) {
+        return;
+    }
+
+    event.preventDefault();
+    preserveRouteViewState();
+    button.disabled = true;
+
+    const body = new URLSearchParams();
+    body.append(csrfParam, csrfToken);
+    const response = await fetch(`${toggleObservationUrl}&observationId=${button.dataset.observationId}`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        },
+        body: body.toString(),
+    });
+    if (response.ok) {
+        window.location.reload();
+    }
+});
+
 
 routeMarkers.forEach((marker) => {
     const point = [marker.latitude, marker.longitude];
@@ -370,9 +395,13 @@ $this->registerJs($js, View::POS_END);
                                 <?php elseif ($target?->plant_species_id !== null): ?>
                                     <a href="<?= Url::to(['species/view', 'id' => $target->plant_species_id]) ?>">Abrir espécie</a>
                                 <?php endif; ?>
-                                <?= Html::beginForm(['route-plan/remove-point', 'id' => $point->route_plan_point_id], 'post', ['class' => 'js-remove-route-point-form']) ?>
-                                    <?= Html::submitButton('Remover do percurso', ['class' => 'link-button']) ?>
-                                <?= Html::endForm() ?>
+                                <?php if ($target?->observation_id !== null): ?>
+                                    <button type="button" class="link-button js-route-observation-toggle" data-observation-id="<?= (int) $target->observation_id ?>">Remover do percurso</button>
+                                <?php else: ?>
+                                    <?= Html::beginForm(['route-plan/remove-point', 'id' => $point->route_plan_point_id], 'post', ['class' => 'js-remove-route-point-form']) ?>
+                                        <?= Html::submitButton('Remover do percurso', ['class' => 'link-button']) ?>
+                                    <?= Html::endForm() ?>
+                                <?php endif; ?>
                             </div>
                         </article>
                     <?php endforeach; ?>
