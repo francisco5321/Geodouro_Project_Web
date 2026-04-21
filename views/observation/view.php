@@ -3,6 +3,7 @@
 use app\models\Observation;
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\web\View;
 
 /** @var yii\web\View $this */
 /** @var Observation $observation */
@@ -11,6 +12,35 @@ $this->title = 'Observacao #' . $observation->observation_id;
 $statusLabel = $observation->is_published ? 'Publicada' : ($observation->sync_status === Observation::SYNC_SYNCED ? 'Sincronizada' : ($observation->sync_status === Observation::SYNC_FAILED ? 'Falha de sincronizacao' : 'Pendente'));
 $imagePaths = $observation->getImageGalleryPaths();
 $canCreatePublication = Yii::$app->user->identity?->isAdmin() || (int) $observation->user_id === (int) Yii::$app->user->id;
+$coordinateLabel = $observation->hasCoordinates()
+    ? number_format((float) $observation->latitude, 5) . ', ' . number_format((float) $observation->longitude, 5)
+    : 'Sem localizacao';
+
+if ($observation->hasCoordinates()) {
+    $this->registerJs(<<<'JS'
+const locationEl = document.getElementById('observation-location-name');
+if (locationEl) {
+    const latitude = locationEl.dataset.latitude;
+    const longitude = locationEl.dataset.longitude;
+    const fallback = locationEl.dataset.fallback || 'Localizacao registada';
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&zoom=16&addressdetails=1&accept-language=pt`;
+
+    fetch(url)
+        .then((response) => response.ok ? response.json() : null)
+        .then((data) => {
+            const address = data && data.address ? data.address : {};
+            const primary = address.road || address.neighbourhood || address.suburb || address.village || address.town || address.city || address.municipality || address.county;
+            const secondary = address.city || address.town || address.village || address.municipality || address.county || address.state;
+            const parts = [primary, secondary].filter((part, index, items) => part && items.indexOf(part) === index);
+            locationEl.textContent = parts.length ? parts.join(', ') : (data && data.display_name ? data.display_name.split(',').slice(0, 2).join(',') : fallback);
+            locationEl.title = fallback;
+        })
+        .catch(() => {
+            locationEl.textContent = fallback;
+        });
+}
+JS, View::POS_END);
+}
 ?>
 <div class="module-shell">
     <a class="back-link" href="<?= Url::to(['observation/index']) ?>">&larr; Voltar as observações</a>
@@ -52,7 +82,19 @@ $canCreatePublication = Yii::$app->user->identity?->isAdmin() || (int) $observat
                 <div class="info-list detail-info-list">
                     <div class="detail-info-item"><span>Especie</span><strong><?= Html::encode($observation->getResolvedCommonName() ?: 'Observacao botanica') ?></strong></div>
                     <div class="detail-info-item"><span>Familia</span><strong><?= Html::encode($observation->getResolvedFamily() ?: 'N/D') ?></strong></div>
-                    <div class="detail-info-item"><span>Coordenadas</span><strong><?= $observation->hasCoordinates() ? Html::encode(number_format((float) $observation->latitude, 5) . ', ' . number_format((float) $observation->longitude, 5)) : 'Sem localizacao' ?></strong></div>
+                    <div class="detail-info-item">
+                        <span>Localizacao</span>
+                        <?php if ($observation->hasCoordinates()): ?>
+                            <strong
+                                id="observation-location-name"
+                                data-latitude="<?= Html::encode((string) $observation->latitude) ?>"
+                                data-longitude="<?= Html::encode((string) $observation->longitude) ?>"
+                                data-fallback="<?= Html::encode($coordinateLabel) ?>"
+                            >A obter nome do local...</strong>
+                        <?php else: ?>
+                            <strong>Sem localizacao</strong>
+                        <?php endif; ?>
+                    </div>
                     <div class="detail-info-item"><span>Wikipedia</span><strong><?= $observation->enriched_wikipedia_url ? Html::a('Abrir referencia', $observation->enriched_wikipedia_url, ['target' => '_blank', 'rel' => 'noopener']) : 'Sem referencia' ?></strong></div>
                 </div>
             </article>
