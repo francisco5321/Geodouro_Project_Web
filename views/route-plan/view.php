@@ -29,7 +29,11 @@ const routeMap = L.map('route-plan-map').setView([41.3, -7.7], 8);
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
 const csrfParam = document.querySelector('meta[name="csrf-param"]')?.content || '_csrf';
 const routeTraceStatus = document.getElementById('route-trace-status');
+const routeMapSidebar = document.querySelector('.map-sidebar');
 let routePolyline = null;
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
 
 // Restaurar estado do mapa se existir
 let mapStateRestored = false;
@@ -52,6 +56,9 @@ function restoreScrollPosition(clearAfterRestore = false) {
         try {
             const scrollPos = JSON.parse(savedScrollPosition);
             window.scrollTo(scrollPos.x, scrollPos.y);
+            if (routeMapSidebar && typeof scrollPos.sidebarY === 'number') {
+                routeMapSidebar.scrollTop = scrollPos.sidebarY;
+            }
             if (clearAfterRestore) {
                 sessionStorage.removeItem('routeScrollPosition');
             }
@@ -89,7 +96,8 @@ function preserveRouteViewState() {
 
     const scrollPosition = {
         x: window.scrollX,
-        y: window.scrollY
+        y: window.scrollY,
+        sidebarY: routeMapSidebar ? routeMapSidebar.scrollTop : 0
     };
     sessionStorage.setItem('routeScrollPosition', JSON.stringify(scrollPosition));
 }
@@ -216,19 +224,9 @@ backgroundMarkers.forEach((marker) => {
         }
         button.addEventListener('click', async () => {
             // Guardar estado do mapa antes de fazer reload
-            const mapState = {
-                zoom: routeMap.getZoom(),
-                center: routeMap.getCenter()
-            };
-            sessionStorage.setItem('routeMapState', JSON.stringify(mapState));
+            preserveRouteViewState();
             
             // Guardar posição de scroll
-            const scrollPosition = {
-                x: window.scrollX,
-                y: window.scrollY
-            };
-            sessionStorage.setItem('routeScrollPosition', JSON.stringify(scrollPosition));
-            
             const body = new URLSearchParams();
             body.append(csrfParam, csrfToken);
             const response = await fetch(`${toggleObservationUrl}&observationId=${marker.id}`, {
