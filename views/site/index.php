@@ -84,17 +84,10 @@ $this->title = 'Dashboard';
                     <h3>Espécies</h3>
                     <p>Pesquisa por espécie, família e género com hierarquia de leitura.</p>
                 </div>
-                <?php if (Yii::$app->user->isGuest): ?>
-                    <a href="<?= Url::to(['site/login']) ?>" class="module-link">
-                        <i class="fas fa-lock" aria-hidden="true"></i>
-                        Entrar para aceder
-                    </a>
-                <?php else: ?>
-                    <a href="<?= Url::to(['species/index']) ?>" class="module-link">
-                        Explorar catálogo
-                        <i class="fas fa-arrow-right" aria-hidden="true"></i>
-                    </a>
-                <?php endif; ?>
+                <a href="<?= Url::to(['species/index']) ?>" class="module-link">
+                    Explorar catálogo
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                </a>
             </div>
 
             <!-- Observations -->
@@ -106,17 +99,10 @@ $this->title = 'Dashboard';
                     <h3>Observações</h3>
                     <p>Segue estados de sincronização, confiança, autoria e publicações.</p>
                 </div>
-                <?php if (Yii::$app->user->isGuest): ?>
-                    <a href="<?= Url::to(['site/login']) ?>" class="module-link">
-                        <i class="fas fa-lock" aria-hidden="true"></i>
-                        Entrar para aceder
-                    </a>
-                <?php else: ?>
-                    <a href="<?= Url::to(['observation/index']) ?>" class="module-link">
-                        Ver observações
-                        <i class="fas fa-arrow-right" aria-hidden="true"></i>
-                    </a>
-                <?php endif; ?>
+                <a href="<?= Url::to(['observation/index']) ?>" class="module-link">
+                    Ver observações
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                </a>
             </div>
 
             <!-- Publications -->
@@ -128,17 +114,10 @@ $this->title = 'Dashboard';
                     <h3>Publicações</h3>
                     <p>Cria, edita e publica conteúdo editorial a partir das observações.</p>
                 </div>
-                <?php if (Yii::$app->user->isGuest): ?>
-                    <a href="<?= Url::to(['site/login']) ?>" class="module-link">
-                        <i class="fas fa-lock" aria-hidden="true"></i>
-                        Entrar para aceder
-                    </a>
-                <?php else: ?>
-                    <a href="<?= Url::to(['publication/index']) ?>" class="module-link">
-                        Ver publicações
-                        <i class="fas fa-arrow-right" aria-hidden="true"></i>
-                    </a>
-                <?php endif; ?>
+                <a href="<?= Url::to(['publication/index']) ?>" class="module-link">
+                    Ver publicações
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                </a>
             </div>
 
             <!-- Visits -->
@@ -194,17 +173,10 @@ $this->title = 'Dashboard';
                     <h3>Mapa Interativo</h3>
                     <p>Visualiza todas as observações e espécies num mapa interativo.</p>
                 </div>
-                <?php if (Yii::$app->user->isGuest): ?>
-                    <a href="<?= Url::to(['site/login']) ?>" class="module-link">
-                        <i class="fas fa-lock" aria-hidden="true"></i>
-                        Entrar para aceder
-                    </a>
-                <?php else: ?>
-                    <a href="<?= Url::to(['map/index']) ?>" class="module-link">
-                        Abrir mapa
-                        <i class="fas fa-arrow-right" aria-hidden="true"></i>
-                    </a>
-                <?php endif; ?>
+                <a href="<?= Url::to(['map/index']) ?>" class="module-link">
+                    Abrir mapa
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                </a>
             </div>
         </div>
     </section>
