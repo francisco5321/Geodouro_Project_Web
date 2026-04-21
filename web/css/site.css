@@ -1357,6 +1357,12 @@ body.app-shell {
     padding: 1.25rem;
 }
 
+.species-card-body .species-meta-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.55rem;
+}
+
 .species-scientific-name,
 .observation-title {
     margin: 0 0 0.35rem;
