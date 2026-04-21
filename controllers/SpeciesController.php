@@ -19,7 +19,8 @@ class SpeciesController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'roles' => ['@'],
+                        'actions' => ['index', 'view'],
+                        'roles' => ['?', '@'],
                     ],
                 ],
             ],

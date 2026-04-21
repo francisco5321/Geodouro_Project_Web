@@ -68,7 +68,7 @@ $this->title = 'Publicacoes';
                     <i class="fas fa-list" aria-hidden="true"></i>
                     Todas
                 </a>
-                <a class="filter-chip<?= $scope === 'mine' ? ' is-active' : '' ?>" href="<?= Url::to(['publication/index', 'scope' => 'mine']) ?>">
+                <a class="filter-chip<?= $scope === 'mine' ? ' is-active' : '' ?>" href="<?= Url::to(Yii::$app->user->isGuest ? ['site/login'] : ['publication/index', 'scope' => 'mine']) ?>">
                     <i class="fas fa-user-edit" aria-hidden="true"></i>
                     Minhas publicações
                 </a>

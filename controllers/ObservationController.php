@@ -23,7 +23,7 @@ class ObservationController extends Controller
                     [
                         'allow' => true,
                         'actions' => ['index', 'view'],
-                        'roles' => ['@'],
+                        'roles' => ['?', '@'],
                     ],
                     [
                         'allow' => true,
@@ -33,6 +33,10 @@ class ObservationController extends Controller
                     ],
                 ],
                 'denyCallback' => static function () {
+                    if (Yii::$app->user->isGuest) {
+                        return Yii::$app->user->loginRequired();
+                    }
+
                     throw new ForbiddenHttpException('Nao tens permissao para criar observacoes manualmente.');
                 },
             ],

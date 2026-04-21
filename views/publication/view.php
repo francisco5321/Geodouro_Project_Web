@@ -43,9 +43,13 @@ $imagePaths = $publication->getImageGalleryPaths();
                         <?= Html::endForm() ?>
                     <?php endif; ?>
                 <?php endif; ?>
-                <?= Html::beginForm(['visit/toggle-publication', 'id' => $publication->publication_id], 'post', ['class' => 'd-inline-block']) ?>
-                    <?= Html::submitButton($publication->isSavedForUser(Yii::$app->user->identity) ? 'Remover de Quero visitar' : 'Guardar em Quero visitar', ['class' => 'btn btn-outline-brand']) ?>
-                <?= Html::endForm() ?>
+                <?php if (Yii::$app->user->isGuest): ?>
+                    <a class="btn btn-outline-brand" href="<?= Url::to(['site/login']) ?>">Entrar para guardar em Quero visitar</a>
+                <?php else: ?>
+                    <?= Html::beginForm(['visit/toggle-publication', 'id' => $publication->publication_id], 'post', ['class' => 'd-inline-block']) ?>
+                        <?= Html::submitButton($publication->isSavedForUser(Yii::$app->user->identity) ? 'Remover de Quero visitar' : 'Guardar em Quero visitar', ['class' => 'btn btn-outline-brand']) ?>
+                    <?= Html::endForm() ?>
+                <?php endif; ?>
             </div>
         </div>
     </section>

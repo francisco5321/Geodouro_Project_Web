@@ -22,7 +22,8 @@ class MediaController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'roles' => ['@'],
+                        'actions' => ['observation-image', 'publication-image'],
+                        'roles' => ['?', '@'],
                     ],
                 ],
             ],

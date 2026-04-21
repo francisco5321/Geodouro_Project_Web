@@ -43,8 +43,7 @@ $this->beginPage();
 
         <!-- Navigation Menu -->
         <nav class="topbar-nav" role="navigation" aria-label="Menu Principal">
-            <?php if (!Yii::$app->user->isGuest): ?>
-                <div class="nav-section main-nav">
+            <div class="nav-section main-nav">
                     <a href="<?= Yii::$app->homeUrl ?>" 
                        class="nav-link<?= Yii::$app->controller->id === 'site' && Yii::$app->controller->action->id === 'index' ? ' is-active' : '' ?>"
                        title="Dashboard">
@@ -77,9 +76,9 @@ $this->beginPage();
                     </a>
                 </div>
 
-                <div class="nav-divider"></div>
+            <div class="nav-divider"></div>
 
-                <div class="nav-section secondary-nav">
+            <div class="nav-section secondary-nav">
                     <a href="<?= yii\helpers\Url::to(['visit/index']) ?>" 
                        class="nav-link<?= Yii::$app->controller->id === 'visit' ? ' is-active' : '' ?>"
                        title="Quero Visitar">
@@ -101,12 +100,6 @@ $this->beginPage();
                         </a>
                     <?php endif; ?>
                 </div>
-            <?php else: ?>
-                <!-- Guest Menu -->
-                <div class="nav-section">
-                    <span class="nav-text">Bem vindo à GeoFlora</span>
-                </div>
-            <?php endif; ?>
         </nav>
 
         <!-- User Menu -->

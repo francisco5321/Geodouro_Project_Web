@@ -18,7 +18,8 @@ class MapController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'roles' => ['@'],
+                        'actions' => ['index'],
+                        'roles' => ['?', '@'],
                     ],
                 ],
             ],
@@ -35,10 +36,12 @@ class MapController extends Controller
             ->limit(250)
             ->all();
 
-        $visitTargets = SavedVisitTarget::find()
-            ->with(['publication', 'observation'])
-            ->where(['user_id' => Yii::$app->user->id])
-            ->all();
+        $visitTargets = Yii::$app->user->isGuest
+            ? []
+            : SavedVisitTarget::find()
+                ->with(['publication', 'observation'])
+                ->where(['user_id' => Yii::$app->user->id])
+                ->all();
 
         $targetSpeciesIds = [];
         $targetObservationIds = [];

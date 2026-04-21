@@ -24,6 +24,12 @@ class PublicationController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
+                        'actions' => ['index', 'view'],
+                        'roles' => ['?', '@'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['create', 'update', 'publish', 'delete'],
                         'roles' => ['@'],
                     ],
                 ],
@@ -42,6 +48,10 @@ class PublicationController extends Controller
     {
         $scope = trim((string) Yii::$app->request->get('scope', 'all'));
         $identity = Yii::$app->user->identity;
+        if ($identity === null && $scope === 'mine') {
+            $scope = 'all';
+        }
+
         $query = Publication::find()
             ->with(['user', 'plantSpecies', 'observation', 'publicationImages'])
             ->orderBy(['published_at' => SORT_DESC, 'publication_id' => SORT_DESC]);
@@ -212,6 +222,10 @@ class PublicationController extends Controller
     private function getEditableObservationOptions(?int $currentObservationId = null): array
     {
         $currentUser = Yii::$app->user->identity;
+        if ($currentUser === null) {
+            return [];
+        }
+
         $observationTable = Observation::tableName();
         $publicationTable = Publication::tableName();
 
