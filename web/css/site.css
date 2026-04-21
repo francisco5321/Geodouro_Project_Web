@@ -1868,34 +1868,63 @@ body.app-shell {
 
 .observation-gallery-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 320px));
+    justify-content: start;
+    align-items: start;
     gap: 1rem;
 }
 
 .observation-gallery-card {
-    display: block;
+    display: grid;
+    grid-template-rows: auto minmax(46px, auto);
     overflow: hidden;
-    border-radius: 22px;
+    max-width: 320px;
+    border-radius: 16px;
     background: var(--gf-surface);
     border: 1px solid var(--gf-border);
     box-shadow: var(--gf-shadow);
     text-decoration: none;
     color: inherit;
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.observation-gallery-card:hover,
+.observation-gallery-card:focus-visible {
+    transform: translateY(-2px);
+    border-color: rgba(62, 122, 87, 0.28);
+    box-shadow: 0 14px 34px rgba(24, 43, 31, 0.12);
 }
 
 .observation-gallery-card img {
     display: block;
     width: 100%;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 5 / 4;
     object-fit: cover;
     background: linear-gradient(135deg, rgba(62, 122, 87, 0.14), rgba(127, 192, 132, 0.18));
 }
 
 .observation-gallery-card span {
-    display: block;
-    padding: 0.9rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 0.85rem;
+    background: rgba(248, 250, 246, 0.92);
     color: var(--gf-brand);
+    font-size: 0.92rem;
     font-weight: 800;
+}
+
+.observation-gallery-card span::after {
+    content: "Abrir";
+    flex: 0 0 auto;
+    padding: 0.28rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(62, 122, 87, 0.1);
+    color: var(--gf-brand);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .publication-card-rich {
