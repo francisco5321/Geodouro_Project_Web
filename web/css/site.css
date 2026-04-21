@@ -1268,6 +1268,15 @@ body.app-shell {
     text-decoration: none;
 }
 
+.species-card-link:hover,
+.species-card-link:focus,
+.species-card-link:focus-visible,
+.species-card-link:hover *,
+.species-card-link:focus *,
+.species-card-link:focus-visible * {
+    text-decoration: none;
+}
+
 .species-card-media {
     position: relative;
     min-height: 180px;

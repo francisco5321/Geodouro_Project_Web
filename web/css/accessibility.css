@@ -160,12 +160,19 @@ td {
 }
 
 /* Links - underline for better accessibility */
-a:not(.btn):not([class*="badge"]):not([class*="pill"]) {
+a:not(.btn):not(.species-card-link):not([class*="badge"]):not([class*="pill"]) {
     position: relative;
 }
 
-a:not(.btn):not([class*="badge"]):not([class*="pill"]):hover {
+a:not(.btn):not(.species-card-link):not([class*="badge"]):not([class*="pill"]):hover {
     text-decoration: underline;
+}
+
+.species-card-link,
+.species-card-link:hover,
+.species-card-link:focus,
+.species-card-link:focus-visible {
+    text-decoration: none;
 }
 
 /* Card improvements */
