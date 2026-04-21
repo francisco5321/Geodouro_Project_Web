@@ -76,6 +76,20 @@ function refreshRouteMapSize() {
     routeMap.invalidateSize({animate: false});
 }
 
+function preserveRouteViewState() {
+    const mapState = {
+        zoom: routeMap.getZoom(),
+        center: routeMap.getCenter()
+    };
+    sessionStorage.setItem('routeMapState', JSON.stringify(mapState));
+
+    const scrollPosition = {
+        x: window.scrollX,
+        y: window.scrollY
+    };
+    sessionStorage.setItem('routeScrollPosition', JSON.stringify(scrollPosition));
+}
+
 requestAnimationFrame(refreshRouteMapSize);
 setTimeout(refreshRouteMapSize, 250);
 window.addEventListener('load', refreshRouteMapSize, {once: true});
@@ -228,6 +242,46 @@ backgroundMarkers.forEach((marker) => {
     });
 });
 
+document.addEventListener('submit', async (event) => {
+    const form = event.target.closest('.js-remove-route-point-form');
+    if (!form) {
+        return;
+    }
+
+    event.preventDefault();
+    preserveRouteViewState();
+
+    const submitButton = event.submitter;
+    if (submitButton) {
+        submitButton.disabled = true;
+    }
+
+    const body = new URLSearchParams(new FormData(form));
+    if (csrfToken && !body.has(csrfParam)) {
+        body.append(csrfParam, csrfToken);
+    }
+
+    try {
+        const response = await fetch(form.action, {
+            method: form.method || 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            },
+            body: body.toString(),
+        });
+
+        if (response.ok) {
+            window.location.reload();
+            return;
+        }
+    } catch (error) {
+        console.warn('Falha ao remover ponto sem navegacao completa:', error);
+    }
+
+    form.submit();
+});
+
 
 routeMarkers.forEach((marker) => {
     const point = [marker.latitude, marker.longitude];
@@ -314,7 +368,7 @@ $this->registerJs($js, View::POS_END);
                                 <?php elseif ($target?->plant_species_id !== null): ?>
                                     <a href="<?= Url::to(['species/view', 'id' => $target->plant_species_id]) ?>">Abrir espécie</a>
                                 <?php endif; ?>
-                                <?= Html::beginForm(['route-plan/remove-point', 'id' => $point->route_plan_point_id], 'post') ?>
+                                <?= Html::beginForm(['route-plan/remove-point', 'id' => $point->route_plan_point_id], 'post', ['class' => 'js-remove-route-point-form']) ?>
                                     <?= Html::submitButton('Remover do percurso', ['class' => 'link-button']) ?>
                                 <?= Html::endForm() ?>
                             </div>

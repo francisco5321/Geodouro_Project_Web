@@ -514,7 +514,7 @@ body.app-shell {
 }
 
 .footer-logo {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 0.85rem;
     margin-bottom: 1rem;
