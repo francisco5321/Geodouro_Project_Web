@@ -13,6 +13,7 @@ use yii\widgets\LinkPager;
 /** @var string $queryText */
 /** @var string $sort */
 /** @var array $summary */
+/** @var array $speciesImageMap */
 
 $this->title = 'Espécies';
 
@@ -86,9 +87,18 @@ $this->title = 'Espécies';
     <?php else: ?>
         <section class="species-grid">
             <?php foreach ($species as $item): ?>
+                <?php $cardImage = $speciesImageMap[(int) $item->plant_species_id] ?? null; ?>
                 <article class="species-card-web">
                     <a class="species-card-link" href="<?= Url::to(['species/view', 'id' => $item->plant_species_id]) ?>" title="Ver detalhes de <?= Html::encode($item->common_name ?: $item->scientific_name) ?>">
-                        <div class="species-card-media">
+                        <div class="species-card-media<?= $cardImage !== null ? ' has-photo' : '' ?>">
+                            <?php if ($cardImage !== null): ?>
+                                <img
+                                    class="species-card-photo"
+                                    src="<?= Url::to(['media/observation-image', 'id' => $cardImage['observationId'], 'index' => $cardImage['imageIndex']]) ?>"
+                                    alt="Fotografia de <?= Html::encode($item->common_name ?: $item->scientific_name) ?>"
+                                    loading="lazy"
+                                >
+                            <?php endif; ?>
                             <div class="species-orb"></div>
                             <div class="species-media-copy">
                                 <span class="species-media-label"><?= Html::encode(mb_strtoupper($item->genus)) ?></span>

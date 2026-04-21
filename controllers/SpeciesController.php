@@ -65,6 +65,32 @@ class SpeciesController extends Controller
             ->limit($pagination->limit)
             ->all();
 
+        $speciesImageMap = [];
+        $speciesIds = array_map(static fn (PlantSpecies $item): int => (int) $item->plant_species_id, $species);
+        if (!empty($speciesIds)) {
+            $imageCandidatesBySpecies = [];
+            $observationsWithImages = Observation::find()
+                ->with(['observationImages'])
+                ->where(['plant_species_id' => $speciesIds])
+                ->all();
+
+            foreach ($observationsWithImages as $observation) {
+                $imagePaths = $observation->getImageGalleryPaths();
+                if (empty($imagePaths) || $observation->plant_species_id === null) {
+                    continue;
+                }
+
+                $imageCandidatesBySpecies[(int) $observation->plant_species_id][] = [
+                    'observationId' => (int) $observation->observation_id,
+                    'imageIndex' => random_int(0, count($imagePaths) - 1),
+                ];
+            }
+
+            foreach ($imageCandidatesBySpecies as $speciesId => $candidates) {
+                $speciesImageMap[$speciesId] = $candidates[array_rand($candidates)];
+            }
+        }
+
         $summary = [
             'speciesCount' => PlantSpecies::find()->count(),
             'observationsCount' => Observation::find()->count(),
@@ -77,6 +103,7 @@ class SpeciesController extends Controller
             'queryText' => $queryText,
             'sort' => $sort,
             'summary' => $summary,
+            'speciesImageMap' => $speciesImageMap,
         ]);
     }
 
