@@ -1,7 +1,6 @@
 <?php
 
 use app\components\StatCard;
-use app\components\FilterChips;
 use app\components\EmptyState;
 use app\components\TimelineCard;
 use app\models\Observation;
@@ -61,22 +60,18 @@ $this->title = 'Observações';
             </h2>
         </div>
         <div class="filter-row">
-            <?php 
-            $filterChips = [];
-            foreach (['all' => ['label' => 'Todas', 'icon' => 'fas fa-list'],
-                      Observation::SYNC_PENDING => ['label' => 'Pendentes', 'icon' => 'fas fa-clock'],
-                      Observation::SYNC_SYNCED => ['label' => 'Sincronizadas', 'icon' => 'fas fa-sync'],
-                      Observation::SYNC_FAILED => ['label' => 'Falhadas', 'icon' => 'fas fa-times-circle'],
-                      'PUBLISHED' => ['label' => 'Publicadas', 'icon' => 'fas fa-star']] as $value => $config):
-                $filterChips[] = [
-                    'label' => $config['label'],
-                    'url' => ['observation/index', 'status' => $value === 'all' ? null : $value],
-                    'active' => $status === $value,
-                    'icon' => $config['icon'],
-                ];
-            endforeach;
-            ?>
-            <?= FilterChips::widget(['chips' => $filterChips]) ?>
+            <?php foreach ([
+                'all' => ['label' => 'Todas', 'icon' => 'fas fa-list'],
+                Observation::SYNC_PENDING => ['label' => 'Pendentes', 'icon' => 'fas fa-clock'],
+                Observation::SYNC_SYNCED => ['label' => 'Sincronizadas', 'icon' => 'fas fa-sync'],
+                Observation::SYNC_FAILED => ['label' => 'Falhadas', 'icon' => 'fas fa-times-circle'],
+                'PUBLISHED' => ['label' => 'Publicadas', 'icon' => 'fas fa-star'],
+            ] as $value => $config): ?>
+                <a class="btn <?= $status === $value ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'status' => $value === 'all' ? null : $value]) ?>">
+                    <i class="<?= Html::encode($config['icon']) ?>" aria-hidden="true"></i>
+                    <?= Html::encode($config['label']) ?>
+                </a>
+            <?php endforeach; ?>
         </div>
     </section>
 

@@ -1,7 +1,6 @@
 <?php
 
 use app\components\StatCard;
-use app\components\FilterChips;
 use app\components\EmptyState;
 use app\models\PlantSpecies;
 use yii\helpers\Html;
@@ -17,11 +16,6 @@ use yii\widgets\LinkPager;
 
 $this->title = 'Espécies';
 
-$sortOptions = [
-    ['label' => 'Espécie', 'value' => 'species', 'icon' => 'fas fa-sort-alpha-down'],
-    ['label' => 'Família', 'value' => 'family', 'icon' => 'fas fa-sitemap'],
-    ['label' => 'Gênero', 'value' => 'genus', 'icon' => 'fas fa-layer-group'],
-];
 ?>
 <div class="species-shell">
     <section class="species-hero mb-4">
@@ -56,7 +50,7 @@ $sortOptions = [
         <div class="toolbar-header">
             <h2 class="section-title">
                 <i class="fas fa-search" aria-hidden="true"></i>
-                Pesquisar e Filtrar
+                Pesquisar
             </h2>
         </div>
         <form class="catalog-search" method="get" action="<?= Url::to(['species/index']) ?>" role="search">
@@ -78,22 +72,6 @@ $sortOptions = [
                 Pesquisar
             </button>
         </form>
-
-        <div class="filter-row">
-            <?php foreach ($sortOptions as $option): ?>
-                <?php $isActive = $sort === $option['value']; ?>
-                <a
-                    class="filter-chip<?= $isActive ? ' is-active' : '' ?>"
-                    href="<?= Url::to(['species/index', 'sort' => $option['value'], 'q' => $queryText ?: null]) ?>"
-                    title="Ordenar por <?= Html::encode($option['label']) ?>"
-                    role="button"
-                    tabindex="0"
-                >
-                    <i class="<?= $option['icon'] ?>" aria-hidden="true"></i>
-                    <?= Html::encode($option['label']) ?>
-                </a>
-            <?php endforeach; ?>
-        </div>
     </section>
 
     <?php if (empty($species)): ?>

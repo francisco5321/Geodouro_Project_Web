@@ -64,11 +64,11 @@ $this->title = 'Publicações';
         </div>
         <div class="toolbar-row">
             <div class="filter-row">
-                <a class="filter-chip<?= $scope === 'all' ? ' is-active' : '' ?>" href="<?= Url::to(['publication/index', 'scope' => 'all']) ?>">
+                <a class="btn <?= $scope === 'all' ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['publication/index', 'scope' => 'all']) ?>">
                     <i class="fas fa-list" aria-hidden="true"></i>
                     Todas
                 </a>
-                <a class="filter-chip<?= $scope === 'mine' ? ' is-active' : '' ?>" href="<?= Url::to(Yii::$app->user->isGuest ? ['site/login'] : ['publication/index', 'scope' => 'mine']) ?>">
+                <a class="btn <?= $scope === 'mine' ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(Yii::$app->user->isGuest ? ['site/login'] : ['publication/index', 'scope' => 'mine']) ?>">
                     <i class="fas fa-user-edit" aria-hidden="true"></i>
                     Minhas publicações
                 </a>

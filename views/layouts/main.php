@@ -6,8 +6,8 @@ use yii\helpers\Url;
 
 AppAsset::register($this);
 
-$adminEmail = 'admin@geoflora.pt';
-$adminPhone = '+351 912 345 678';
+$geodouroEmail = 'geral@geodouro.pt';
+$geodouroPhone = '+351 254 320 000';
 $supportHours = 'Segunda a Sexta, 09:00-18:00';
 
 $this->beginPage();
@@ -176,7 +176,8 @@ $this->beginPage();
                         <small>Portal</small>
                     </div>
                 </div>
-                <p class="footer-brand-text">Plataforma para explorar observações, organizar visitas e planear percursos botânicos no território.</p>
+                <span class="footer-kicker">Sobre o projeto</span>
+                <p class="footer-brand-text">O GeoFlora apoia a inventariação, consulta e valorização de espécies e observações botânicas associadas ao território Português.</p>
                 <div class="footer-social-row">
                     <span class="footer-social-badge" aria-hidden="true"><i class="fas fa-envelope"></i></span>
                     <span class="footer-social-badge" aria-hidden="true"><i class="fas fa-phone-alt"></i></span>
@@ -190,13 +191,13 @@ $this->beginPage();
                 <h2>Fala com a administração</h2>
                 <p>Suporte técnico, ajuda com acessos e questões sobre o conteúdo da plataforma.</p>
                 <div class="footer-contact-stack">
-                    <a href="mailto:<?= Html::encode($adminEmail) ?>" class="footer-contact-link">
+                    <a href="mailto:<?= Html::encode($geodouroEmail) ?>" class="footer-contact-link">
                         <i class="fas fa-envelope" aria-hidden="true"></i>
-                        <span><?= Html::encode($adminEmail) ?></span>
+                        <span><?= Html::encode($geodouroEmail) ?></span>
                     </a>
-                    <a href="tel:<?= Html::encode(str_replace(' ', '', $adminPhone)) ?>" class="footer-contact-link">
+                    <a href="tel:<?= Html::encode(str_replace(' ', '', $geodouroPhone)) ?>" class="footer-contact-link">
                         <i class="fas fa-phone-alt" aria-hidden="true"></i>
-                        <span><?= Html::encode($adminPhone) ?></span>
+                        <span><?= Html::encode($geodouroPhone) ?></span>
                     </a>
                 </div>
                 <p class="footer-meta">Horário de apoio: <?= Html::encode($supportHours) ?></p>
