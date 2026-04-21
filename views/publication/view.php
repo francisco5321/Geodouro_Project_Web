@@ -59,23 +59,29 @@ $imagePaths = $publication->getImageGalleryPaths();
     <?php endif; ?>
 
     <section class="detail-section">
-        <div class="detail-split-grid">
-            <article class="content-card">
-                <h2>Contexto editorial</h2>
-                <div class="info-list">
-                    <div><span>ID</span><strong>#<?= (int) $publication->publication_id ?></strong></div>
-                    <div><span>Observacao</span><strong>#<?= (int) $publication->observation_id ?></strong></div>
-                    <div><span>Autor</span><strong><?= Html::encode($publication->user?->getFullName() ?? 'Sistema') ?></strong></div>
-                    <div><span>Especie</span><strong><?= Html::encode($publication->plantSpecies?->common_name ?: ($publication->observation?->getResolvedCommonName() ?: 'N/D')) ?></strong></div>
+        <div class="detail-split-grid detail-context-grid">
+            <article class="content-card detail-context-card">
+                <div class="detail-card-title">
+                    <span class="detail-card-icon"><i class="fas fa-circle-info" aria-hidden="true"></i></span>
+                    <h2>Contexto editorial</h2>
+                </div>
+                <div class="info-list detail-info-list">
+                    <div class="detail-info-item"><span>ID</span><strong>#<?= (int) $publication->publication_id ?></strong></div>
+                    <div class="detail-info-item"><span>Observacao</span><strong>#<?= (int) $publication->observation_id ?></strong></div>
+                    <div class="detail-info-item"><span>Autor</span><strong><?= Html::encode($publication->user?->getFullName() ?? 'Sistema') ?></strong></div>
+                    <div class="detail-info-item"><span>Especie</span><strong><?= Html::encode($publication->plantSpecies?->common_name ?: ($publication->observation?->getResolvedCommonName() ?: 'N/D')) ?></strong></div>
                 </div>
             </article>
-            <article class="content-card content-card-soft">
-                <h2>Ligacoes</h2>
-                <div class="module-link-list">
-                    <a href="<?= Url::to(['observation/view', 'id' => $publication->observation_id]) ?>">Abrir observacao original</a>
-                    <?php if ($publication->plant_species_id): ?><a href="<?= Url::to(['species/view', 'id' => $publication->plant_species_id]) ?>">Abrir ficha da especie</a><?php endif; ?>
-                    <a href="<?= Url::to(['map/index']) ?>">Ver observacoes no mapa</a>
-                    <a href="<?= Url::to(['visit/index']) ?>">Abrir Quero visitar</a>
+            <article class="content-card content-card-soft detail-actions-card">
+                <div class="detail-card-title">
+                    <span class="detail-card-icon"><i class="fas fa-link" aria-hidden="true"></i></span>
+                    <h2>Ligações</h2>
+                </div>
+                <div class="module-link-list detail-action-list">
+                    <a href="<?= Url::to(['observation/view', 'id' => $publication->observation_id]) ?>"><i class="fas fa-binoculars" aria-hidden="true"></i><span>Abrir observacao original</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+                    <?php if ($publication->plant_species_id): ?><a href="<?= Url::to(['species/view', 'id' => $publication->plant_species_id]) ?>"><i class="fas fa-leaf" aria-hidden="true"></i><span>Abrir ficha da especie</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
+                    <a href="<?= Url::to(['map/index']) ?>"><i class="fas fa-map-location-dot" aria-hidden="true"></i><span>Ver observacoes no mapa</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+                    <a href="<?= Url::to(['visit/index']) ?>"><i class="fas fa-route" aria-hidden="true"></i><span>Abrir Quero visitar</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a>
                 </div>
             </article>
         </div>

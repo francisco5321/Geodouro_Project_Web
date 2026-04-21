@@ -1538,6 +1538,7 @@ body.app-shell {
         flex-direction: column;
         align-items: flex-start;
     }
+
 }
 
 .module-hub,
@@ -1648,6 +1649,113 @@ body.app-shell {
 
 .detail-split-grid {
     grid-template-columns: 1.2fr 0.8fr;
+}
+
+.detail-context-grid {
+    align-items: stretch;
+}
+
+.detail-context-card,
+.detail-actions-card {
+    padding: 1.5rem;
+}
+
+.detail-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.15rem;
+}
+
+.detail-card-title h2 {
+    margin: 0;
+}
+
+.detail-card-icon {
+    width: 42px;
+    height: 42px;
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border-radius: 12px;
+    background: rgba(62, 122, 87, 0.1);
+    color: var(--gf-brand);
+}
+
+.detail-info-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    overflow: hidden;
+    border: 1px solid rgba(62, 122, 87, 0.12);
+    border-radius: 18px;
+}
+
+.detail-info-item {
+    min-width: 0;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.72);
+    border-right: 1px solid rgba(62, 122, 87, 0.1);
+}
+
+.detail-info-item:last-child {
+    border-right: 0;
+}
+
+.detail-info-item strong,
+.detail-info-item a {
+    overflow-wrap: anywhere;
+    line-height: 1.45;
+}
+
+.detail-action-list {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 0;
+}
+
+.detail-action-list a {
+    min-height: 48px;
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr) 18px;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 0.95rem;
+    border: 1px solid rgba(62, 122, 87, 0.12);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.78);
+    color: var(--gf-brand);
+    transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.detail-action-list a:hover,
+.detail-action-list a:focus-visible {
+    transform: translateY(-1px);
+    border-color: rgba(62, 122, 87, 0.28);
+    background: rgba(127, 192, 132, 0.12);
+}
+
+.detail-action-list a span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.detail-action-list a i:last-child {
+    justify-self: end;
+}
+
+@media (max-width: 767.98px) {
+    .detail-info-list {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-info-item {
+        border-right: 0;
+        border-bottom: 1px solid rgba(62, 122, 87, 0.1);
+    }
+
+    .detail-info-item:last-child {
+        border-bottom: 0;
+    }
 }
 
 /* GeoDouro Leaflet safety net: keeps maps correct if CDN CSS is late or overridden. */

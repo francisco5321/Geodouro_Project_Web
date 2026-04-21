@@ -16,7 +16,7 @@ $this->title = 'Editar publicacao';
         <div>
             <span class="eyebrow">Edicao editorial</span>
             <h1 class="hero-title hero-title-tight">Atualizar publicacao #<?= (int) $model->publication_id ?></h1>
-            <p class="hero-text">Administra o conteudo, o estado editorial e a ligacao desta publicacao a observacoes e especies.</p>
+            <p class="hero-text">Administra o conteudo, o estado editorial e a ligação desta publicacao a observacoes e especies.</p>
         </div>
     </section>
 
