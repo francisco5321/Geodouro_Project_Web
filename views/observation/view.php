@@ -8,13 +8,13 @@ use yii\web\View;
 /** @var yii\web\View $this */
 /** @var Observation $observation */
 
-$this->title = 'Observacao #' . $observation->observation_id;
-$statusLabel = $observation->is_published ? 'Publicada' : ($observation->sync_status === Observation::SYNC_SYNCED ? 'Sincronizada' : ($observation->sync_status === Observation::SYNC_FAILED ? 'Falha de sincronizacao' : 'Pendente'));
+$this->title = 'Observação #' . $observation->observation_id;
+$statusLabel = $observation->is_published ? 'Publicada' : ($observation->sync_status === Observation::SYNC_SYNCED ? 'Sincronizada' : ($observation->sync_status === Observation::SYNC_FAILED ? 'Falha de sincronização' : 'Pendente'));
 $imagePaths = $observation->getImageGalleryPaths();
 $canCreatePublication = Yii::$app->user->identity?->isAdmin() || (int) $observation->user_id === (int) Yii::$app->user->id;
 $coordinateLabel = $observation->hasCoordinates()
     ? number_format((float) $observation->latitude, 5) . ', ' . number_format((float) $observation->longitude, 5)
-    : 'Sem localizacao';
+    : 'Sem localização';
 
 if ($observation->hasCoordinates()) {
     $this->registerJs(<<<'JS'
@@ -22,7 +22,7 @@ const locationEl = document.getElementById('observation-location-name');
 if (locationEl) {
     const latitude = locationEl.dataset.latitude;
     const longitude = locationEl.dataset.longitude;
-    const fallback = locationEl.dataset.fallback || 'Localizacao registada';
+    const fallback = locationEl.dataset.fallback || 'Localização registada';
     const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&zoom=16&addressdetails=1&accept-language=pt`;
 
     fetch(url)
@@ -43,7 +43,7 @@ JS, View::POS_END);
 }
 ?>
 <div class="module-shell">
-    <a class="back-link" href="<?= Url::to(['observation/index']) ?>">&larr; Voltar as observações</a>
+    <a class="back-link" href="<?= Url::to(['observation/index']) ?>">&larr; Voltar às observações</a>
 
     <section class="species-detail-hero mb-4">
         <div class="species-detail-copy">
@@ -55,7 +55,7 @@ JS, View::POS_END);
                 <span class="species-meta-chip"><?= Html::encode($observation->getResolvedFamily() ?: 'Família desconhecida') ?></span>
                 <?php if ($observation->publication !== null): ?><span class="species-meta-chip chip-highlight">Já publicada</span><?php endif; ?>
             </div>
-            <p class="hero-text"><?= Html::encode($observation->notes ?: 'Sem notas de campo registadas para esta observação.') ?></p>
+            <p class="hero-text"><?= Html::encode($observation->notes ?: 'Sem notas de campo registadas para está observação.') ?></p>
             <div class="hero-cta-row mt-4">
                 <?php if ($observation->publication !== null): ?>
                     <a class="btn btn-brand" href="<?= Url::to(['publication/view', 'id' => $observation->publication->publication_id]) ?>">Abrir publicação</a>
@@ -80,10 +80,10 @@ JS, View::POS_END);
                     <h2>Contexto</h2>
                 </div>
                 <div class="info-list detail-info-list">
-                    <div class="detail-info-item"><span>Especie</span><strong><?= Html::encode($observation->getResolvedCommonName() ?: 'Observacao botanica') ?></strong></div>
-                    <div class="detail-info-item"><span>Familia</span><strong><?= Html::encode($observation->getResolvedFamily() ?: 'N/D') ?></strong></div>
+                    <div class="detail-info-item"><span>Espécie</span><strong><?= Html::encode($observation->getResolvedCommonName() ?: 'Observação botânica') ?></strong></div>
+                    <div class="detail-info-item"><span>Família</span><strong><?= Html::encode($observation->getResolvedFamily() ?: 'N/D') ?></strong></div>
                     <div class="detail-info-item">
-                        <span>Localizacao</span>
+                        <span>Localização</span>
                         <?php if ($observation->hasCoordinates()): ?>
                             <strong
                                 id="observation-location-name"
@@ -92,10 +92,10 @@ JS, View::POS_END);
                                 data-fallback="<?= Html::encode($coordinateLabel) ?>"
                             >A obter nome do local...</strong>
                         <?php else: ?>
-                            <strong>Sem localizacao</strong>
+                            <strong>Sem localização</strong>
                         <?php endif; ?>
                     </div>
-                    <div class="detail-info-item"><span>Wikipedia</span><strong><?= $observation->enriched_wikipedia_url ? Html::a('Abrir referencia', $observation->enriched_wikipedia_url, ['target' => '_blank', 'rel' => 'noopener']) : 'Sem referencia' ?></strong></div>
+                    <div class="detail-info-item"><span>Wikipedia</span><strong><?= $observation->enriched_wikipedia_url ? Html::a('Abrir referência', $observation->enriched_wikipedia_url, ['target' => '_blank', 'rel' => 'noopener']) : 'Sem referência' ?></strong></div>
                 </div>
             </article>
             <article class="content-card content-card-soft detail-actions-card">
@@ -104,7 +104,7 @@ JS, View::POS_END);
                     <h2>Ligações</h2>
                 </div>
                 <div class="module-link-list detail-action-list">
-                    <?php if ($observation->plant_species_id): ?><a href="<?= Url::to(['species/view', 'id' => $observation->plant_species_id]) ?>"><i class="fas fa-leaf" aria-hidden="true"></i><span>Abrir ficha da especie</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
+                    <?php if ($observation->plant_species_id): ?><a href="<?= Url::to(['species/view', 'id' => $observation->plant_species_id]) ?>"><i class="fas fa-leaf" aria-hidden="true"></i><span>Abrir ficha da espécie</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
                     <?php if ($observation->publication !== null): ?><a href="<?= Url::to(['publication/view', 'id' => $observation->publication->publication_id]) ?>"><i class="fas fa-newspaper" aria-hidden="true"></i><span>Abrir publicação associada</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
                     <?php if ($observation->hasCoordinates()): ?><a href="<?= Url::to(['map/index']) ?>"><i class="fas fa-map-location-dot" aria-hidden="true"></i><span>Ver no mapa</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
                 </div>
@@ -122,7 +122,7 @@ JS, View::POS_END);
         <?php if (empty($imagePaths)): ?>
             <div class="empty-state-card">
                 <h3>Sem imagem acessível</h3>
-                <p>Esta observação nao tem ficheiros de imagem que a web consiga servir neste momento.</p>
+                <p>Esta observação não tem ficheiros de imagem que a web consiga servir neste momento.</p>
             </div>
         <?php else: ?>
             <div class="observation-gallery-grid">

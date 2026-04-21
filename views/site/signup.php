@@ -13,7 +13,7 @@ $this->title = 'Criar conta';
         <div class="login-copy">
             <span class="eyebrow">Criar conta</span>
             <h1>Junta-te ao portal GeoFlora</h1>
-            <p>Cria uma conta autenticada para gerir observacoes, publicacoes e acompanhar o projeto na web.</p>
+            <p>Cria uma conta autenticada para gerir observações, publicações e acompanhar o projeto na web.</p>
         </div>
 
         <?php $form = ActiveForm::begin(['options' => ['class' => 'signup-form']]); ?>
@@ -33,7 +33,7 @@ $this->title = 'Criar conta';
         <?php ActiveForm::end(); ?>
 
         <div class="auth-switch-note">
-            <span>Ja tens conta?</span>
+            <span>Já tens conta?</span>
             <a href="<?= yii\helpers\Url::to(['site/login']) ?>">Entrar</a>
         </div>
     </div>

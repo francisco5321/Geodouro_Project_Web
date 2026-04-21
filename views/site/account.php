@@ -86,7 +86,7 @@ $this->title = 'A minha conta';
             <?php ActiveForm::end(); ?>
             <?php if ($user->isAdmin()): ?>
                 <div class="module-link-list mt-3">
-                    <a href="<?= yii\helpers\Url::to(['user/index']) ?>">Abrir gestao de utilizadores</a>
+                    <a href="<?= yii\helpers\Url::to(['user/index']) ?>">Abrir gestão de utilizadores</a>
                 </div>
             <?php endif; ?>
         </article>

@@ -37,7 +37,7 @@ class ObservationController extends Controller
                         return Yii::$app->user->loginRequired();
                     }
 
-                    throw new ForbiddenHttpException('Nao tens permissao para criar observacoes manualmente.');
+                    throw new ForbiddenHttpException('Não tens permissão para criar observações manualmente.');
                 },
             ],
         ];
@@ -125,7 +125,7 @@ class ObservationController extends Controller
             ->one();
 
         if ($observation === null) {
-            throw new NotFoundHttpException('Observacao nao encontrada.');
+            throw new NotFoundHttpException('Observação não encontrada.');
         }
 
         return $this->render('view', [
@@ -179,7 +179,7 @@ class ObservationController extends Controller
             }
 
             if ($model->save()) {
-                Yii::$app->session->setFlash('success', 'Observacao criada com sucesso.');
+                Yii::$app->session->setFlash('success', 'Observação criada com sucesso.');
                 return $this->redirect(['observation/view', 'id' => $model->observation_id]);
             }
         }

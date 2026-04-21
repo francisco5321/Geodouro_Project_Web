@@ -34,7 +34,7 @@ markers.forEach((marker) => {
             <strong>${marker.title}</strong>
             <p>${marker.scientificName}</p>
             <p>${marker.author} - ${marker.status}</p>
-            <a href="${marker.detailUrl}">Abrir observacao</a>
+            <a href="${marker.detailUrl}">Abrir observação</a>
         </div>
     `;
     L.circleMarker(point, {
@@ -54,10 +54,10 @@ if (canCreateObservation) {
             .setLatLng(event.latlng)
             .setContent(`
                 <div class="map-popup map-popup-rich">
-                    <strong>Novo ponto de observacao</strong>
+                    <strong>Novo ponto de observação</strong>
                     <p>${lat}, ${lng}</p>
                     <div class="map-popup-actions">
-                        <a class="map-popup-create-link" href="${createUrl}">Criar observacao aqui</a>
+                        <a class="map-popup-create-link" href="${createUrl}">Criar observação aqui</a>
                     </div>
                 </div>
             `)
@@ -81,7 +81,7 @@ $this->registerJs($js, View::POS_END);
                 Mapa Interativo
             </span>
             <h1 class="hero-title hero-title-tight">Observações no Território</h1>
-            <p class="hero-text">Explora todas as observações botânicas num mapa interativo. Os pontos marcados em "Quero visitar" aparecem destacados para ajudarte a desenhar o teu futuro roteiro de campo.</p>
+            <p class="hero-text">Explora todas as observações botânicas num mapa interativo. Os pontos marcados em "Quero visitar" aparecem destacados para ajudar-te a desenhar o teu futuro roteiro de campo.</p>
         </div>
         <div class="detail-stat-grid">
             <?= StatCard::widget([
@@ -134,8 +134,8 @@ $this->registerJs($js, View::POS_END);
             <div class="map-observation-list">
                 <?php foreach (array_slice($observations, 0, 8) as $observation): ?>
                     <article class="map-observation-item">
-                        <p class="species-scientific-name"><?= Html::encode($observation->getResolvedScientificName() ?: 'Sem classificacao') ?></p>
-                        <h3><?= Html::encode($observation->getResolvedCommonName() ?: 'Observacao botanica') ?></h3>
+                        <p class="species-scientific-name"><?= Html::encode($observation->getResolvedScientificName() ?: 'Sem classificação') ?></p>
+                        <h3><?= Html::encode($observation->getResolvedCommonName() ?: 'Observação botânica') ?></h3>
                         <p><?= Html::encode($observation->user?->getFullName() ?? 'Sistema') ?></p>
                         <a href="<?= Url::to(['observation/view', 'id' => $observation->observation_id]) ?>">Abrir detalhe</a>
                     </article>

@@ -38,7 +38,7 @@ class MediaController extends Controller
             ->one();
 
         if ($observation === null) {
-            throw new NotFoundHttpException('Observacao nao encontrada.');
+            throw new NotFoundHttpException('Observação não encontrada.');
         }
 
         return $this->sendRelativeUpload($observation->getImageGalleryPaths()[$index] ?? null);
@@ -52,7 +52,7 @@ class MediaController extends Controller
             ->one();
 
         if ($publication === null) {
-            throw new NotFoundHttpException('Publicacao nao encontrada.');
+            throw new NotFoundHttpException('Publicação não encontrada.');
         }
 
         return $this->sendRelativeUpload($publication->getImageGalleryPaths()[$index] ?? null);
@@ -61,19 +61,19 @@ class MediaController extends Controller
     private function sendRelativeUpload(?string $relativePath): Response
     {
         if ($relativePath === null || trim($relativePath) === '') {
-            throw new NotFoundHttpException('Imagem nao encontrada.');
+            throw new NotFoundHttpException('Imagem não encontrada.');
         }
 
         $basePath = Yii::$app->params['backendUploadsPath'] ?? null;
         if (!$basePath) {
-            throw new NotFoundHttpException('Diretorio de uploads nao configurado.');
+            throw new NotFoundHttpException('Diretório de uploads não configurado.');
         }
 
         $candidatePath = realpath($basePath . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativePath));
         $resolvedBase = realpath($basePath);
 
         if ($candidatePath === false || $resolvedBase === false || !str_starts_with($candidatePath, $resolvedBase) || !is_file($candidatePath)) {
-            throw new NotFoundHttpException('Ficheiro de imagem indisponivel.');
+            throw new NotFoundHttpException('Ficheiro de imagem indisponível.');
         }
 
         return Yii::$app->response->sendFile($candidatePath, basename($candidatePath), ['inline' => true]);

@@ -25,7 +25,7 @@ class UserController extends Controller
                     ],
                 ],
                 'denyCallback' => static function () {
-                    throw new \yii\web\ForbiddenHttpException('Apenas administradores podem aceder a esta area.');
+                    throw new \yii\web\ForbiddenHttpException('Apenas administradores podem aceder a esta área.');
                 },
             ],
             'verbs' => [
@@ -80,11 +80,11 @@ class UserController extends Controller
     {
         $user = AppUser::findOne(['user_id' => $id, 'is_authenticated' => true]);
         if ($user === null) {
-            throw new NotFoundHttpException('Utilizador nao encontrado.');
+            throw new NotFoundHttpException('Utilizador não encontrado.');
         }
 
         if (!$user->hasAttribute('role')) {
-            Yii::$app->session->setFlash('success', 'A coluna de role ainda nao existe nesta base de dados. Corre as migrations primeiro.');
+            Yii::$app->session->setFlash('success', 'A coluna de role ainda não existe nesta base de dados. Corre as migrations primeiro.');
             return $this->redirect(['user/index']);
         }
 
@@ -93,7 +93,7 @@ class UserController extends Controller
         }
 
         if ((int) $user->user_id === (int) Yii::$app->user->id) {
-            Yii::$app->session->setFlash('success', 'Por seguranca, nao podes alterar o teu proprio papel por aqui.');
+            Yii::$app->session->setFlash('success', 'Por segurança, não podes alterar o teu próprio papel por aqui.');
             return $this->redirect(['user/index', 'q' => Yii::$app->request->post('q', '')]);
         }
 

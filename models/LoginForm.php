@@ -29,7 +29,7 @@ class LoginForm extends Model
         return [
             'username' => 'Username',
             'password' => 'Password',
-            'rememberMe' => 'Manter sessao iniciada',
+            'rememberMe' => 'Manter sessão iniciada',
         ];
     }
 
@@ -41,7 +41,7 @@ class LoginForm extends Model
 
         $user = $this->getUser();
         if ($user === null || !$user->validatePassword($this->password)) {
-            $this->addError($attribute, 'Credenciais invalidas.');
+            $this->addError($attribute, 'Credenciais inválidas.');
         }
     }
 
@@ -54,7 +54,7 @@ class LoginForm extends Model
         try {
             Yii::$app->backendAuthSession->syncLogin($this->username, $this->password);
         } catch (RuntimeException $exception) {
-            $this->addError('password', 'Nao foi possivel ligar ao backend comum: ' . $exception->getMessage());
+            $this->addError('password', 'Não foi possível ligar ao backend comum: ' . $exception->getMessage());
             return false;
         }
 

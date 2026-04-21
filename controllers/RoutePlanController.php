@@ -123,8 +123,8 @@ class RoutePlanController extends Controller
                 'id' => $observation->observation_id,
                 'latitude' => (float) $observation->latitude,
                 'longitude' => (float) $observation->longitude,
-                'title' => $observation->getResolvedCommonName() ?: 'Observacao botanica',
-                'scientificName' => $observation->getResolvedScientificName() ?: 'Sem classificacao enriquecida',
+                'title' => $observation->getResolvedCommonName() ?: 'Observação botânica',
+                'scientificName' => $observation->getResolvedScientificName() ?: 'Sem classificação enriquecida',
                 'status' => $observation->is_published ? 'Publicada' : $observation->sync_status,
                 'detailUrl' => \yii\helpers\Url::to(['observation/view', 'id' => $observation->observation_id]),
                 'isInRoute' => in_array((int) $observation->observation_id, $routeObservationIds, true),
@@ -153,7 +153,7 @@ class RoutePlanController extends Controller
                 Yii::$app->session->setFlash('success', $response['message'] ?? 'Percurso criado com sucesso.');
                 return $this->redirect(['route-plan/view', 'id' => (int) ($response['routePlanId'] ?? 0)]);
             } catch (RuntimeException $exception) {
-                Yii::$app->session->setFlash('error', 'Nao foi possivel criar o percurso no backend comum: ' . $exception->getMessage());
+                Yii::$app->session->setFlash('error', 'Não foi possível criar o percurso no backend comum: ' . $exception->getMessage());
             }
         }
 
@@ -172,7 +172,7 @@ class RoutePlanController extends Controller
                 Yii::$app->session->setFlash('success', $response['message'] ?? 'Percurso atualizado com sucesso.');
                 return $this->redirect(['route-plan/view', 'id' => $plan->route_plan_id]);
             } catch (RuntimeException $exception) {
-                Yii::$app->session->setFlash('error', 'Nao foi possivel atualizar o percurso no backend comum: ' . $exception->getMessage());
+                Yii::$app->session->setFlash('error', 'Não foi possível atualizar o percurso no backend comum: ' . $exception->getMessage());
             }
         }
 
@@ -189,7 +189,7 @@ class RoutePlanController extends Controller
             Yii::$app->routePlanApi->deleteRoutePlan((int) $plan->route_plan_id);
             Yii::$app->session->setFlash('success', 'Percurso removido com sucesso.');
         } catch (RuntimeException $exception) {
-            Yii::$app->session->setFlash('error', 'Nao foi possivel remover o percurso no backend comum: ' . $exception->getMessage());
+            Yii::$app->session->setFlash('error', 'Não foi possível remover o percurso no backend comum: ' . $exception->getMessage());
         }
 
         return $this->redirect(['route-plan/index']);
@@ -203,7 +203,7 @@ class RoutePlanController extends Controller
             $response = Yii::$app->routePlanApi->addTarget((int) $plan->route_plan_id, $targetId);
             Yii::$app->session->setFlash('success', $response['message'] ?? 'Alvo adicionado ao percurso.');
         } catch (RuntimeException $exception) {
-            Yii::$app->session->setFlash('error', 'Nao foi possivel adicionar o alvo no backend comum: ' . $exception->getMessage());
+            Yii::$app->session->setFlash('error', 'Não foi possível adicionar o alvo no backend comum: ' . $exception->getMessage());
         }
 
         return $this->redirect(['route-plan/view', 'id' => $plan->route_plan_id]);
@@ -218,7 +218,7 @@ class RoutePlanController extends Controller
             $response = Yii::$app->routePlanApi->addSpecies((int) $plan->route_plan_id, $speciesId);
             Yii::$app->session->setFlash('success', $response['message'] ?? 'Planta adicionada ao percurso.');
         } catch (RuntimeException $exception) {
-            Yii::$app->session->setFlash('error', 'Nao foi possivel adicionar a planta no backend comum: ' . $exception->getMessage());
+            Yii::$app->session->setFlash('error', 'Não foi possível adicionar a planta no backend comum: ' . $exception->getMessage());
         }
 
         return $this->redirect(['route-plan/view', 'id' => $plan->route_plan_id, 'speciesQ' => $speciesQ]);
@@ -236,7 +236,7 @@ class RoutePlanController extends Controller
                 $response['message'] ?? 'Percurso atualizado.'
             );
         } catch (RuntimeException $exception) {
-            return $this->jsonToggleResponse(false, false, 'Nao foi possivel atualizar o percurso no backend comum: ' . $exception->getMessage(), true);
+            return $this->jsonToggleResponse(false, false, 'Não foi possível atualizar o percurso no backend comum: ' . $exception->getMessage(), true);
         }
     }
 
@@ -244,11 +244,11 @@ class RoutePlanController extends Controller
     {
         $point = RoutePlanPoint::find()->with('routePlan')->where(['route_plan_point_id' => $id])->one();
         if ($point === null) {
-            throw new NotFoundHttpException('Ponto do percurso nao encontrado.');
+            throw new NotFoundHttpException('Ponto do percurso não encontrado.');
         }
 
         if (!$point->routePlan->canBeManagedBy(Yii::$app->user->identity)) {
-            throw new ForbiddenHttpException('Nao tens permissao para alterar este percurso.');
+            throw new ForbiddenHttpException('Não tens permissão para alterar este percurso.');
         }
 
         $routePlanId = (int) $point->route_plan_id;
@@ -256,7 +256,7 @@ class RoutePlanController extends Controller
             $response = Yii::$app->routePlanApi->removePoint($id);
             Yii::$app->session->setFlash('success', $response['message'] ?? 'Ponto removido do percurso.');
         } catch (RuntimeException $exception) {
-            Yii::$app->session->setFlash('error', 'Nao foi possivel remover o ponto no backend comum: ' . $exception->getMessage());
+            Yii::$app->session->setFlash('error', 'Não foi possível remover o ponto no backend comum: ' . $exception->getMessage());
         }
 
         return $this->redirect(['route-plan/view', 'id' => $routePlanId]);
@@ -292,7 +292,7 @@ class RoutePlanController extends Controller
     {
         $plan = RoutePlan::findOne(['route_plan_id' => $id, 'user_id' => Yii::$app->user->id]);
         if ($plan === null) {
-            throw new NotFoundHttpException('Percurso nao encontrado.');
+            throw new NotFoundHttpException('Percurso não encontrado.');
         }
 
         return $plan;

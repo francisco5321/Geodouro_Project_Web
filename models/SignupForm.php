@@ -24,7 +24,7 @@ class SignupForm extends Model
             [['email', 'username'], 'string', 'max' => 255],
             [['email'], 'email'],
             [['password', 'passwordRepeat'], 'string', 'min' => 8, 'max' => 255],
-            ['passwordRepeat', 'compare', 'compareAttribute' => 'password', 'message' => 'As passwords nao coincidem.'],
+            ['passwordRepeat', 'compare', 'compareAttribute' => 'password', 'message' => 'As passwords não coincidem.'],
             ['email', 'validateEmailIsUnique'],
             ['username', 'validateUsernameIsUnique'],
         ];
@@ -49,7 +49,7 @@ class SignupForm extends Model
         }
 
         if (AppUser::find()->andWhere(['email' => $this->email])->exists()) {
-            $this->addError($attribute, 'Ja existe uma conta com este email.');
+            $this->addError($attribute, 'Já existe uma conta com este email.');
         }
     }
 
@@ -60,7 +60,7 @@ class SignupForm extends Model
         }
 
         if (AppUser::find()->andWhere(['username' => $this->username])->exists()) {
-            $this->addError($attribute, 'Este username ja esta em uso.');
+            $this->addError($attribute, 'Este username já está em uso.');
         }
     }
 
@@ -90,7 +90,7 @@ class SignupForm extends Model
         try {
             Yii::$app->backendAuthSession->refreshForUser($user, $this->password);
         } catch (RuntimeException $exception) {
-            $this->addError('password', 'A conta foi criada, mas nao foi possivel sincronizar a sessao com o backend: ' . $exception->getMessage());
+            $this->addError('password', 'A conta foi criada, mas não foi possível sincronizar a sessão com o backend: ' . $exception->getMessage());
             return null;
         }
 

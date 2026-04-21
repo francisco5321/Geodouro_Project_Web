@@ -7,16 +7,16 @@ use app\models\Publication;
 /** @var array $observationOptions */
 /** @var array $speciesOptions */
 
-$this->title = 'Editar publicacao';
+$this->title = 'Editar publicação';
 ?>
 <div class="module-shell">
-    <a class="back-link" href="<?= yii\helpers\Url::to(['publication/view', 'id' => $model->publication_id]) ?>">&larr; Voltar a publicacao</a>
+    <a class="back-link" href="<?= yii\helpers\Url::to(['publication/view', 'id' => $model->publication_id]) ?>">&larr; Voltar a publicação</a>
 
     <section class="species-hero mb-4">
         <div>
             <span class="eyebrow">Edicao editorial</span>
-            <h1 class="hero-title hero-title-tight">Atualizar publicacao #<?= (int) $model->publication_id ?></h1>
-            <p class="hero-text">Administra o conteudo, o estado editorial e a ligação desta publicacao a observacoes e especies.</p>
+            <h1 class="hero-title hero-title-tight">Atualizar publicação #<?= (int) $model->publication_id ?></h1>
+            <p class="hero-text">Administra o conteúdo, o estado editorial e a ligação desta publicação a observações e espécies.</p>
         </div>
     </section>
 

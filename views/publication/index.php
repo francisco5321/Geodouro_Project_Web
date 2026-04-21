@@ -12,7 +12,7 @@ use yii\widgets\LinkPager;
 /** @var array $summary */
 /** @var string $scope */
 
-$this->title = 'Publicacoes';
+$this->title = 'Publicações';
 ?>
 <div class="module-shell">
     <section class="species-hero mb-4">
@@ -87,7 +87,7 @@ $this->title = 'Publicacoes';
             <article class="publication-card publication-card-rich">
                 <?php if ($publication->getCoverImagePath() !== null): ?>
                     <a class="publication-cover" href="<?= Url::to(['publication/view', 'id' => $publication->publication_id]) ?>">
-                        <img src="<?= Url::to(['media/publication-image', 'id' => $publication->publication_id, 'index' => 0]) ?>" alt="Capa da publicacao <?= (int) $publication->publication_id ?>">
+                        <img src="<?= Url::to(['media/publication-image', 'id' => $publication->publication_id, 'index' => 0]) ?>" alt="Capa da publicação <?= (int) $publication->publication_id ?>">
                     </a>
                 <?php endif; ?>
                 <div class="publication-card-body">
@@ -95,9 +95,9 @@ $this->title = 'Publicacoes';
                         <span class="species-meta-chip<?= $publication->isPublished() ? ' chip-highlight' : '' ?>"><?= Html::encode($publication->getStatusLabel()) ?></span>
                         <span class="species-meta-chip"><?= Html::encode($publication->user?->getFullName() ?? 'Sistema') ?></span>
                     </div>
-                    <p class="species-scientific-name"><?= Html::encode($publication->plantSpecies?->scientific_name ?? $publication->observation?->getResolvedScientificName() ?? 'Sem especie associada') ?></p>
-                    <h2><?= Html::encode($publication->title ?: 'Publicacao botanica') ?></h2>
-                    <p class="publication-copy"><?= Html::encode($publication->description ?: 'Sem descricao editorial registada para esta publicacao.') ?></p>
+                    <p class="species-scientific-name"><?= Html::encode($publication->plantSpecies?->scientific_name ?? $publication->observation?->getResolvedScientificName() ?? 'Sem espécie associada') ?></p>
+                    <h2><?= Html::encode($publication->title ?: 'Publicação botânica') ?></h2>
+                    <p class="publication-copy"><?= Html::encode($publication->description ?: 'Sem descrição editorial registada para esta publicação.') ?></p>
                     <div class="species-meta-row">
                         <span class="species-meta-chip"><?= Html::encode(Yii::$app->formatter->asDate($publication->published_at, 'php:d/m/Y')) ?></span>
                         <span class="species-meta-chip"><?= count($publication->publicationImages) ?> imagens</span>
@@ -107,7 +107,7 @@ $this->title = 'Publicacoes';
                         <?php if ($publication->canBeManagedBy(Yii::$app->user->identity)): ?>
                             <a href="<?= Url::to(['publication/update', 'id' => $publication->publication_id]) ?>">Editar</a>
                         <?php endif; ?>
-                        <?php if ($publication->plant_species_id): ?><a href="<?= Url::to(['species/view', 'id' => $publication->plant_species_id]) ?>">Especie</a><?php endif; ?>
+                        <?php if ($publication->plant_species_id): ?><a href="<?= Url::to(['species/view', 'id' => $publication->plant_species_id]) ?>">Espécie</a><?php endif; ?>
                     </div>
                 </div>
             </article>

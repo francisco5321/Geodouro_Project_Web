@@ -8,7 +8,7 @@ use yii\widgets\ActiveField;
 
 /**
  * EnhancedFormFieldBehavior
- * Adds visual enhancements to form fields
+ * Adds visual enháncements to form fields
  * Usage: Attach to view in form layout
  */
 class EnhancedFormField

@@ -85,7 +85,7 @@ class SpeciesController extends Controller
         $species = PlantSpecies::findOne($id);
 
         if ($species === null) {
-            throw new NotFoundHttpException('Especie nao encontrada.');
+            throw new NotFoundHttpException('Espécie não encontrada.');
         }
 
         $observations = Observation::find()

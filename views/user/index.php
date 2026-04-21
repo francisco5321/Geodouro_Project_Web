@@ -94,7 +94,7 @@ $this->title = 'Utilizadores';
                             <td colspan="5">
                                 <div class="empty-state-card compact-empty-state mb-0">
                                     <h3>Sem resultados</h3>
-                                    <p>Nao encontramos utilizadores para a pesquisa atual.</p>
+                                    <p>Não encontrámos utilizadores para a pesquisa atual.</p>
                                 </div>
                             </td>
                         </tr>
@@ -114,7 +114,7 @@ $this->title = 'Utilizadores';
                                         <?php if ($user->isAdmin()): ?>
                                             <?= Html::beginForm(['user/set-role', 'id' => $user->user_id, 'role' => AppUser::ROLE_USER], 'post') ?>
                                                 <?= Html::hiddenInput('q', $search) ?>
-                                                <?= Html::submitButton('Tornar utilizador', ['class' => 'btn btn-link table-action-button', 'data-confirm' => 'Tens a certeza que queres remover privilegios de administrador a este utilizador?']) ?>
+                                                <?= Html::submitButton('Tornar utilizador', ['class' => 'btn btn-link table-action-button', 'data-confirm' => 'Tens a certeza que queres remover privilégios de administrador a este utilizador?']) ?>
                                             <?= Html::endForm() ?>
                                         <?php else: ?>
                                             <?= Html::beginForm(['user/set-role', 'id' => $user->user_id, 'role' => AppUser::ROLE_ADMIN], 'post') ?>
@@ -123,7 +123,7 @@ $this->title = 'Utilizadores';
                                             <?= Html::endForm() ?>
                                         <?php endif; ?>
                                     <?php else: ?>
-                                        <span class="table-subtext">Sem acao</span>
+                                        <span class="table-subtext">Sem ação</span>
                                     <?php endif; ?>
                                 </div>
                             </td>

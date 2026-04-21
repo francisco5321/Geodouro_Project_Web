@@ -13,7 +13,7 @@ $this->title = 'Entrar';
         <div class="login-copy">
             <span class="eyebrow">Acesso reservado</span>
             <h1>Entrar no portal GeoFlora</h1>
-            <p>Usa as tuas credenciais para aceder aos modulos de especies, observacoes, publicacoes e mapa.</p>
+            <p>Usa as tuas credenciais para aceder aos módulos de espécies, observações, publicações e mapa.</p>
         </div>
 
         <?php $form = ActiveForm::begin(['options' => ['class' => 'login-form']]); ?>
@@ -26,7 +26,7 @@ $this->title = 'Entrar';
         <?php ActiveForm::end(); ?>
 
         <div class="auth-switch-note">
-            <span>Ainda nao tens conta?</span>
+            <span>Ainda não tens conta?</span>
             <a href="<?= yii\helpers\Url::to(['site/signup']) ?>">Criar conta</a>
         </div>
     </div>

@@ -68,11 +68,11 @@ class Publication extends ActiveRecord
     {
         return [
             'publication_id' => 'ID',
-            'observation_id' => 'Observacao',
+            'observation_id' => 'Observação',
             'user_id' => 'Autor',
-            'plant_species_id' => 'Especie',
+            'plant_species_id' => 'Espécie',
             'title' => 'Titulo',
-            'description' => 'Descricao',
+            'description' => 'Descrição',
             'status' => 'Estado editorial',
             'published_at' => 'Publicada em',
             'created_at' => 'Criada em',

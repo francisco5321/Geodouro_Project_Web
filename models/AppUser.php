@@ -95,7 +95,7 @@ class AppUser extends ActiveRecord implements IdentityInterface
     public function validateGuestLabel(string $attribute, $params = null): void
     {
         if (trim((string) $this->$attribute) === '') {
-            $this->addError($attribute, 'O guest label nao pode estar vazio.');
+            $this->addError($attribute, 'O guest label não pode estar vazio.');
         }
     }
 
@@ -106,7 +106,7 @@ class AppUser extends ActiveRecord implements IdentityInterface
         }
 
         if (trim((string) $this->$attribute) === '') {
-            $this->addError($attribute, 'Este campo e obrigatorio para utilizadores autenticados.');
+            $this->addError($attribute, 'Este campo é obrigatório para utilizadores autenticados.');
         }
     }
 

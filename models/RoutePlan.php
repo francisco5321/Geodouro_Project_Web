@@ -63,7 +63,7 @@ class RoutePlan extends ActiveRecord
     {
         return [
             'name' => 'Nome do percurso',
-            'description' => 'Descricao',
+            'description' => 'Descrição',
             'start_label' => 'Nome do ponto de partida',
             'start_latitude' => 'Latitude do ponto de partida',
             'start_longitude' => 'Longitude do ponto de partida',

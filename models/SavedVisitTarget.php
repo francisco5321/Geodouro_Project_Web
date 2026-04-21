@@ -56,7 +56,7 @@ class SavedVisitTarget extends ActiveRecord
     public function validateTargetReference(string $attribute, $params = null): void
     {
         if ($this->plant_species_id === null && $this->publication_id === null && $this->observation_id === null) {
-            $this->addError($attribute, 'Seleciona pelo menos uma especie, publicacao ou observacao para visitar.');
+            $this->addError($attribute, 'Seleciona pelo menos uma espécie, publicação ou observação para visitar.');
         }
     }
 
@@ -97,28 +97,28 @@ class SavedVisitTarget extends ActiveRecord
     public function getTargetTitle(): string
     {
         if ($this->observation !== null) {
-            return $this->observation->getResolvedCommonName() ?: 'Observacao botanica';
+            return $this->observation->getResolvedCommonName() ?: 'Observação botânica';
         }
 
         if ($this->publication !== null) {
-            return $this->publication->title ?: ($this->publication->plantSpecies?->getDisplayName() ?? 'Publicacao botanica');
+            return $this->publication->title ?: ($this->publication->plantSpecies?->getDisplayName() ?? 'Publicação botânica');
         }
 
-        return $this->plantSpecies?->getDisplayName() ?? 'Especie selecionada';
+        return $this->plantSpecies?->getDisplayName() ?? 'Espécie selecionada';
     }
 
     public function getTargetSubtitle(): string
     {
         if ($this->observation !== null) {
-            return $this->observation->getResolvedScientificName() ?: 'Observacao com coordenadas';
+            return $this->observation->getResolvedScientificName() ?: 'Observação com coordenadas';
         }
 
         if ($this->publication !== null) {
             return $this->publication->plantSpecies?->scientific_name
-                ?: ($this->publication->observation?->getResolvedScientificName() ?? 'Publicacao associada a observacao');
+                ?: ($this->publication->observation?->getResolvedScientificName() ?? 'Publicação associada a observação');
         }
 
-        return $this->plantSpecies?->scientific_name ?? 'Sem classificacao cientifica';
+        return $this->plantSpecies?->scientific_name ?? 'Sem classificação científica';
     }
 
     public function getMapObservation(): ?Observation

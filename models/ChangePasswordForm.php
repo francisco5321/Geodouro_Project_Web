@@ -26,7 +26,7 @@ class ChangePasswordForm extends Model
             [['currentPassword', 'newPassword', 'newPasswordRepeat'], 'required'],
             [['currentPassword', 'newPassword', 'newPasswordRepeat'], 'string', 'min' => 8, 'max' => 255],
             ['currentPassword', 'validateCurrentPassword'],
-            ['newPasswordRepeat', 'compare', 'compareAttribute' => 'newPassword', 'message' => 'As passwords novas nao coincidem.'],
+            ['newPasswordRepeat', 'compare', 'compareAttribute' => 'newPassword', 'message' => 'As passwords novas não coincidem.'],
         ];
     }
 
@@ -46,7 +46,7 @@ class ChangePasswordForm extends Model
         }
 
         if (!$this->user->validatePassword($this->currentPassword)) {
-            $this->addError($attribute, 'A password atual nao esta correta.');
+            $this->addError($attribute, 'A password atual não está correta.');
         }
     }
 
@@ -64,7 +64,7 @@ class ChangePasswordForm extends Model
         try {
             Yii::$app->backendAuthSession->refreshForUser($this->user, $this->newPassword);
         } catch (RuntimeException $exception) {
-            $this->addError('newPassword', 'A password foi atualizada localmente, mas a sessao com o backend nao foi renovada: ' . $exception->getMessage());
+            $this->addError('newPassword', 'A password foi atualizada localmente, mas a sessão com o backend não foi renovada: ' . $exception->getMessage());
             return false;
         }
 

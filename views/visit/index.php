@@ -78,7 +78,7 @@ function buildPopup(marker) {
             <p>${marker.scientificName}</p>
             <p>${marker.status}</p>
             <div class="map-popup-actions">
-                <a href="${marker.detailUrl}">Abrir observacao</a>
+                <a href="${marker.detailUrl}">Abrir observação</a>
                 <button type="button" class="map-popup-button" data-observation-id="${marker.id}">${buttonLabel}</button>
             </div>
         </div>
@@ -226,7 +226,7 @@ $this->registerJs($js, View::POS_END);
             <div class="map-observation-list">
                 <?php if (empty($targets)): ?>
                     <div class="empty-state-card compact-empty-state">
-                        <h3>Ainda nao guardaste nada</h3>
+                        <h3>Ainda não guardaste nada</h3>
                         <p>Abre um ponto do mapa e usa o botao "Quero passar aqui" para criares a tua lista.</p>
                     </div>
                 <?php else: ?>
@@ -236,20 +236,20 @@ $this->registerJs($js, View::POS_END);
                             <h3><?= Html::encode($target->getTargetTitle()) ?></h3>
                             <p>
                                 <?php if ($target->getTargetType() === 'publication'): ?>
-                                    Publicacao editorial
+                                    Publicação editorial
                                 <?php elseif ($target->getTargetType() === 'observation'): ?>
-                                    Observacao selecionada no mapa
+                                    Observação selecionada no mapa
                                 <?php else: ?>
-                                    Especie marcada
+                                    Espécie marcada
                                 <?php endif; ?>
                             </p>
                             <div class="timeline-card-actions visit-target-actions">
                                 <?php if ($target->observation_id !== null): ?>
-                                    <a href="<?= Url::to(['observation/view', 'id' => $target->observation_id]) ?>">Abrir observacao</a>
+                                    <a href="<?= Url::to(['observation/view', 'id' => $target->observation_id]) ?>">Abrir observação</a>
                                 <?php elseif ($target->publication_id !== null): ?>
-                                    <a href="<?= Url::to(['publication/view', 'id' => $target->publication_id]) ?>">Abrir publicacao</a>
+                                    <a href="<?= Url::to(['publication/view', 'id' => $target->publication_id]) ?>">Abrir publicação</a>
                                 <?php elseif ($target->plant_species_id !== null): ?>
-                                    <a href="<?= Url::to(['species/view', 'id' => $target->plant_species_id]) ?>">Abrir especie</a>
+                                    <a href="<?= Url::to(['species/view', 'id' => $target->plant_species_id]) ?>">Abrir espécie</a>
                                 <?php endif; ?>
                                 <?= Html::beginForm(['visit/remove', 'id' => $target->saved_visit_target_id], 'post') ?>
                                     <?= Html::submitButton('Remover', ['class' => 'link-button']) ?>

@@ -93,7 +93,7 @@ class PublicationController extends Controller
             ->one();
 
         if ($publication === null) {
-            throw new NotFoundHttpException('Publicacao nao encontrada.');
+            throw new NotFoundHttpException('Publicação não encontrada.');
         }
 
         return $this->render('view', [
@@ -114,12 +114,12 @@ class PublicationController extends Controller
         $observationOptions = $this->getEditableObservationOptions($publication->observation_id ?: null);
 
         if (empty($observationOptions)) {
-            Yii::$app->session->setFlash('success', 'Nao ha observacoes elegiveis para criar uma nova publicacao.');
+            Yii::$app->session->setFlash('success', 'Não há observações elegíveis para criar uma nova publicação.');
             return $this->redirect(['publication/index']);
         }
 
         if ($publication->load(Yii::$app->request->post()) && $this->persistPublication($publication, true)) {
-            Yii::$app->session->setFlash('success', 'Publicacao criada com sucesso.');
+            Yii::$app->session->setFlash('success', 'Publicação criada com sucesso.');
             return $this->redirect(['publication/view', 'id' => $publication->publication_id]);
         }
 
@@ -139,7 +139,7 @@ class PublicationController extends Controller
         $observationOptions = $this->getEditableObservationOptions($publication->observation_id);
 
         if ($publication->load(Yii::$app->request->post()) && $this->persistPublication($publication, false)) {
-            Yii::$app->session->setFlash('success', 'Publicacao atualizada com sucesso.');
+            Yii::$app->session->setFlash('success', 'Publicação atualizada com sucesso.');
             return $this->redirect(['publication/view', 'id' => $publication->publication_id]);
         }
 
@@ -160,7 +160,7 @@ class PublicationController extends Controller
         $publication->save(false, ['status', 'published_at', 'updated_at']);
         $this->syncObservationPublicationState($publication->observation_id);
 
-        Yii::$app->session->setFlash('success', 'Publicacao publicada com sucesso.');
+        Yii::$app->session->setFlash('success', 'Publicação publicada com sucesso.');
         return $this->redirect(['publication/view', 'id' => $publication->publication_id]);
     }
 
@@ -173,7 +173,7 @@ class PublicationController extends Controller
         $publication->delete();
         $this->syncObservationPublicationState($observationId);
 
-        Yii::$app->session->setFlash('success', 'Publicacao removida com sucesso.');
+        Yii::$app->session->setFlash('success', 'Publicação removida com sucesso.');
         return $this->redirect(['publication/index']);
     }
 
@@ -184,18 +184,18 @@ class PublicationController extends Controller
         $allowedObservationIds = array_map('intval', $allowedObservationIds);
 
         if (!in_array((int) $publication->observation_id, $allowedObservationIds, true)) {
-            $publication->addError('observation_id', 'Esta observacao nao esta disponivel para esta publicacao.');
+            $publication->addError('observation_id', 'Esta observação não está disponível para esta publicação.');
             return false;
         }
 
         $observation = Observation::findOne((int) $publication->observation_id);
         if ($observation === null) {
-            $publication->addError('observation_id', 'Observacao nao encontrada.');
+            $publication->addError('observation_id', 'Observação não encontrada.');
             return false;
         }
 
         if (!$currentUser->isAdmin() && (int) $observation->user_id !== (int) $currentUser->user_id) {
-            throw new ForbiddenHttpException('So podes publicar observacoes tuas.');
+            throw new ForbiddenHttpException('Só podes publicar observações tuas.');
         }
 
         $oldObservationId = $isNew ? null : (int) $publication->getOldAttribute('observation_id');
@@ -246,7 +246,7 @@ class PublicationController extends Controller
             $label = sprintf(
                 '#%d - %s - %s',
                 $observation->observation_id,
-                $observation->getResolvedCommonName() ?: 'Observacao botanica',
+                $observation->getResolvedCommonName() ?: 'Observação botânica',
                 Yii::$app->formatter->asDate($observation->observed_at, 'php:d/m/Y')
             );
             $options[$observation->observation_id] = $label;
@@ -290,7 +290,7 @@ class PublicationController extends Controller
     private function ensureManageAccess(Publication $publication): void
     {
         if (!$publication->canBeManagedBy(Yii::$app->user->identity)) {
-            throw new ForbiddenHttpException('Nao tens permissao para gerir esta publicacao.');
+            throw new ForbiddenHttpException('Não tens permissão para gerir esta publicação.');
         }
     }
 
@@ -298,7 +298,7 @@ class PublicationController extends Controller
     {
         $publication = Publication::findOne(['publication_id' => $id]);
         if ($publication === null) {
-            throw new NotFoundHttpException('Publicacao nao encontrada.');
+            throw new NotFoundHttpException('Publicação não encontrada.');
         }
 
         return $publication;

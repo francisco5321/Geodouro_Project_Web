@@ -72,7 +72,7 @@ class ProfileForm extends Model
             ->exists();
 
         if ($exists) {
-            $this->addError($attribute, 'Ja existe uma conta com este email.');
+            $this->addError($attribute, 'Já existe uma conta com este email.');
         }
     }
 
@@ -88,7 +88,7 @@ class ProfileForm extends Model
             ->exists();
 
         if ($exists) {
-            $this->addError($attribute, 'Este username ja esta em uso.');
+            $this->addError($attribute, 'Este username já está em uso.');
         }
     }
 }

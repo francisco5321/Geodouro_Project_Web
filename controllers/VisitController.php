@@ -78,8 +78,8 @@ class VisitController extends Controller
         $markers = array_map(static function (Observation $observation) use ($savedObservationIds): array {
             return [
                 'id' => $observation->observation_id,
-                'title' => $observation->getResolvedCommonName() ?: 'Observacao botanica',
-                'scientificName' => $observation->getResolvedScientificName() ?: 'Sem classificacao enriquecida',
+                'title' => $observation->getResolvedCommonName() ?: 'Observação botânica',
+                'scientificName' => $observation->getResolvedScientificName() ?: 'Sem classificação enriquecida',
                 'status' => $observation->is_published ? 'Publicada' : $observation->sync_status,
                 'latitude' => (float) $observation->latitude,
                 'longitude' => (float) $observation->longitude,
@@ -100,7 +100,7 @@ class VisitController extends Controller
     {
         $species = PlantSpecies::findOne(['plant_species_id' => $id]);
         if ($species === null) {
-            throw new NotFoundHttpException('Especie nao encontrada.');
+            throw new NotFoundHttpException('Espécie não encontrada.');
         }
 
         try {
@@ -108,7 +108,7 @@ class VisitController extends Controller
             Yii::$app->session->setFlash('success', $response['message'] ?? 'Lista Quero visitar atualizada.');
         } catch (\Throwable $exception) {
             Yii::warning('Visit target backend toggle species failed: ' . $exception->getMessage(), __METHOD__);
-            Yii::$app->session->setFlash('error', 'Nao foi possivel atualizar Quero visitar no backend comum. Confirma que o backend esta atualizado e tenta novamente.');
+            Yii::$app->session->setFlash('error', 'Não foi possível atualizar Quero visitar no backend comum. Confirma que o backend está atualizado e tenta novamente.');
         }
 
         return $this->redirect(Yii::$app->request->referrer ?: ['visit/index']);
@@ -117,7 +117,7 @@ class VisitController extends Controller
     {
         $publication = Publication::findOne(['publication_id' => $id]);
         if ($publication === null) {
-            throw new NotFoundHttpException('Publicacao nao encontrada.');
+            throw new NotFoundHttpException('Publicação não encontrada.');
         }
 
         try {
@@ -125,7 +125,7 @@ class VisitController extends Controller
             Yii::$app->session->setFlash('success', $response['message'] ?? 'Lista Quero visitar atualizada.');
         } catch (\Throwable $exception) {
             Yii::warning('Visit target backend toggle publication failed: ' . $exception->getMessage(), __METHOD__);
-            Yii::$app->session->setFlash('error', 'Nao foi possivel atualizar Quero visitar no backend comum. Confirma que o backend esta atualizado e tenta novamente.');
+            Yii::$app->session->setFlash('error', 'Não foi possível atualizar Quero visitar no backend comum. Confirma que o backend está atualizado e tenta novamente.');
         }
 
         return $this->redirect(Yii::$app->request->referrer ?: ['visit/index']);
@@ -134,7 +134,7 @@ class VisitController extends Controller
     {
         $observation = Observation::findOne(['observation_id' => $id]);
         if ($observation === null || !$observation->hasCoordinates()) {
-            throw new NotFoundHttpException('Observacao nao encontrada.');
+            throw new NotFoundHttpException('Observação não encontrada.');
         }
 
         try {
@@ -144,7 +144,7 @@ class VisitController extends Controller
         } catch (\Throwable $exception) {
             Yii::warning('Visit target backend toggle observation failed: ' . $exception->getMessage(), __METHOD__);
             $saved = false;
-            $message = 'Nao foi possivel atualizar Quero visitar no backend comum. Confirma que o backend esta atualizado e tenta novamente.';
+            $message = 'Não foi possível atualizar Quero visitar no backend comum. Confirma que o backend está atualizado e tenta novamente.';
             if (Yii::$app->request->isAjax) {
                 Yii::$app->response->format = Response::FORMAT_JSON;
                 return [
@@ -186,7 +186,7 @@ class VisitController extends Controller
         $routePlan = new RoutePlan();
         $routePlan->user_id = (int) Yii::$app->user->id;
         if (!$routePlan->load(Yii::$app->request->post())) {
-            Yii::$app->session->setFlash('error', 'Nao foi possivel ler os dados do percurso.');
+            Yii::$app->session->setFlash('error', 'Não foi possível ler os dados do percurso.');
             return $this->redirect(['visit/index']);
         }
 
@@ -199,7 +199,7 @@ class VisitController extends Controller
         $transaction = Yii::$app->db->beginTransaction();
         try {
             if (!$routePlan->save(false)) {
-                throw new \RuntimeException('Nao foi possivel criar o percurso.');
+                throw new \RuntimeException('Não foi possível criar o percurso.');
             }
 
             $visitOrder = 1;
@@ -218,7 +218,7 @@ class VisitController extends Controller
                 ]);
 
                 if (!$point->save()) {
-                    throw new \RuntimeException('Nao foi possivel guardar uma das paragens do percurso.');
+                    throw new \RuntimeException('Não foi possível guardar uma das paragens do percurso.');
                 }
 
                 $usedTargetIds[] = (int) $target->saved_visit_target_id;
@@ -227,7 +227,7 @@ class VisitController extends Controller
             }
 
             if ($visitOrder === 1) {
-                throw new \RuntimeException('Os alvos selecionados ainda nao tem coordenadas validas para gerar um percurso.');
+                throw new \RuntimeException('Os alvos selecionados ainda não tem coordenadas válidas para gerar um percurso.');
             }
 
             SavedVisitTarget::updateAll(['notes' => self::CONSUMED_VISIT_TARGET_NOTE], ['saved_visit_target_id' => $usedTargetIds, 'user_id' => Yii::$app->user->id]);
@@ -246,11 +246,11 @@ class VisitController extends Controller
     {
         $target = SavedVisitTarget::findOne(['saved_visit_target_id' => $id]);
         if ($target === null) {
-            throw new NotFoundHttpException('Alvo de visita nao encontrado.');
+            throw new NotFoundHttpException('Alvo de visita não encontrado.');
         }
 
         if ((int) $target->user_id !== (int) Yii::$app->user->id) {
-            throw new ForbiddenHttpException('Nao podes remover alvos de visita de outro utilizador.');
+            throw new ForbiddenHttpException('Não podes remover alvos de visita de outro utilizador.');
         }
 
         try {
@@ -258,7 +258,7 @@ class VisitController extends Controller
             Yii::$app->session->setFlash('success', 'Alvo removido da tua lista de visita.');
         } catch (\Throwable $exception) {
             Yii::warning('Visit target backend remove failed: ' . $exception->getMessage(), __METHOD__);
-            Yii::$app->session->setFlash('error', 'Nao foi possivel remover este alvo no backend comum. Confirma que o backend esta atualizado e tenta novamente.');
+            Yii::$app->session->setFlash('error', 'Não foi possível remover este alvo no backend comum. Confirma que o backend está atualizado e tenta novamente.');
         }
 
         return $this->redirect(['visit/index']);

@@ -58,13 +58,13 @@ class PlantSpecies extends ActiveRecord
     {
         return [
             'plant_species_id' => 'ID',
-            'scientific_name' => 'Nome Cientifico',
+            'scientific_name' => 'Nome Científico',
             'common_name' => 'Nome Comum',
-            'family' => 'Familia',
-            'genus' => 'Genero',
-            'species' => 'Especie',
+            'family' => 'Família',
+            'genus' => 'Género',
+            'species' => 'Espécie',
             'image_count' => 'Numero de Imagens',
-            'description' => 'Descricao',
+            'description' => 'Descrição',
             'created_at' => 'Criado em',
             'updated_at' => 'Atualizado em',
         ];

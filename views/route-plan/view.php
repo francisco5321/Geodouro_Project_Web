@@ -110,7 +110,7 @@ function drawFallbackRoute() {
         opacity: 0.8,
         dashArray: '10 8',
     }).addTo(routeMap);
-    setRouteTraceStatus('Nao foi possivel calcular o trajeto pelos caminhos. A mostrar circuito direto entre paragens, com regresso ao primeiro ponto.', 'fallback');
+    setRouteTraceStatus('Não foi possível calcular o trajeto pelos caminhos. A mostrar circuito direto entre paragens, com regresso ao primeiro ponto.', 'fallback');
 }
 
 async function drawPlannedRoute() {
@@ -173,7 +173,7 @@ function buildObservationPopup(marker) {
             <p>${marker.scientificName}</p>
             <p>${marker.status}</p>
             <div class="map-popup-actions">
-                <a href="${marker.detailUrl}">Abrir observacao</a>
+                <a href="${marker.detailUrl}">Abrir observação</a>
                 <button type="button" class="map-popup-button" data-observation-id="${marker.id}">${buttonLabel}</button>
             </div>
         </div>
@@ -260,11 +260,11 @@ $this->registerJs($js, View::POS_END);
         <div>
             <span class="eyebrow">Percurso planeado</span>
             <h1 class="hero-title hero-title-tight"><?= Html::encode($plan->name) ?></h1>
-            <p class="hero-text"><?= Html::encode($plan->description ?: 'Sem descricao definida para este percurso.') ?></p>
+            <p class="hero-text"><?= Html::encode($plan->description ?: 'Sem descrição definida para este percurso.') ?></p>
         </div>
         <div class="detail-stat-grid">
             <article class="detail-stat-card"><span>Paragens</span><strong><?= count($plan->routePlanPoints) ?></strong></article>
-            <article class="detail-stat-card"><span>Partida mobile</span><strong>Localizacao atual</strong></article>
+            <article class="detail-stat-card"><span>Partida mobile</span><strong>Localização atual</strong></article>
             <article class="detail-stat-card"><span>Trajeto</span><strong>Circuito fechado</strong></article>
         </div>
     </section>
@@ -277,7 +277,7 @@ $this->registerJs($js, View::POS_END);
         <div class="toolbar-row">
             <div>
                 <strong>Fluxo simplificado</strong>
-                <p class="table-subtext mb-0">Seleciona diretamente uma observacao no mapa e usa "Quero passar aqui". No mobile, o Google Maps parte da localizacao atual do utilizador.</p>
+                <p class="table-subtext mb-0">Seleciona diretamente uma observação no mapa e usa "Quero passar aqui". No mobile, o Google Maps parte da localização atual do utilizador.</p>
             </div>
             <div class="toolbar-actions">
                 <a class="btn btn-outline-brand" href="<?= Url::to(['route-plan/update', 'id' => $plan->route_plan_id]) ?>">Editar percurso</a>
@@ -308,11 +308,11 @@ $this->registerJs($js, View::POS_END);
                             <p><?= Html::encode($target?->getTargetSubtitle() ?? 'Sem subtitulo') ?></p>
                             <div class="timeline-card-actions">
                                 <?php if ($target?->observation_id !== null): ?>
-                                    <a href="<?= Url::to(['observation/view', 'id' => $target->observation_id]) ?>">Abrir observacao</a>
+                                    <a href="<?= Url::to(['observation/view', 'id' => $target->observation_id]) ?>">Abrir observação</a>
                                 <?php elseif ($target?->publication_id !== null): ?>
-                                    <a href="<?= Url::to(['publication/view', 'id' => $target->publication_id]) ?>">Abrir publicacao</a>
+                                    <a href="<?= Url::to(['publication/view', 'id' => $target->publication_id]) ?>">Abrir publicação</a>
                                 <?php elseif ($target?->plant_species_id !== null): ?>
-                                    <a href="<?= Url::to(['species/view', 'id' => $target->plant_species_id]) ?>">Abrir especie</a>
+                                    <a href="<?= Url::to(['species/view', 'id' => $target->plant_species_id]) ?>">Abrir espécie</a>
                                 <?php endif; ?>
                                 <?= Html::beginForm(['route-plan/remove-point', 'id' => $point->route_plan_point_id], 'post') ?>
                                     <?= Html::submitButton('Remover do percurso', ['class' => 'link-button']) ?>
@@ -336,7 +336,7 @@ $this->registerJs($js, View::POS_END);
             <div class="toolbar-row user-search-row">
                 <?= Html::beginForm(['route-plan/view', 'id' => $plan->route_plan_id], 'get', ['class' => 'user-search-form']) ?>
                     <div class="user-search-input-wrap">
-                        <?= Html::textInput('speciesQ', $speciesSearch, ['class' => 'form-control user-search-input', 'placeholder' => 'Pesquisar plantas por nome comum, cientifico, familia ou genero']) ?>
+                        <?= Html::textInput('speciesQ', $speciesSearch, ['class' => 'form-control user-search-input', 'placeholder' => 'Pesquisar plantas por nome comum, científico, família ou género']) ?>
                     </div>
                     <div class="toolbar-actions">
                         <?= Html::submitButton('Pesquisar plantas', ['class' => 'btn btn-brand']) ?>
@@ -368,7 +368,7 @@ $this->registerJs($js, View::POS_END);
                                 <?= Html::hiddenInput('speciesQ', $speciesSearch) ?>
                                 <?= Html::submitButton('Adicionar planta ao percurso', ['class' => 'btn btn-brand']) ?>
                             <?= Html::endForm() ?>
-                            <a href="<?= Url::to(['species/view', 'id' => $species->plant_species_id]) ?>">Abrir especie</a>
+                            <a href="<?= Url::to(['species/view', 'id' => $species->plant_species_id]) ?>">Abrir espécie</a>
                         </div>
                     </article>
                 <?php endforeach; ?>

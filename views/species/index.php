@@ -31,7 +31,7 @@ $sortOptions = [
                 Catálogo Botânico
             </span>
             <h1 class="hero-title hero-title-tight">Espécies observadas no ecossistema GeoDouro</h1>
-            <p class="hero-text">Explora o catálogo completo de espécies, organisadas por família e género, com informações detalhadas e imagens.</p>
+            <p class="hero-text">Explora o catálogo completo de espécies, organizadas por família e género, com informações detalhadas e imagens.</p>
         </div>
         <div class="detail-stat-grid">
             <?= StatCard::widget([
