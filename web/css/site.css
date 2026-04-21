@@ -1634,9 +1634,14 @@ body.app-shell {
     text-decoration: none;
 }
 
-.timeline-grid,
-.publication-grid {
+.timeline-grid {
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.publication-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 460px));
+    justify-content: start;
+    align-items: start;
 }
 
 .timeline-card-top {
@@ -3085,12 +3090,15 @@ table {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .publication-grid,
     .timeline-grid,
     .observation-list,
     .module-hub,
     .modules-grid {
         grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    }
+
+    .publication-grid {
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 460px));
     }
 
     .map-sidebar {
@@ -3236,13 +3244,16 @@ table {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .publication-grid,
     .timeline-grid,
     .observation-list,
     .module-hub,
     .modules-grid,
     .gallery-grid,
     .observation-gallery-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .publication-grid {
         grid-template-columns: minmax(0, 1fr);
     }
 
