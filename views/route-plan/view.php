@@ -46,13 +46,15 @@ if (savedMapState) {
 }
 
 // Restaurar posição de scroll após a página estar carregada
-function restoreScrollPosition() {
+function restoreScrollPosition(clearAfterRestore = false) {
     const savedScrollPosition = sessionStorage.getItem('routeScrollPosition');
     if (savedScrollPosition) {
         try {
             const scrollPos = JSON.parse(savedScrollPosition);
             window.scrollTo(scrollPos.x, scrollPos.y);
-            sessionStorage.removeItem('routeScrollPosition');
+            if (clearAfterRestore) {
+                sessionStorage.removeItem('routeScrollPosition');
+            }
         } catch (e) {
             console.error('Erro ao restaurar posição de scroll:', e);
         }
@@ -66,10 +68,12 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(restoreScrollPosition, 50);
     setTimeout(restoreScrollPosition, 200);
     setTimeout(restoreScrollPosition, 500);
+    setTimeout(() => restoreScrollPosition(true), 1000);
 });
 window.addEventListener('load', () => {
     requestAnimationFrame(restoreScrollPosition);
     setTimeout(restoreScrollPosition, 100);
+    setTimeout(() => restoreScrollPosition(true), 700);
 });
 
 function refreshRouteMapSize() {
