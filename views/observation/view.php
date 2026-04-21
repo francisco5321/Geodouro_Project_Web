@@ -55,7 +55,7 @@ JS, View::POS_END);
                 <span class="species-meta-chip"><?= Html::encode($observation->getResolvedFamily() ?: 'Família desconhecida') ?></span>
                 <?php if ($observation->publication !== null): ?><span class="species-meta-chip chip-highlight">Já publicada</span><?php endif; ?>
             </div>
-            <p class="hero-text"><?= Html::encode($observation->notes ?: 'Sem notas de campo registadas para está observação.') ?></p>
+            <p class="hero-text"><?= Html::encode($observation->notes ?: 'Sem notas de campo registadas para esta observação.') ?></p>
             <div class="hero-cta-row mt-4">
                 <?php if ($observation->publication !== null): ?>
                     <a class="btn btn-brand" href="<?= Url::to(['publication/view', 'id' => $observation->publication->publication_id]) ?>">Abrir publicação</a>
