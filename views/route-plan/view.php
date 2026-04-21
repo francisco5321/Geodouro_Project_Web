@@ -200,7 +200,7 @@ function buildObservationPopup(marker) {
             <p>${marker.status}</p>
             <div class="map-popup-actions">
                 <a href="${marker.detailUrl}">Abrir observação</a>
-                <button type="button" class="map-popup-button" data-observation-id="${marker.id}">${buttonLabel}</button>
+                <button type="button" class="map-popup-button js-route-observation-toggle" data-observation-id="${marker.id}">${buttonLabel}</button>
             </div>
         </div>
     `;
@@ -218,7 +218,7 @@ backgroundMarkers.forEach((marker) => {
     }).addTo(routeMap).bindPopup(buildObservationPopup(marker));
 
     circle.on('popupopen', () => {
-        const button = document.querySelector(`.map-popup-button[data-observation-id="${marker.id}"]`);
+        const button = document.querySelector(`.js-route-observation-toggle-legacy-disabled[data-observation-id="${marker.id}"]`);
         if (!button) {
             return;
         }
