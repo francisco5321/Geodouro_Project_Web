@@ -124,6 +124,10 @@ $this->title = 'Publicações';
             'nextPageCssClass' => 'page-item',
             'disabledPageCssClass' => 'page-item disabled',
             'activePageCssClass' => 'page-item active',
+            'prevPageLabel' => '‹',
+            'nextPageLabel' => '›',
+            'hideOnSinglePage' => true,
+            'disabledListItemSubTagOptions' => ['class' => 'd-none'],
         ]) ?>
     </div>
 </div>

@@ -2,7 +2,7 @@
     --gf-brand: #3e7a57;
     --gf-primary: #7fc084;
     --gf-accent: #9ccc65;
-    --gf-bg: #f4f7f2;
+    --gf-bg: #eaf3e7;
     --gf-surface: #ffffff;
     --gf-surface-soft: #f5f5f5;
     --gf-text: #212121;
@@ -21,8 +21,8 @@ body.app-shell {
     margin: 0;
     padding: 0;
     background:
-        radial-gradient(circle at top right, rgba(127, 192, 132, 0.18), transparent 22%),
-        linear-gradient(180deg, #f8fbf7 0%, var(--gf-bg) 100%);
+        radial-gradient(circle at top right, rgba(127, 192, 132, 0.2), transparent 24%),
+        linear-gradient(180deg, #f0f8ee 0%, var(--gf-bg) 48%, #dfeadb 100%);
     background-attachment: fixed;
     color: var(--gf-text);
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -1385,14 +1385,39 @@ body.app-shell {
     padding-top: 0.5rem;
 }
 
+.catalog-pagination .pagination {
+    gap: 0.2rem;
+}
+
 .page-link {
+    min-width: 2.35rem;
+    min-height: 2.35rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.45rem 0.75rem;
     color: var(--gf-brand);
     border-color: var(--gf-border);
+    line-height: 1;
+    font-weight: 700;
+    font-size: 0.98rem;
+    border-radius: 8px;
+}
+
+.page-item:first-child .page-link,
+.page-item:last-child .page-link {
+    font-size: 1.18rem;
+    padding-bottom: 0.55rem;
 }
 
 .page-item.active .page-link {
     background: var(--gf-brand);
     border-color: var(--gf-brand);
+}
+
+.page-item.disabled .page-link {
+    color: rgba(62, 122, 87, 0.38);
+    background: rgba(255, 255, 255, 0.62);
 }
 
 .empty-state-card,
@@ -1707,6 +1732,15 @@ body.app-shell {
     line-height: 1.45;
 }
 
+.detail-info-item small {
+    display: block;
+    margin-top: 0.35rem;
+    color: var(--gf-muted);
+    font-size: 0.8rem;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
 .detail-action-list {
     display: grid;
     gap: 0.75rem;
@@ -1741,6 +1775,19 @@ body.app-shell {
 
 .detail-action-list a i:last-child {
     justify-self: end;
+}
+
+.section-count {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid rgba(62, 122, 87, 0.14);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--gf-brand);
+    font-size: 0.86rem;
+    font-weight: 800;
 }
 
 @media (max-width: 767.98px) {

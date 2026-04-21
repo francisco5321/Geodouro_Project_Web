@@ -57,10 +57,22 @@ JS, View::POS_END);
             </div>
             <p class="hero-text"><?= Html::encode($observation->notes ?: 'Sem notas de campo registadas para esta observação.') ?></p>
             <div class="hero-cta-row mt-4">
+                <?php if ($observation->hasCoordinates()): ?>
+                    <a class="btn btn-brand" href="<?= Url::to(['map/index']) ?>">
+                        <i class="fas fa-map-location-dot" aria-hidden="true"></i>
+                        Ver no mapa
+                    </a>
+                <?php endif; ?>
                 <?php if ($observation->publication !== null): ?>
-                    <a class="btn btn-brand" href="<?= Url::to(['publication/view', 'id' => $observation->publication->publication_id]) ?>">Abrir publicação</a>
+                    <a class="btn btn-outline-brand" href="<?= Url::to(['publication/view', 'id' => $observation->publication->publication_id]) ?>">
+                        <i class="fas fa-newspaper" aria-hidden="true"></i>
+                        Abrir publicação
+                    </a>
                 <?php elseif ($canCreatePublication): ?>
-                    <a class="btn btn-brand" href="<?= Url::to(['publication/create', 'observationId' => $observation->observation_id]) ?>">Criar publicação</a>
+                    <a class="btn btn-outline-brand" href="<?= Url::to(['publication/create', 'observationId' => $observation->observation_id]) ?>">
+                        <i class="fas fa-plus" aria-hidden="true"></i>
+                        Criar publicação
+                    </a>
                 <?php endif; ?>
             </div>
         </div>
@@ -90,7 +102,8 @@ JS, View::POS_END);
                                 data-latitude="<?= Html::encode((string) $observation->latitude) ?>"
                                 data-longitude="<?= Html::encode((string) $observation->longitude) ?>"
                                 data-fallback="<?= Html::encode($coordinateLabel) ?>"
-                            >A obter nome do local...</strong>
+                            >Localização registada</strong>
+                            <small><?= Html::encode($coordinateLabel) ?></small>
                         <?php else: ?>
                             <strong>Sem localização</strong>
                         <?php endif; ?>
@@ -118,6 +131,9 @@ JS, View::POS_END);
                 <span class="eyebrow">Galeria</span>
                 <h2>Imagens da observação</h2>
             </div>
+            <?php if (!empty($imagePaths)): ?>
+                <span class="section-count"><?= count($imagePaths) ?> <?= count($imagePaths) === 1 ? 'imagem' : 'imagens' ?></span>
+            <?php endif; ?>
         </div>
         <?php if (empty($imagePaths)): ?>
             <div class="empty-state-card">
