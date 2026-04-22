@@ -12,12 +12,12 @@ class BackendAuthSession extends Component
     private const TOKEN_KEY = '__backend_auth_token';
     private const USER_KEY = '__backend_auth_user';
 
-    public function syncLogin(string $identifier, string $password): void
+    public function syncLogin(string $identifier, string $password, ?int $timeoutSeconds = null): void
     {
         $response = Yii::$app->backendApi->postJson('/api/auth/login', [
             'identifier' => trim($identifier),
             'password' => $password,
-        ]);
+        ], [], $timeoutSeconds);
 
         $authToken = trim((string) ($response['authToken'] ?? ''));
         if ($authToken === '') {

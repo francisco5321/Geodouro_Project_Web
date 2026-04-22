@@ -48,11 +48,20 @@ class SiteController extends Controller
 
     public function actionIndex(): string
     {
+        $counts = Yii::$app->cache->getOrSet('dashboard.stats.v1', static function (): array {
+            return [
+                'speciesCount' => \app\models\PlantSpecies::find()->count(),
+                'observationCount' => \app\models\Observation::find()->count(),
+                'publicationCount' => \app\models\Publication::find()->count(),
+                'userCount' => \app\models\AppUser::find()->where(['is_authenticated' => true])->count(),
+            ];
+        }, 60);
+
         return $this->render('index', [
-            'speciesCount' => \app\models\PlantSpecies::find()->count(),
-            'observationCount' => \app\models\Observation::find()->count(),
-            'publicationCount' => \app\models\Publication::find()->count(),
-            'userCount' => \app\models\AppUser::find()->where(['is_authenticated' => true])->count(),
+            'speciesCount' => $counts['speciesCount'],
+            'observationCount' => $counts['observationCount'],
+            'publicationCount' => $counts['publicationCount'],
+            'userCount' => $counts['userCount'],
         ]);
     }
 

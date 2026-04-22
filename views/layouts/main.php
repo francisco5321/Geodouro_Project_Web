@@ -163,6 +163,14 @@ $this->beginPage();
                 });
             </script>
         <?php endif; ?>
+
+        <?php if (Yii::$app->session->hasFlash('warning')): ?>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    Notification.warning('<?= addslashes(Yii::$app->session->getFlash('warning')) ?>');
+                });
+            </script>
+        <?php endif; ?>
         
         <?= $content ?>
     </div>

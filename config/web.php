@@ -24,11 +24,15 @@ return [
         'session' => [
             'name' => 'GEOFLORASESSID',
         ],
+        'cache' => [
+            'class' => yii\caching\FileCache::class,
+        ],
         'db' => $db,
         'backendApi' => [
             'class' => app\components\BackendApiClient::class,
             'baseUrl' => $params['backendBaseUrl'] ?? '',
             'timeoutSeconds' => (int) ($params['backendTimeoutSeconds'] ?? 15),
+            'connectTimeoutSeconds' => (int) ($params['backendConnectTimeoutSeconds'] ?? 2),
         ],
         'backendAuthSession' => [
             'class' => app\components\BackendAuthSession::class,

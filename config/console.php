@@ -9,6 +9,9 @@ return [
     'controllerNamespace' => 'app\\commands',
     'bootstrap' => ['log'],
     'components' => [
+        'cache' => [
+            'class' => yii\caching\FileCache::class,
+        ],
         'db' => $db,
         'log' => [
             'targets' => [
@@ -21,4 +24,3 @@ return [
     ],
     'params' => $params,
 ];
-

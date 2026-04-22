@@ -51,11 +51,24 @@ class LoginForm extends Model
             return false;
         }
 
+        $backendAuthRequired = (bool) (Yii::$app->params['backendAuthRequired'] ?? false);
+        $backendAuthTimeout = (int) (Yii::$app->params['backendAuthTimeoutSeconds'] ?? 3);
+
         try {
-            Yii::$app->backendAuthSession->syncLogin($this->username, $this->password);
+            Yii::$app->backendAuthSession->syncLogin($this->username, $this->password, $backendAuthTimeout);
         } catch (RuntimeException $exception) {
-            $this->addError('password', 'Não foi possível ligar ao backend comum: ' . $exception->getMessage());
-            return false;
+            Yii::$app->backendAuthSession->clear();
+            Yii::warning('Backend auth sync failed during web login: ' . $exception->getMessage(), __METHOD__);
+
+            if ($backendAuthRequired) {
+                $this->addError('password', 'Não foi possível ligar ao backend comum: ' . $exception->getMessage());
+                return false;
+            }
+
+            Yii::$app->session->setFlash(
+                'warning',
+                'Sessão iniciada no portal. O backend comum não respondeu, por isso algumas ações sincronizadas podem ficar indisponíveis temporariamente.'
+            );
         }
 
         return Yii::$app->user->login($this->getUser(), 0);

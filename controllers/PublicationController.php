@@ -8,6 +8,7 @@ use app\models\PlantSpecies;
 use app\models\Publication;
 use Yii;
 use yii\data\Pagination;
+use yii\db\Expression;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
@@ -70,11 +71,21 @@ class PublicationController extends Controller
             ->limit($pagination->limit)
             ->all();
 
+        $summaryRow = Publication::find()->select([
+            'total' => new Expression('COUNT(*)'),
+            'drafts' => new Expression('SUM(CASE WHEN status = :draft THEN 1 ELSE 0 END)', [
+                ':draft' => Publication::STATUS_DRAFT,
+            ]),
+            'published' => new Expression('SUM(CASE WHEN status = :published THEN 1 ELSE 0 END)', [
+                ':published' => Publication::STATUS_PUBLISHED,
+            ]),
+        ])->asArray()->one() ?: [];
+
         $summary = [
-            'total' => Publication::find()->count(),
-            'drafts' => Publication::find()->where(['status' => Publication::STATUS_DRAFT])->count(),
-            'published' => Publication::find()->where(['status' => Publication::STATUS_PUBLISHED])->count(),
-            'availableObservationCount' => count($this->getEditableObservationOptions()),
+            'total' => (int) ($summaryRow['total'] ?? 0),
+            'drafts' => (int) ($summaryRow['drafts'] ?? 0),
+            'published' => (int) ($summaryRow['published'] ?? 0),
+            'availableObservationCount' => $this->countEditableObservations(),
         ];
 
         return $this->render('index', [
@@ -253,6 +264,26 @@ class PublicationController extends Controller
         }
 
         return $options;
+    }
+
+    private function countEditableObservations(?int $currentObservationId = null): int
+    {
+        $currentUser = Yii::$app->user->identity;
+        if ($currentUser === null) {
+            return 0;
+        }
+
+        $publicationTable = Publication::tableName();
+        $query = Observation::find()
+            ->alias('o')
+            ->leftJoin(['p' => $publicationTable], 'p.observation_id = o.observation_id')
+            ->where(['or', ['p.publication_id' => null], ['o.observation_id' => $currentObservationId]]);
+
+        if (!$currentUser->isAdmin()) {
+            $query->andWhere(['o.user_id' => $currentUser->user_id]);
+        }
+
+        return (int) $query->count('DISTINCT o.observation_id');
     }
 
     private function getSpeciesOptions(): array

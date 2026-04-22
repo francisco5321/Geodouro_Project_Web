@@ -7,28 +7,30 @@ use RuntimeException;
 class BackendApiClient
 {
     public string $baseUrl = '';
-    public int $timeoutSeconds = 15;
+    public int $timeoutSeconds = 8;
+    public int $connectTimeoutSeconds = 2;
 
-    public function getJson(string $path, array $headers = []): array
+    public function getJson(string $path, array $headers = [], ?int $timeoutSeconds = null): array
     {
-        return $this->request('GET', $path, null, $headers);
+        return $this->request('GET', $path, null, $headers, $timeoutSeconds);
     }
 
-    public function postJson(string $path, array $payload, array $headers = []): array
+    public function postJson(string $path, array $payload, array $headers = [], ?int $timeoutSeconds = null): array
     {
-        return $this->request('POST', $path, $payload, $headers);
+        return $this->request('POST', $path, $payload, $headers, $timeoutSeconds);
     }
 
-    public function patchJson(string $path, array $payload, array $headers = []): array
+    public function patchJson(string $path, array $payload, array $headers = [], ?int $timeoutSeconds = null): array
     {
-        return $this->request('PATCH', $path, $payload, $headers);
+        return $this->request('PATCH', $path, $payload, $headers, $timeoutSeconds);
     }
 
-    public function deleteJson(string $path, array $headers = []): array
+    public function deleteJson(string $path, array $headers = [], ?int $timeoutSeconds = null): array
     {
-        return $this->request('DELETE', $path, null, $headers);
+        return $this->request('DELETE', $path, null, $headers, $timeoutSeconds);
     }
-    private function request(string $method, string $path, ?array $payload, array $headers): array
+
+    private function request(string $method, string $path, ?array $payload, array $headers, ?int $timeoutSeconds = null): array
     {
         $baseUrl = rtrim(trim($this->baseUrl), '/');
         if ($baseUrl === '') {
@@ -49,12 +51,15 @@ class BackendApiClient
             $requestHeaders[] = sprintf('%s: %s', $name, $value);
         }
 
+        $timeout = max(1, $timeoutSeconds ?? $this->timeoutSeconds);
+        $connectTimeout = max(1, min($timeout, $this->connectTimeoutSeconds));
+
         curl_setopt_array($curl, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CUSTOMREQUEST => $method,
             CURLOPT_HTTPHEADER => $requestHeaders,
-            CURLOPT_TIMEOUT => $this->timeoutSeconds,
-            CURLOPT_CONNECTTIMEOUT => $this->timeoutSeconds,
+            CURLOPT_TIMEOUT => $timeout,
+            CURLOPT_CONNECTTIMEOUT => $connectTimeout,
         ]);
 
         if ($payload !== null) {
