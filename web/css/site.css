@@ -1570,6 +1570,24 @@ body.app-shell {
     margin-bottom: 1.5rem;
 }
 
+.login-form .form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding-left: 0;
+}
+
+.login-form .form-check-label {
+    flex: 1;
+    white-space: nowrap;
+}
+
+.login-form .form-check-input {
+    flex: 0 0 auto;
+    margin-left: 0;
+    margin-top: 0;
+}
+
 .form-control:focus,
 .form-check-input:focus {
     border-color: var(--gf-primary);
