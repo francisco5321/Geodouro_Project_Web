@@ -1250,6 +1250,7 @@ body.app-shell {
 .species-grid {
     grid-template-columns: repeat(auto-fill, minmax(270px, 290px));
     justify-content: start;
+    max-width: calc((290px * 5) + (1rem * 4));
 }
 
 .species-card-web {
