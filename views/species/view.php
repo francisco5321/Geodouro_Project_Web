@@ -29,15 +29,6 @@ $avgConfidence = $stats['avgConfidence'] !== null ? round((float) $stats['avgCon
             <p class="hero-text">
                 <?= Html::encode($species->description ?: 'Ainda não existe descrição editorial para esta espécie. A web já está preparada para enriquecer a ficha com conteúdo taxonómico, observações e referências cruzadas com o mobile.') ?>
             </p>
-            <div class="hero-cta-row mt-4">
-                <?php if (Yii::$app->user->isGuest): ?>
-                    <a class="btn btn-outline-brand" href="<?= Url::to(['site/login']) ?>">Entrar para guardar em Quero visitar</a>
-                <?php else: ?>
-                    <?= Html::beginForm(['visit/toggle-species', 'id' => $species->plant_species_id], 'post', ['class' => 'd-inline-block']) ?>
-                        <?= Html::submitButton($species->isSavedForUser(Yii::$app->user->identity) ? 'Remover de Quero visitar' : 'Guardar em Quero visitar', ['class' => 'btn btn-outline-brand']) ?>
-                    <?= Html::endForm() ?>
-                <?php endif; ?>
-            </div>
         </div>
 
         <div class="detail-stat-grid">
