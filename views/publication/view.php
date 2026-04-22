@@ -9,6 +9,36 @@ use yii\helpers\Url;
 
 $this->title = $publication->title ?: 'Publicação #' . $publication->publication_id;
 $imagePaths = $publication->getImageGalleryPaths();
+$imageCount = count($imagePaths);
+$observation = $publication->observation;
+$coordinateLabel = $observation?->hasCoordinates()
+    ? number_format((float) $observation->latitude, 5) . ', ' . number_format((float) $observation->longitude, 5)
+    : 'Sem localização';
+
+if ($observation?->hasCoordinates()) {
+    $this->registerJs(<<<'JS'
+const publicationLocationEl = document.getElementById('publication-location-name');
+if (publicationLocationEl) {
+    const latitude = publicationLocationEl.dataset.latitude;
+    const longitude = publicationLocationEl.dataset.longitude;
+    const fallback = publicationLocationEl.dataset.fallback || 'Localização registada';
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&zoom=16&addressdetails=1&accept-language=pt`;
+
+    fetch(url)
+        .then((response) => response.ok ? response.json() : null)
+        .then((data) => {
+            const address = data && data.address ? data.address : {};
+            const primary = address.road || address.neighbourhood || address.suburb || address.village || address.town || address.city || address.municipality || address.county;
+            const secondary = address.city || address.town || address.village || address.municipality || address.county || address.state;
+            const parts = [primary, secondary].filter((part, index, items) => part && items.indexOf(part) === index);
+            publicationLocationEl.textContent = parts.length ? parts.join(', ') : (data && data.display_name ? data.display_name.split(',').slice(0, 2).join(',') : fallback);
+        })
+        .catch(() => {
+            publicationLocationEl.textContent = fallback;
+        });
+}
+JS);
+}
 ?>
 <div class="module-shell">
     <a class="back-link" href="<?= Url::to(['publication/index']) ?>">&larr; Voltar às publicações</a>
@@ -27,11 +57,11 @@ $imagePaths = $publication->getImageGalleryPaths();
         <div class="species-detail-copy">
             <span class="eyebrow">Publicação</span>
             <h1 class="hero-title hero-title-tight"><?= Html::encode($publication->title ?: 'Publicação botânica') ?></h1>
-            <p class="species-detail-scientific"><?= Html::encode($publication->plantSpecies?->scientific_name ?? $publication->observation?->getResolvedScientificName() ?? 'Sem espécie associada') ?></p>
+            <p class="species-detail-scientific"><?= Html::encode($publication->plantSpecies?->scientific_name ?? $observation?->getResolvedScientificName() ?? 'Sem espécie associada') ?></p>
             <div class="species-meta-row">
                 <span class="species-meta-chip<?= $publication->isPublished() ? ' chip-highlight' : '' ?>"><?= Html::encode($publication->getStatusLabel()) ?></span>
                 <span class="species-meta-chip"><?= Html::encode($publication->user?->getFullName() ?? 'Sistema') ?></span>
-                <span class="species-meta-chip"><?= count($imagePaths) ?> imagens</span>
+                <span class="species-meta-chip"><?= $imageCount ?> <?= $imageCount === 1 ? 'imagem' : 'imagens' ?></span>
             </div>
             <p class="hero-text"><?= Html::encode($publication->description ?: 'Sem texto editorial associado a esta publicação.') ?></p>
             <div class="hero-cta-row mt-4">
@@ -59,29 +89,42 @@ $imagePaths = $publication->getImageGalleryPaths();
     <?php endif; ?>
 
     <section class="detail-section">
-        <div class="detail-split-grid detail-context-grid">
+        <div class="detail-split-grid detail-context-grid publication-context-grid">
             <article class="content-card detail-context-card">
                 <div class="detail-card-title">
                     <span class="detail-card-icon"><i class="fas fa-circle-info" aria-hidden="true"></i></span>
-                    <h2>Contexto editorial</h2>
+                    <h2>Contexto</h2>
                 </div>
                 <div class="info-list detail-info-list">
-                    <div class="detail-info-item"><span>ID</span><strong>#<?= (int) $publication->publication_id ?></strong></div>
-                    <div class="detail-info-item"><span>Observação</span><strong>#<?= (int) $publication->observation_id ?></strong></div>
-                    <div class="detail-info-item"><span>Autor</span><strong><?= Html::encode($publication->user?->getFullName() ?? 'Sistema') ?></strong></div>
-                    <div class="detail-info-item"><span>Espécie</span><strong><?= Html::encode($publication->plantSpecies?->common_name ?: ($publication->observation?->getResolvedCommonName() ?: 'N/D')) ?></strong></div>
+                    <div class="detail-info-item"><span>Espécie</span><strong><?= Html::encode($publication->plantSpecies?->common_name ?: ($observation?->getResolvedCommonName() ?: 'Publicação botânica')) ?></strong></div>
+                    <div class="detail-info-item"><span>Família</span><strong><?= Html::encode($publication->plantSpecies?->family ?: ($observation?->getResolvedFamily() ?: 'N/D')) ?></strong></div>
+                    <div class="detail-info-item">
+                        <span>Localização</span>
+                        <?php if ($observation?->hasCoordinates()): ?>
+                            <strong
+                                id="publication-location-name"
+                                data-latitude="<?= Html::encode((string) $observation->latitude) ?>"
+                                data-longitude="<?= Html::encode((string) $observation->longitude) ?>"
+                                data-fallback="<?= Html::encode($coordinateLabel) ?>"
+                            >Localização registada</strong>
+                            <small><?= Html::encode($coordinateLabel) ?></small>
+                        <?php else: ?>
+                            <strong>Sem localização</strong>
+                        <?php endif; ?>
+                    </div>
+                    <div class="detail-info-item"><span>Wikipedia</span><strong><?= $observation?->enriched_wikipedia_url ? Html::a('Abrir referência', $observation->enriched_wikipedia_url, ['target' => '_blank', 'rel' => 'noopener']) : 'Sem referência' ?></strong></div>
                 </div>
             </article>
+
             <article class="content-card content-card-soft detail-actions-card">
                 <div class="detail-card-title">
                     <span class="detail-card-icon"><i class="fas fa-link" aria-hidden="true"></i></span>
                     <h2>Ligações</h2>
                 </div>
                 <div class="module-link-list detail-action-list">
-                    <a href="<?= Url::to(['observation/view', 'id' => $publication->observation_id]) ?>"><i class="fas fa-binoculars" aria-hidden="true"></i><span>Abrir observação original</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a>
                     <?php if ($publication->plant_species_id): ?><a href="<?= Url::to(['species/view', 'id' => $publication->plant_species_id]) ?>"><i class="fas fa-leaf" aria-hidden="true"></i><span>Abrir ficha da espécie</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
-                    <a href="<?= Url::to(['map/index']) ?>"><i class="fas fa-map-location-dot" aria-hidden="true"></i><span>Ver observações no mapa</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a>
-                    <a href="<?= Url::to(['visit/index']) ?>"><i class="fas fa-route" aria-hidden="true"></i><span>Abrir Quero visitar</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+                    <a href="<?= Url::to(['observation/view', 'id' => $publication->observation_id]) ?>"><i class="fas fa-newspaper" aria-hidden="true"></i><span>Abrir observação original</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+                    <a href="<?= Url::to(['map/index']) ?>"><i class="fas fa-map-location-dot" aria-hidden="true"></i><span>Ver no mapa</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a>
                 </div>
             </article>
         </div>
@@ -108,7 +151,7 @@ $imagePaths = $publication->getImageGalleryPaths();
         </div>
         <?php if (empty($imagePaths)): ?>
             <div class="empty-state-card">
-                <h3>Sem galeria acessivel</h3>
+                <h3>Sem galeria acessível</h3>
                 <p>Esta publicação ainda não tem imagens acessíveis pela web.</p>
             </div>
         <?php else: ?>

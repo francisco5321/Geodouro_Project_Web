@@ -84,26 +84,51 @@ $this->title = 'Publicações';
 
     <section class="publication-grid">
         <?php foreach ($publications as $publication): ?>
+            <?php
+                $publicationUrl = Url::to(['publication/view', 'id' => $publication->publication_id]);
+                $speciesName = $publication->plantSpecies?->scientific_name ?? $publication->observation?->getResolvedScientificName() ?? 'Sem espécie associada';
+                $authorName = $publication->user?->getFullName() ?? 'Sistema';
+                $hasCover = $publication->getCoverImagePath() !== null;
+                $imageCount = count($publication->publicationImages);
+            ?>
             <article class="publication-card publication-card-rich">
-                <?php if ($publication->getCoverImagePath() !== null): ?>
-                    <a class="publication-cover" href="<?= Url::to(['publication/view', 'id' => $publication->publication_id]) ?>">
-                        <img src="<?= Url::to(['media/publication-image', 'id' => $publication->publication_id, 'index' => 0]) ?>" alt="Capa da publicação <?= (int) $publication->publication_id ?>">
-                    </a>
-                <?php endif; ?>
-                <div class="publication-card-body">
-                    <div class="card-chip-row mb-2">
-                        <span class="species-meta-chip<?= $publication->isPublished() ? ' chip-highlight' : '' ?>"><?= Html::encode($publication->getStatusLabel()) ?></span>
-                        <span class="species-meta-chip"><?= Html::encode($publication->user?->getFullName() ?? 'Sistema') ?></span>
+                <a class="publication-card-link" href="<?= $publicationUrl ?>" title="Abrir <?= Html::encode($publication->title ?: 'publicação botânica') ?>">
+                    <div class="publication-card-media<?= $hasCover ? ' has-photo' : '' ?>">
+                        <?php if ($hasCover): ?>
+                            <img
+                                class="publication-cover-photo"
+                                src="<?= Url::to(['media/publication-image', 'id' => $publication->publication_id, 'index' => 0]) ?>"
+                                alt="Capa da publicação <?= (int) $publication->publication_id ?>"
+                                loading="lazy"
+                            >
+                        <?php endif; ?>
+                        <div class="species-orb"></div>
+                        <div class="publication-media-copy">
+                            <span class="publication-media-label"><?= Html::encode($publication->getStatusLabel()) ?></span>
+                            <strong><?= Html::encode($authorName) ?></strong>
+                        </div>
                     </div>
-                    <p class="species-scientific-name"><?= Html::encode($publication->plantSpecies?->scientific_name ?? $publication->observation?->getResolvedScientificName() ?? 'Sem espécie associada') ?></p>
-                    <h2><?= Html::encode($publication->title ?: 'Publicação botânica') ?></h2>
+                </a>
+
+                <div class="publication-card-body">
+                    <p class="species-scientific-name"><?= Html::encode($speciesName) ?></p>
+                    <h2><a href="<?= $publicationUrl ?>"><?= Html::encode($publication->title ?: 'Publicação botânica') ?></a></h2>
                     <p class="publication-copy"><?= Html::encode($publication->description ?: 'Sem descrição editorial registada para esta publicação.') ?></p>
                     <div class="species-meta-row">
-                        <span class="species-meta-chip"><?= Html::encode(Yii::$app->formatter->asDate($publication->published_at, 'php:d/m/Y')) ?></span>
-                        <span class="species-meta-chip"><?= count($publication->publicationImages) ?> imagens</span>
+                        <span class="species-meta-chip" title="Data">
+                            <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                            <?= Html::encode(Yii::$app->formatter->asDate($publication->published_at, 'php:d/m/Y')) ?>
+                        </span>
+                        <span class="species-meta-chip" title="Imagens">
+                            <i class="fas fa-image" aria-hidden="true"></i>
+                            <?= $imageCount ?> <?= $imageCount === 1 ? 'imagem' : 'imagens' ?>
+                        </span>
                     </div>
-                    <div class="timeline-card-actions">
-                        <a href="<?= Url::to(['publication/view', 'id' => $publication->publication_id]) ?>">Abrir</a>
+                    <div class="publication-card-footer">
+                        <a class="species-card-cta" href="<?= $publicationUrl ?>">
+                            Abrir detalhe
+                            <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                        </a>
                         <?php if ($publication->canBeManagedBy(Yii::$app->user->identity)): ?>
                             <a href="<?= Url::to(['publication/update', 'id' => $publication->publication_id]) ?>">Editar</a>
                         <?php endif; ?>

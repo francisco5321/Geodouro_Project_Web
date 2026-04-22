@@ -1221,6 +1221,7 @@ body.app-shell {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 0.5rem;
     border-radius: 999px;
     font-weight: 700;
     text-decoration: none;
@@ -1247,7 +1248,8 @@ body.app-shell {
 }
 
 .species-grid {
-    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(270px, 290px));
+    justify-content: start;
 }
 
 .species-card-web {
@@ -1426,6 +1428,14 @@ body.app-shell {
 .species-card-cta {
     color: var(--gf-brand);
     font-weight: 800;
+}
+
+.icon-text,
+.species-card-cta,
+.publication-card-footer a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
 }
 
 .catalog-pagination {
@@ -1704,8 +1714,7 @@ body.app-shell {
 }
 
 .publication-grid {
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 460px));
-    justify-content: start;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
     align-items: start;
 }
 
@@ -1748,6 +1757,10 @@ body.app-shell {
 
 .detail-context-grid {
     align-items: stretch;
+}
+
+.publication-context-grid {
+    grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.95fr);
 }
 
 .detail-context-card,
@@ -2047,6 +2060,93 @@ body.app-shell {
 .publication-card-rich {
     overflow: hidden;
     padding: 0;
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.publication-card-rich:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--gf-shadow-strong);
+    border-color: rgba(62, 122, 87, 0.24);
+}
+
+.publication-card-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+}
+
+.publication-card-link:hover,
+.publication-card-link:focus,
+.publication-card-link:focus-visible,
+.publication-card-link:hover *,
+.publication-card-link:focus *,
+.publication-card-link:focus-visible * {
+    text-decoration: none;
+}
+
+.publication-card-media {
+    position: relative;
+    min-height: 180px;
+    padding: 1.3rem;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.45), transparent 28%),
+        linear-gradient(135deg, rgba(62, 122, 87, 0.96), rgba(127, 192, 132, 0.88));
+}
+
+.publication-card-media.has-photo {
+    background: #1f5f43;
+}
+
+.publication-card-media.has-photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(14, 38, 26, 0.08), rgba(14, 38, 26, 0.68)),
+        linear-gradient(90deg, rgba(14, 38, 26, 0.44), rgba(14, 38, 26, 0.1));
+    z-index: 0;
+}
+
+.publication-cover-photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.01);
+    transition: transform 0.22s ease;
+}
+
+.publication-card-rich:hover .publication-cover-photo {
+    transform: scale(1.045);
+}
+
+.publication-card-media.has-photo .species-orb {
+    display: none;
+}
+
+.publication-media-copy {
+    position: relative;
+    z-index: 1;
+    color: #fff;
+}
+
+.publication-media-label {
+    display: inline-block;
+    margin-bottom: 0.45rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.84;
+}
+
+.publication-media-copy strong {
+    display: block;
+    font-size: clamp(1.05rem, 1.55vw, 1.45rem);
+    line-height: 1.1;
 }
 
 .publication-cover {
@@ -2068,6 +2168,43 @@ body.app-shell {
 
 .publication-card-body {
     padding: 1.35rem;
+}
+
+.publication-card-body h2 {
+    margin: 0 0 0.85rem;
+    font-size: 1.2rem;
+}
+
+.publication-card-body h2 a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.publication-card-body h2 a:hover,
+.publication-card-body h2 a:focus {
+    color: var(--gf-brand);
+}
+
+.publication-card-body .species-meta-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.55rem;
+}
+
+.publication-card-footer {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    color: var(--gf-muted);
+    font-size: 0.93rem;
+}
+
+.publication-card-footer a {
+    color: var(--gf-brand);
+    font-weight: 800;
+    text-decoration: none;
 }
 
 .publication-hero {
@@ -3319,6 +3456,10 @@ table {
     }
 
     .publication-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .species-grid {
         grid-template-columns: minmax(0, 1fr);
     }
 
