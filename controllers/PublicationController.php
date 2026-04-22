@@ -63,7 +63,7 @@ class PublicationController extends Controller
 
         $pagination = new Pagination([
             'totalCount' => (clone $query)->count(),
-            'pageSize' => 12,
+            'pageSize' => 8,
         ]);
 
         $publications = $query

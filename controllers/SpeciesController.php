@@ -57,7 +57,7 @@ class SpeciesController extends Controller
 
         $pagination = new Pagination([
             'totalCount' => (clone $query)->count(),
-            'pageSize' => 12,
+            'pageSize' => 10,
         ]);
 
         $species = $query
