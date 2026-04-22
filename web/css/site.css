@@ -1248,9 +1248,14 @@ body.app-shell {
 }
 
 .species-grid {
-    grid-template-columns: repeat(auto-fill, minmax(270px, 290px));
-    justify-content: start;
-    max-width: calc((290px * 5) + (1rem * 4));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    justify-content: stretch;
+}
+
+@media (max-width: 1199.98px) {
+    .species-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
 }
 
 .species-card-web {
@@ -1606,6 +1611,10 @@ body.app-shell {
 }
 
 @media (max-width: 991.98px) {
+    .species-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
     .hero-panel,
     .species-hero,
     .species-detail-hero {
@@ -1614,6 +1623,10 @@ body.app-shell {
 }
 
 @media (max-width: 767.98px) {
+    .species-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .topbar-inner,
     .topbar-nav,
     .catalog-search,
