@@ -149,6 +149,15 @@ const Notification = {
 // Expose to global scope
 window.Notification = Notification;
 
+if (window.yii) {
+    window.yii.confirm = function(message, ok, cancel) {
+        Notification.confirm(message, ok, 'Confirmar ação', {
+            confirmButtonText: 'Confirmar',
+            cancelButtonText: 'Cancelar'
+        });
+    };
+}
+
 /**
  * Automatically show validation errors if present
  */
