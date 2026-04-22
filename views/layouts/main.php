@@ -6,8 +6,8 @@ use yii\helpers\Url;
 
 AppAsset::register($this);
 
-$geodouroEmail = 'geral@geodouro.pt';
-$geodouroPhone = '+351 254 320 000';
+$geodouroEmail = 'geodouro@geodouro.pt';
+$geodouroPhone = '+351 254 851 965';
 $supportHours = 'Segunda a Sexta, 09:00-18:00';
 
 $this->beginPage();
