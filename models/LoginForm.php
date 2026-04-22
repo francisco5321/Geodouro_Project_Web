@@ -53,9 +53,15 @@ class LoginForm extends Model
 
         $backendAuthRequired = (bool) (Yii::$app->params['backendAuthRequired'] ?? false);
         $backendAuthTimeout = (int) (Yii::$app->params['backendAuthTimeoutSeconds'] ?? 3);
+        $backendAuthStrategy = (string) (Yii::$app->params['backendAuthStrategy'] ?? 'local-token');
+        $user = $this->getUser();
 
         try {
-            Yii::$app->backendAuthSession->syncLogin($this->username, $this->password, $backendAuthTimeout);
+            if ($backendAuthStrategy === 'http') {
+                Yii::$app->backendAuthSession->syncLogin($this->username, $this->password, $backendAuthTimeout);
+            } elseif ($user !== null) {
+                Yii::$app->backendAuthSession->establishForUser($user);
+            }
         } catch (RuntimeException $exception) {
             Yii::$app->backendAuthSession->clear();
             Yii::warning('Backend auth sync failed during web login: ' . $exception->getMessage(), __METHOD__);
@@ -71,7 +77,7 @@ class LoginForm extends Model
             );
         }
 
-        return Yii::$app->user->login($this->getUser(), 0);
+        return Yii::$app->user->login($user, 0);
     }
 
     public function getUser(): ?AppUser

@@ -12,6 +12,25 @@ class BackendAuthSession extends Component
     private const TOKEN_KEY = '__backend_auth_token';
     private const USER_KEY = '__backend_auth_user';
 
+    public function establishForUser(AppUser $user): void
+    {
+        $secret = (string) (Yii::$app->params['backendTokenSecret'] ?? '');
+        if ($secret === '') {
+            throw new RuntimeException('Backend token secret is not configured.');
+        }
+
+        $userId = (string) $user->getId();
+        $authToken = $userId . '.' . hash_hmac('sha256', $userId, $secret);
+
+        Yii::$app->session->set(self::TOKEN_KEY, $authToken);
+        Yii::$app->session->set(self::USER_KEY, [
+            'userId' => $user->getId(),
+            'username' => $user->username,
+            'email' => $user->email,
+            'displayName' => $user->getFullName(),
+        ]);
+    }
+
     public function syncLogin(string $identifier, string $password, ?int $timeoutSeconds = null): void
     {
         $response = Yii::$app->backendApi->postJson('/api/auth/login', [
