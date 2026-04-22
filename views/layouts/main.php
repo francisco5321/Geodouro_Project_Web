@@ -133,7 +133,10 @@ $this->beginPage();
                         <?= Html::beginForm(['site/logout'], 'post', ['class' => 'd-inline']) ?>
                             <?= Html::submitButton(
                                 '<i class="fas fa-sign-out-alt" aria-hidden="true"></i> Sair',
-                                ['class' => 'dropdown-item logout-item', 'onclick' => 'event.preventDefault(); if(confirm("Deseja sair?")) { this.form.submit(); }']
+                                [
+                                    'class' => 'dropdown-item logout-item',
+                                    'onclick' => "event.preventDefault(); const logoutForm = this.form; Notification.confirm('Deseja terminar a sessão?', () => logoutForm.submit(), 'Sair da conta', { confirmButtonText: 'Sair' }); return false;"
+                                ]
                             ) ?>
                         <?= Html::endForm() ?>
                     </div>

@@ -101,8 +101,9 @@ const Notification = {
      * @param {string} message - Confirmation message
      * @param {Function} onConfirm - Callback if confirmed
      * @param {string} title - Dialog title
+     * @param {Object} options - Additional SweetAlert options
      */
-    confirm(message, onConfirm, title = 'Confirmar') {
+    confirm(message, onConfirm, title = 'Confirmar', options = {}) {
         Swal.fire({
             title: title,
             text: message,
@@ -111,7 +112,8 @@ const Notification = {
             confirmButtonColor: '#3e7a57',
             cancelButtonColor: '#757575',
             confirmButtonText: 'Sim, confirmar',
-            cancelButtonText: 'Cancelar'
+            cancelButtonText: 'Cancelar',
+            ...options
         }).then((result) => {
             if (result.isConfirmed && onConfirm) {
                 onConfirm();
