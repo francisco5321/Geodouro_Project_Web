@@ -3141,6 +3141,11 @@ body.app-shell {
     width: min(100%, 420px);
 }
 
+.route-plan-description-input {
+    min-height: calc(1.5em + 0.75rem + 2px);
+    resize: none;
+}
+
 .route-card-actions .btn-link {
     display: inline-flex;
     align-items: center;

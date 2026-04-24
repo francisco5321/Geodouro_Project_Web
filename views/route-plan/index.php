@@ -70,8 +70,8 @@ $this->title = 'Percursos';
                 <div>
                     <?= Html::activeLabel($newPlan, 'description', ['class' => 'form-label']) ?>
                     <?= Html::activeTextarea($newPlan, 'description', [
-                        'class' => 'form-control',
-                        'rows' => 2,
+                        'class' => 'form-control route-plan-description-input',
+                        'rows' => 1,
                         'placeholder' => 'Objetivo do percurso, especies a validar e notas para a visita de campo.',
                     ]) ?>
                 </div>
