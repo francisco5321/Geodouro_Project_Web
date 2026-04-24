@@ -197,14 +197,6 @@ class ObservationController extends Controller
             $model->enriched_wikipedia_url = null;
             $model->enriched_photo_url = null;
             $this->fillSpeciesClassification($model);
-            if (!$this->saveUploadedObservationImage($model)) {
-                return $this->render('create', [
-                    'model' => $model,
-                    'userOptions' => $this->getUserOptions(),
-                    'speciesOptions' => $this->getSpeciesOptions(),
-                ]);
-            }
-
             foreach ([
                 'device_observation_id',
                 'image_uri',
@@ -221,7 +213,7 @@ class ObservationController extends Controller
                 }
             }
 
-            if ($model->save()) {
+            if ($model->validate() && $this->saveUploadedObservationImage($model) && $this->saveObservation($model)) {
                 Yii::$app->session->setFlash('success', 'Observação criada com sucesso.');
                 return $this->redirect(['observation/view', 'id' => $model->observation_id]);
             }
@@ -256,14 +248,6 @@ class ObservationController extends Controller
             $model->enriched_wikipedia_url = null;
             $model->enriched_photo_url = null;
             $this->fillSpeciesClassification($model);
-            if (!$this->saveUploadedObservationImage($model)) {
-                return $this->render('update', [
-                    'model' => $model,
-                    'userOptions' => $this->getUserOptions(),
-                    'speciesOptions' => $this->getSpeciesOptions(),
-                ]);
-            }
-
             foreach ([
                 'device_observation_id',
                 'image_uri',
@@ -280,7 +264,7 @@ class ObservationController extends Controller
                 }
             }
 
-            if ($model->save()) {
+            if ($model->validate() && $this->saveUploadedObservationImage($model) && $this->saveObservation($model)) {
                 Yii::$app->session->setFlash('success', 'Observação atualizada com sucesso.');
                 return $this->redirect(['observation/view', 'id' => $model->observation_id]);
             }
@@ -363,18 +347,41 @@ class ObservationController extends Controller
 
         $relativeDirectory = 'observations/manual';
         $targetDirectory = rtrim($basePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativeDirectory);
-        FileHelper::createDirectory($targetDirectory);
+        try {
+            FileHelper::createDirectory($targetDirectory);
+        } catch (\Throwable $exception) {
+            Yii::error($exception->getMessage(), __METHOD__);
+            $model->addError('image_uri', 'Nao foi possivel criar a pasta para guardar a imagem.');
+            return false;
+        }
 
-        $fileName = 'observation_' . date('Ymd_His') . '_' . Yii::$app->security->generateRandomString(8) . '.' . $extension;
-        $targetPath = $targetDirectory . DIRECTORY_SEPARATOR . $fileName;
+        try {
+            $fileName = 'observation_' . date('Ymd_His') . '_' . Yii::$app->security->generateRandomString(8) . '.' . $extension;
+            $targetPath = $targetDirectory . DIRECTORY_SEPARATOR . $fileName;
+            $saved = $uploadedFile->saveAs($targetPath);
+        } catch (\Throwable $exception) {
+            Yii::error($exception->getMessage(), __METHOD__);
+            $saved = false;
+        }
 
-        if (!$uploadedFile->saveAs($targetPath)) {
+        if (!$saved) {
             $model->addError('image_uri', 'Nao foi possivel guardar a imagem selecionada.');
             return false;
         }
 
         $model->image_uri = $relativeDirectory . '/' . $fileName;
         return true;
+    }
+
+    private function saveObservation(Observation $model): bool
+    {
+        try {
+            return $model->save(false);
+        } catch (\Throwable $exception) {
+            Yii::error($exception->getMessage(), __METHOD__);
+            $model->addError('notes', 'Nao foi possivel guardar a observacao. Confirma os dados e tenta novamente.');
+            return false;
+        }
     }
 
     private function fillSpeciesClassification(Observation $model): void
