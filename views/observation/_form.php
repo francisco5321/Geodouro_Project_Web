@@ -1,7 +1,6 @@
 <?php
 
 use app\models\Observation;
-use yii\helpers\Json;
 use yii\bootstrap5\ActiveForm;
 use yii\bootstrap5\Html;
 
@@ -9,12 +8,10 @@ use yii\bootstrap5\Html;
 /** @var Observation $model */
 /** @var array $userOptions */
 /** @var array $speciesOptions */
-/** @var array $speciesData */
 
 $isNewRecord = $model->isNewRecord;
 $submitLabel = $isNewRecord ? 'Criar observacao' : 'Guardar alteracoes';
 $cancelUrl = $isNewRecord ? ['map/index'] : ['observation/view', 'id' => $model->observation_id];
-$speciesDataJson = Json::htmlEncode($speciesData ?? []);
 ?>
 <div class="content-card publication-form-card">
     <?php $form = ActiveForm::begin(['options' => ['class' => 'stacked-form']]); ?>
@@ -57,75 +54,24 @@ $speciesDataJson = Json::htmlEncode($speciesData ?? []);
                 ->textInput(['type' => 'number', 'step' => '0.0000001', 'class' => 'form-control']) ?>
         </div>
 
-        <button type="button" class="btn btn-outline-brand btn-sm" id="get-location-btn">
-            <i class="fas fa-crosshairs" aria-hidden="true"></i>
-            Obter localizacao atual
-        </button>
-        <small class="form-text d-block mt-2">Use GPS do seu dispositivo para preencher as coordenadas</small>
     </fieldset>
 
     <fieldset class="form-section mb-4">
         <legend class="form-section-title">
-            <i class="fas fa-microscope" aria-hidden="true"></i>
-            Detalhes da Observacao
+            <i class="fas fa-align-left" aria-hidden="true"></i>
+            Descricao
         </legend>
-
-        <div class="auth-grid-two">
-            <?= $form->field($model, 'confidence')
-                ->label('Confianca (' . '<span class="confidence-value">0</span>%)', ['encode' => false])
-                ->textInput([
-                    'type' => 'range',
-                    'step' => '0.01',
-                    'min' => 0,
-                    'max' => 1,
-                    'class' => 'form-range',
-                    'id' => 'confidence-range',
-                ])->hint('Nivel de confianca da identificacao de 0 a 100%') ?>
-            <?= $form->field($model, 'captured_at')
-                ->label('Timestamp do dispositivo')
-                ->textInput(['type' => 'number', 'step' => '1', 'class' => 'form-control'])
-                ->hint('Segundos desde epoch (1970-01-01)') ?>
-        </div>
 
         <div>
             <?= $form->field($model, 'notes')
-                ->label('Notas de campo')
+                ->label('Descricao')
                 ->textarea([
                     'rows' => 5,
                     'class' => 'form-control',
                     'placeholder' => 'Descreva a observacao, contexto e detalhes relevantes',
                     'data-auto-resize' => true,
                 ])
-                ->hint('Informacoes adicionais e contexto da observacao') ?>
-        </div>
-    </fieldset>
-
-    <fieldset class="form-section mb-4">
-        <legend class="form-section-title">
-            <i class="fas fa-tag" aria-hidden="true"></i>
-            Classificacao da Especie
-        </legend>
-
-        <div class="auth-grid-two">
-            <?= $form->field($model, 'predicted_scientific_name')
-                ->label('Nome cientifico predito')
-                ->textInput(['class' => 'form-control'])
-                ->hint('Resultado da classificacao automatica') ?>
-            <?= $form->field($model, 'enriched_scientific_name')
-                ->label('Nome cientifico enriquecido')
-                ->textInput(['class' => 'form-control'])
-                ->hint('Dados validados do backend') ?>
-        </div>
-
-        <div class="auth-grid-two">
-            <?= $form->field($model, 'enriched_common_name')
-                ->label('Nome comum')
-                ->textInput(['class' => 'form-control'])
-                ->hint('Nome vernacular da especie') ?>
-            <?= $form->field($model, 'enriched_family')
-                ->label('Familia')
-                ->textInput(['class' => 'form-control'])
-                ->hint('Familia botanica') ?>
+                ->hint('Descricao e contexto da observacao') ?>
         </div>
     </fieldset>
 
@@ -200,63 +146,6 @@ $speciesDataJson = Json::htmlEncode($speciesData ?? []);
 <?php
 $js = <<<'JS'
 document.addEventListener('DOMContentLoaded', function() {
-    const speciesData = SPECIES_DATA_PLACEHOLDER;
-    const speciesSelect = document.querySelector('[name="Observation[plant_species_id]"]');
-    const predictedScientificNameInput = document.querySelector('[name="Observation[predicted_scientific_name]"]');
-    const enrichedScientificNameInput = document.querySelector('[name="Observation[enriched_scientific_name]"]');
-    const enrichedCommonNameInput = document.querySelector('[name="Observation[enriched_common_name]"]');
-    const enrichedFamilyInput = document.querySelector('[name="Observation[enriched_family]"]');
-
-    if (speciesSelect) {
-        speciesSelect.addEventListener('change', () => {
-            const selectedSpecies = speciesData[speciesSelect.value] || {};
-            const scientificName = selectedSpecies.scientificName || '';
-            const commonName = selectedSpecies.commonName || '';
-            const family = selectedSpecies.family || '';
-
-            if (predictedScientificNameInput) {
-                predictedScientificNameInput.value = scientificName;
-            }
-            if (enrichedScientificNameInput) {
-                enrichedScientificNameInput.value = scientificName;
-            }
-            if (enrichedCommonNameInput) {
-                enrichedCommonNameInput.value = commonName;
-            }
-            if (enrichedFamilyInput) {
-                enrichedFamilyInput.value = family;
-            }
-        });
-    }
-
-    const rangeInput = document.getElementById('confidence-range');
-    const confidenceValue = document.querySelector('.confidence-value');
-    if (rangeInput && confidenceValue) {
-        const updateConfidence = () => {
-            const value = Math.round(rangeInput.value * 100);
-            confidenceValue.textContent = value;
-        };
-        rangeInput.addEventListener('input', updateConfidence);
-        updateConfidence();
-    }
-
-    const geoBtn = document.getElementById('get-location-btn');
-    if (geoBtn && UIHelpers) {
-        geoBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            UIHelpers.getGeolocation(
-                function(position) {
-                    document.querySelector('[name="Observation[latitude]"]').value = position.lat.toFixed(7);
-                    document.querySelector('[name="Observation[longitude]"]').value = position.lng.toFixed(7);
-                    Notification.success('Localizacao obtida com sucesso!');
-                },
-                function(error) {
-                    Notification.error('Erro ao obter localizacao: ' + error);
-                }
-            );
-        });
-    }
-
     const form = document.querySelector('.stacked-form');
     const submitBtn = document.getElementById('submit-btn');
     if (form && submitBtn) {
@@ -275,7 +164,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 JS;
 
-$js = str_replace('SPECIES_DATA_PLACEHOLDER', $speciesDataJson, $js);
 $this->registerJs($js);
 ?>
 
@@ -301,32 +189,6 @@ $this->registerJs($js);
 .form-section-title i {
     color: var(--gf-brand);
     font-size: 1.2em;
-}
-
-.form-range {
-    height: 8px;
-    border-radius: 4px;
-    background: var(--gf-surface-soft);
-}
-
-.form-range::-webkit-slider-thumb {
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--gf-brand);
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(62, 122, 87, 0.2);
-}
-
-.form-range::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--gf-brand);
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(62, 122, 87, 0.2);
-    border: none;
 }
 
 .is-required {

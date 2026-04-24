@@ -168,6 +168,7 @@ class ObservationController extends Controller
         $model->user_id = (int) Yii::$app->user->id;
         $model->observed_at = date('Y-m-d\TH:i');
         $model->captured_at = time();
+        $model->confidence = 0;
         $model->sync_status = Observation::SYNC_PENDING;
         $model->is_synced = false;
         $model->is_published = false;
@@ -190,6 +191,8 @@ class ObservationController extends Controller
             if (trim((string) $model->sync_status) === '') {
                 $model->sync_status = Observation::SYNC_PENDING;
             }
+            $model->confidence = 0;
+            $this->fillSpeciesClassification($model);
 
             foreach ([
                 'device_observation_id',
@@ -217,7 +220,6 @@ class ObservationController extends Controller
             'model' => $model,
             'userOptions' => $this->getUserOptions(),
             'speciesOptions' => $this->getSpeciesOptions(),
-            'speciesData' => $this->getSpeciesData(),
         ]);
     }
 
@@ -241,6 +243,8 @@ class ObservationController extends Controller
             if (trim((string) $model->sync_status) === '') {
                 $model->sync_status = Observation::SYNC_PENDING;
             }
+            $model->confidence = 0;
+            $this->fillSpeciesClassification($model);
 
             foreach ([
                 'device_observation_id',
@@ -268,7 +272,6 @@ class ObservationController extends Controller
             'model' => $model,
             'userOptions' => $this->getUserOptions(),
             'speciesOptions' => $this->getSpeciesOptions(),
-            'speciesData' => $this->getSpeciesData(),
         ]);
     }
 
@@ -315,24 +318,25 @@ class ObservationController extends Controller
         return $options;
     }
 
-    private function getSpeciesData(): array
+    private function fillSpeciesClassification(Observation $model): void
     {
-        $species = PlantSpecies::find()
-            ->select(['plant_species_id', 'scientific_name', 'common_name', 'family'])
-            ->orderBy(['common_name' => SORT_ASC, 'scientific_name' => SORT_ASC])
-            ->asArray()
-            ->all();
-
-        $data = [];
-        foreach ($species as $item) {
-            $data[(int) $item['plant_species_id']] = [
-                'scientificName' => $item['scientific_name'] ?? '',
-                'commonName' => $item['common_name'] ?? '',
-                'family' => $item['family'] ?? '',
-            ];
+        if (empty($model->plant_species_id)) {
+            $model->predicted_scientific_name = null;
+            $model->enriched_scientific_name = null;
+            $model->enriched_common_name = null;
+            $model->enriched_family = null;
+            return;
         }
 
-        return $data;
+        $species = PlantSpecies::findOne(['plant_species_id' => $model->plant_species_id]);
+        if ($species === null) {
+            return;
+        }
+
+        $model->predicted_scientific_name = $species->scientific_name;
+        $model->enriched_scientific_name = $species->scientific_name;
+        $model->enriched_common_name = $species->common_name;
+        $model->enriched_family = $species->family;
     }
 
     private function ensureManageAccess(Observation $observation): void
