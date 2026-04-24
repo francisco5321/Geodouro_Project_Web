@@ -9,6 +9,7 @@ use Yii;
 use yii\data\Pagination;
 use yii\db\Expression;
 use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
@@ -28,7 +29,7 @@ class ObservationController extends Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['create', 'update'],
+                        'actions' => ['create', 'update', 'delete'],
                         'roles' => ['@'],
                         'matchCallback' => static function () {
                             $identity = Yii::$app->user->identity;
@@ -36,7 +37,7 @@ class ObservationController extends Controller
                                 return false;
                             }
 
-                            if (Yii::$app->requestedAction?->id === 'update') {
+                            if (in_array(Yii::$app->requestedAction?->id, ['update', 'delete'], true)) {
                                 return true;
                             }
 
@@ -51,6 +52,12 @@ class ObservationController extends Controller
 
                     throw new ForbiddenHttpException('Não tens permissão para criar observações manualmente.');
                 },
+            ],
+            'verbs' => [
+                'class' => VerbFilter::class,
+                'actions' => [
+                    'delete' => ['post'],
+                ],
             ],
         ];
     }
@@ -243,6 +250,20 @@ class ObservationController extends Controller
             'userOptions' => $this->getUserOptions(),
             'speciesOptions' => $this->getSpeciesOptions(),
         ]);
+    }
+
+    public function actionDelete(int $id)
+    {
+        $observation = $this->findModel($id);
+
+        if (!(Yii::$app->user->identity?->isAdmin() ?? false)) {
+            throw new ForbiddenHttpException('NÃ£o tens permissÃ£o para remover esta observaÃ§Ã£o.');
+        }
+
+        $observation->delete();
+        Yii::$app->session->setFlash('success', 'ObservaÃ§Ã£o removida com sucesso.');
+
+        return $this->redirect(['observation/index']);
     }
 
     private function getUserOptions(): array

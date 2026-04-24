@@ -12,6 +12,7 @@ $this->title = 'Observação #' . $observation->observation_id;
 $statusLabel = $observation->is_published ? 'Publicada' : ($observation->sync_status === Observation::SYNC_SYNCED ? 'Sincronizada' : ($observation->sync_status === Observation::SYNC_FAILED ? 'Falha de sincronização' : 'Pendente'));
 $imagePaths = $observation->getImageGalleryPaths();
 $canCreatePublication = Yii::$app->user->identity?->isAdmin() || (int) $observation->user_id === (int) Yii::$app->user->id;
+$canDeleteObservation = Yii::$app->user->identity?->isAdmin() ?? false;
 $coordinateLabel = $observation->hasCoordinates()
     ? number_format((float) $observation->latitude, 5) . ', ' . number_format((float) $observation->longitude, 5)
     : 'Sem localização';
@@ -57,11 +58,16 @@ JS, View::POS_END);
             </div>
             <p class="hero-text"><?= Html::encode($observation->notes ?: 'Sem notas de campo registadas para esta observação.') ?></p>
             <div class="hero-cta-row mt-4">
-                <?php if ($observation->hasCoordinates()): ?>
-                    <a class="btn btn-brand" href="<?= Url::to(['map/index']) ?>">
-                        <i class="fas fa-map-location-dot" aria-hidden="true"></i>
-                        Ver no mapa
-                    </a>
+                <?php if ($canDeleteObservation): ?>
+                    <?= Html::a(
+                        '<i class="fas fa-trash" aria-hidden="true"></i> Remover observaÃ§Ã£o',
+                        ['observation/delete', 'id' => $observation->observation_id],
+                        [
+                            'class' => 'btn btn-danger',
+                            'data-method' => 'post',
+                            'data-confirm' => 'Tens a certeza que queres remover esta observaÃ§Ã£o? Esta aÃ§Ã£o tambÃ©m remove publicaÃ§Ãµes e imagens associadas.',
+                        ]
+                    ) ?>
                 <?php endif; ?>
                 <?php if ($observation->publication !== null): ?>
                     <a class="btn btn-outline-brand" href="<?= Url::to(['publication/view', 'id' => $observation->publication->publication_id]) ?>">
