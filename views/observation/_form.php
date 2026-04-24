@@ -1,6 +1,7 @@
 <?php
 
 use app\models\Observation;
+use yii\helpers\Json;
 use yii\bootstrap5\ActiveForm;
 use yii\bootstrap5\Html;
 
@@ -8,10 +9,12 @@ use yii\bootstrap5\Html;
 /** @var Observation $model */
 /** @var array $userOptions */
 /** @var array $speciesOptions */
+/** @var array $speciesData */
 
 $isNewRecord = $model->isNewRecord;
 $submitLabel = $isNewRecord ? 'Criar observacao' : 'Guardar alteracoes';
 $cancelUrl = $isNewRecord ? ['map/index'] : ['observation/view', 'id' => $model->observation_id];
+$speciesDataJson = Json::htmlEncode($speciesData ?? []);
 ?>
 <div class="content-card publication-form-card">
     <?php $form = ActiveForm::begin(['options' => ['class' => 'stacked-form']]); ?>
@@ -197,6 +200,35 @@ $cancelUrl = $isNewRecord ? ['map/index'] : ['observation/view', 'id' => $model-
 <?php
 $js = <<<'JS'
 document.addEventListener('DOMContentLoaded', function() {
+    const speciesData = SPECIES_DATA_PLACEHOLDER;
+    const speciesSelect = document.querySelector('[name="Observation[plant_species_id]"]');
+    const predictedScientificNameInput = document.querySelector('[name="Observation[predicted_scientific_name]"]');
+    const enrichedScientificNameInput = document.querySelector('[name="Observation[enriched_scientific_name]"]');
+    const enrichedCommonNameInput = document.querySelector('[name="Observation[enriched_common_name]"]');
+    const enrichedFamilyInput = document.querySelector('[name="Observation[enriched_family]"]');
+
+    if (speciesSelect) {
+        speciesSelect.addEventListener('change', () => {
+            const selectedSpecies = speciesData[speciesSelect.value] || {};
+            const scientificName = selectedSpecies.scientificName || '';
+            const commonName = selectedSpecies.commonName || '';
+            const family = selectedSpecies.family || '';
+
+            if (predictedScientificNameInput) {
+                predictedScientificNameInput.value = scientificName;
+            }
+            if (enrichedScientificNameInput) {
+                enrichedScientificNameInput.value = scientificName;
+            }
+            if (enrichedCommonNameInput) {
+                enrichedCommonNameInput.value = commonName;
+            }
+            if (enrichedFamilyInput) {
+                enrichedFamilyInput.value = family;
+            }
+        });
+    }
+
     const rangeInput = document.getElementById('confidence-range');
     const confidenceValue = document.querySelector('.confidence-value');
     if (rangeInput && confidenceValue) {
@@ -243,6 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 JS;
 
+$js = str_replace('SPECIES_DATA_PLACEHOLDER', $speciesDataJson, $js);
 $this->registerJs($js);
 ?>
 

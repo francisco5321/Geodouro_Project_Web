@@ -6,6 +6,7 @@ use app\models\Observation;
 /** @var Observation $model */
 /** @var array $userOptions */
 /** @var array $speciesOptions */
+/** @var array $speciesData */
 
 $this->title = 'Editar observacao';
 ?>
@@ -29,5 +30,6 @@ $this->title = 'Editar observacao';
         'model' => $model,
         'userOptions' => $userOptions,
         'speciesOptions' => $speciesOptions,
+        'speciesData' => $speciesData,
     ]) ?>
 </div>

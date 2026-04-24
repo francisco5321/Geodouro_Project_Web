@@ -217,6 +217,7 @@ class ObservationController extends Controller
             'model' => $model,
             'userOptions' => $this->getUserOptions(),
             'speciesOptions' => $this->getSpeciesOptions(),
+            'speciesData' => $this->getSpeciesData(),
         ]);
     }
 
@@ -267,6 +268,7 @@ class ObservationController extends Controller
             'model' => $model,
             'userOptions' => $this->getUserOptions(),
             'speciesOptions' => $this->getSpeciesOptions(),
+            'speciesData' => $this->getSpeciesData(),
         ]);
     }
 
@@ -311,6 +313,26 @@ class ObservationController extends Controller
         }
 
         return $options;
+    }
+
+    private function getSpeciesData(): array
+    {
+        $species = PlantSpecies::find()
+            ->select(['plant_species_id', 'scientific_name', 'common_name', 'family'])
+            ->orderBy(['common_name' => SORT_ASC, 'scientific_name' => SORT_ASC])
+            ->asArray()
+            ->all();
+
+        $data = [];
+        foreach ($species as $item) {
+            $data[(int) $item['plant_species_id']] = [
+                'scientificName' => $item['scientific_name'] ?? '',
+                'commonName' => $item['common_name'] ?? '',
+                'family' => $item['family'] ?? '',
+            ];
+        }
+
+        return $data;
     }
 
     private function ensureManageAccess(Observation $observation): void
