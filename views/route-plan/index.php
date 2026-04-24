@@ -14,7 +14,7 @@ $this->title = 'Percursos';
 <div class="module-shell">
 
     <!-- Hero melhorado: ícone decorativo + stats mais destacadas -->
-    <section class="species-hero mb-4">
+    <section class="species-hero route-plan-hero mb-4">
         <div class="species-detail-copy">
             <span class="eyebrow">
                 <i class="fas fa-route" aria-hidden="true"></i>
