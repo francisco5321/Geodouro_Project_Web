@@ -187,6 +187,23 @@ class AppUser extends ActiveRecord implements IdentityInterface
             ->one();
     }
 
+    public static function findByLoginIdentifier(string $identifier): ?self
+    {
+        $identifier = trim($identifier);
+        if ($identifier === '') {
+            return null;
+        }
+
+        return static::find()
+            ->andWhere(['is_authenticated' => true])
+            ->andWhere([
+                'or',
+                ['username' => $identifier],
+                ['email' => $identifier],
+            ])
+            ->one();
+    }
+
     public function getId(): int
     {
         return $this->user_id;

@@ -27,7 +27,7 @@ class LoginForm extends Model
     public function attributeLabels(): array
     {
         return [
-            'username' => 'Username',
+            'username' => 'Username ou Email',
             'password' => 'Password',
             'rememberMe' => 'Manter sessão iniciada',
         ];
@@ -58,7 +58,8 @@ class LoginForm extends Model
 
         try {
             if ($backendAuthStrategy === 'http') {
-                Yii::$app->backendAuthSession->syncLogin($this->username, $this->password, $backendAuthTimeout);
+                $backendIdentifier = $user?->username ?: $user?->email ?: $this->username;
+                Yii::$app->backendAuthSession->syncLogin($backendIdentifier, $this->password, $backendAuthTimeout);
             } elseif ($user !== null) {
                 Yii::$app->backendAuthSession->establishForUser($user);
             }
@@ -83,7 +84,7 @@ class LoginForm extends Model
     public function getUser(): ?AppUser
     {
         if ($this->_user === null) {
-            $this->_user = AppUser::findByUsername($this->username);
+            $this->_user = AppUser::findByLoginIdentifier($this->username);
         }
 
         return $this->_user;

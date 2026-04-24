@@ -17,7 +17,10 @@ $this->title = 'Entrar';
         </div>
 
         <?php $form = ActiveForm::begin(['options' => ['class' => 'login-form']]); ?>
-            <?= $form->field($model, 'username')->textInput(['autofocus' => true]) ?>
+            <?= $form->field($model, 'username')->textInput([
+                'autofocus' => true,
+                'placeholder' => 'Username ou email',
+            ]) ?>
             <?= $form->field($model, 'password')->passwordInput() ?>
             <?= $form->field($model, 'rememberMe')->checkbox() ?>
             <div class="d-grid auth-actions">
