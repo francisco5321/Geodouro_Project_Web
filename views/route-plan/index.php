@@ -10,7 +10,6 @@ use yii\helpers\Url;
 use yii\widgets\LinkPager;
 
 $this->title = 'Percursos';
-$planCount = is_array($plans) ? count($plans) : 0;
 ?>
 <div class="module-shell">
 
@@ -29,11 +28,6 @@ $planCount = is_array($plans) ? count($plans) : 0;
                 'label' => 'Percursos',
                 'value' => is_array($plans) ? count($plans) : 0,
                 'icon' => 'fas fa-map-pin',
-            ]) ?>
-            <?= StatCard::widget([
-                'label' => 'Origem',
-                'value' => $backendError === null ? 'Backend' : 'Local',
-                'icon' => 'fas fa-database',
             ]) ?>
         </div>
     </section>
