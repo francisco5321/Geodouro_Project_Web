@@ -39,16 +39,6 @@ $this->title = 'Observações';
                 'value' => (int) $summary['published'],
                 'icon' => 'fas fa-check-circle',
             ]) ?>
-            <?= StatCard::widget([
-                'label' => 'Pendentes',
-                'value' => (int) $summary['pending'],
-                'icon' => 'fas fa-hourglass-half',
-            ]) ?>
-            <?= StatCard::widget([
-                'label' => 'Falhadas',
-                'value' => (int) $summary['failed'],
-                'icon' => 'fas fa-exclamation-circle',
-            ]) ?>
         </div>
     </section>
 
