@@ -3135,6 +3135,12 @@ body.app-shell {
     font-size: 0.9rem;
 }
 
+.route-plan-empty-state {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: min(100%, 420px);
+}
+
 .route-card-actions .btn-link {
     display: inline-flex;
     align-items: center;

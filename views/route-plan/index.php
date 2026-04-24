@@ -96,7 +96,7 @@ $this->title = 'Percursos';
     <section class="publication-grid">
 
         <?php if (empty($plans)): ?>
-            <div class="empty-state-card content-card w-100 text-center py-5">
+            <div class="empty-state-card content-card route-plan-empty-state text-center py-5">
                 <div class="mb-3" style="font-size: 2.5rem; opacity: .35;">
                     <i class="fas fa-sitemap" aria-hidden="true"></i>
                 </div>
