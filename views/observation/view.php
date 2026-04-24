@@ -127,7 +127,7 @@ JS, View::POS_END);
                 <div class="module-link-list detail-action-list">
                     <?php if ($observation->plant_species_id): ?><a href="<?= Url::to(['species/view', 'id' => $observation->plant_species_id]) ?>"><i class="fas fa-leaf" aria-hidden="true"></i><span>Abrir ficha da espécie</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
                     <?php if ($observation->publication !== null): ?><a href="<?= Url::to(['publication/view', 'id' => $observation->publication->publication_id]) ?>"><i class="fas fa-newspaper" aria-hidden="true"></i><span>Abrir publicação associada</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
-                    <?php if ($observation->hasCoordinates()): ?><a href="<?= Url::to(['map/index']) ?>"><i class="fas fa-map-location-dot" aria-hidden="true"></i><span>Ver no mapa</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
+                    <?php if ($observation->hasCoordinates()): ?><a href="<?= Url::to(['map/index', 'observationId' => $observation->observation_id]) ?>"><i class="fas fa-map-location-dot" aria-hidden="true"></i><span>Ver no mapa</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
                 </div>
             </article>
         </div>

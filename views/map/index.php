@@ -12,6 +12,7 @@ use yii\web\View;
 /** @var int $visitTargetCount */
 /** @var bool $canCreateObservation */
 /** @var string|null $createObservationUrl */
+/** @var int $focusObservationId */
 
 $this->title = 'Mapa';
 $this->registerCssFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
@@ -20,12 +21,14 @@ $js = <<<'JS'
 const markers = __MARKERS__ || [];
 const canCreateObservation = __CAN_CREATE__;
 const createObservationBaseUrl = '__CREATE_OBSERVATION_URL__';
+const focusObservationId = __FOCUS_OBSERVATION_ID__;
 const map = L.map('geodouro-map').setView([41.3, -7.7], 8);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 const bounds = [];
+let focusedLayer = null;
 markers.forEach((marker) => {
     const point = [marker.latitude, marker.longitude];
     bounds.push(point);
@@ -37,13 +40,17 @@ markers.forEach((marker) => {
             <a href="${marker.detailUrl}">Abrir observação</a>
         </div>
     `;
-    L.circleMarker(point, {
+    const layer = L.circleMarker(point, {
         radius: marker.isVisitTarget ? 10 : 6,
         color: marker.isVisitTarget ? '#1f5f43' : '#6d7f72',
         fillColor: marker.isVisitTarget ? '#7bc47f' : '#c8d2c6',
         fillOpacity: marker.isVisitTarget ? 0.95 : 0.55,
         weight: marker.isVisitTarget ? 2.5 : 1.5,
     }).addTo(map).bindPopup(popup);
+
+    if (Number(marker.id) === Number(focusObservationId)) {
+        focusedLayer = layer;
+    }
 });
 if (canCreateObservation) {
     map.on('click', (event) => {
@@ -64,13 +71,18 @@ if (canCreateObservation) {
             .openOn(map);
     });
 }
-if (bounds.length > 0) {
+if (focusedLayer) {
+    const focusedPoint = focusedLayer.getLatLng();
+    map.setView(focusedPoint, 16, {animate: false});
+    focusedLayer.openPopup();
+} else if (bounds.length > 0) {
     map.fitBounds(bounds, {padding: [32, 32]});
 }
 JS;
 $js = str_replace('__MARKERS__', $markersJson, $js);
 $js = str_replace('__CAN_CREATE__', $canCreateObservation ? 'true' : 'false', $js);
 $js = str_replace('__CREATE_OBSERVATION_URL__', $createObservationUrl ?? '', $js);
+$js = str_replace('__FOCUS_OBSERVATION_ID__', (string) (int) $focusObservationId, $js);
 $this->registerJs($js, View::POS_END);
 ?>
 <div class="module-shell">

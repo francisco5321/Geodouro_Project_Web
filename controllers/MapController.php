@@ -28,6 +28,8 @@ class MapController extends Controller
 
     public function actionIndex(): string
     {
+        $focusObservationId = (int) Yii::$app->request->get('observationId', 0);
+
         $observations = Observation::find()
             ->with(['user', 'plantSpecies', 'publication'])
             ->where(['not', ['latitude' => null]])
@@ -35,6 +37,29 @@ class MapController extends Controller
             ->orderBy(['observed_at' => SORT_DESC])
             ->limit(250)
             ->all();
+
+        if ($focusObservationId > 0) {
+            $hasFocusedObservation = false;
+            foreach ($observations as $observation) {
+                if ((int) $observation->observation_id === $focusObservationId) {
+                    $hasFocusedObservation = true;
+                    break;
+                }
+            }
+
+            if (!$hasFocusedObservation) {
+                $focusedObservation = Observation::find()
+                    ->with(['user', 'plantSpecies', 'publication'])
+                    ->where(['observation_id' => $focusObservationId])
+                    ->andWhere(['not', ['latitude' => null]])
+                    ->andWhere(['not', ['longitude' => null]])
+                    ->one();
+
+                if ($focusedObservation !== null) {
+                    array_unshift($observations, $focusedObservation);
+                }
+            }
+        }
 
         $visitTargets = Yii::$app->user->isGuest
             ? []
@@ -78,6 +103,7 @@ class MapController extends Controller
             'canCreateObservation' => Yii::$app->user->identity?->isAdmin() ?? false,
             'createObservationUrl' => \yii\helpers\Url::to(['observation/create']),
             'markersJson' => json_encode($markers, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            'focusObservationId' => $focusObservationId,
         ]);
     }
 }
