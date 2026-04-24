@@ -60,12 +60,12 @@ JS, View::POS_END);
             <div class="hero-cta-row mt-4">
                 <?php if ($canDeleteObservation): ?>
                     <?= Html::a(
-                        '<i class="fas fa-trash" aria-hidden="true"></i> Remover observaÃ§Ã£o',
+                        '<i class="fas fa-trash" aria-hidden="true"></i> Remover observação',
                         ['observation/delete', 'id' => $observation->observation_id],
                         [
                             'class' => 'btn btn-danger',
                             'data-method' => 'post',
-                            'data-confirm' => 'Tens a certeza que queres remover esta observaÃ§Ã£o? Esta aÃ§Ã£o tambÃ©m remove publicaÃ§Ãµes e imagens associadas.',
+                            'data-confirm' => 'Tens a certeza que queres remover esta observação? Esta ação também remove publicações e imagens associadas.',
                         ]
                     ) ?>
                 <?php endif; ?>

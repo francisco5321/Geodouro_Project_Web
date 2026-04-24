@@ -257,11 +257,11 @@ class ObservationController extends Controller
         $observation = $this->findModel($id);
 
         if (!(Yii::$app->user->identity?->isAdmin() ?? false)) {
-            throw new ForbiddenHttpException('NÃ£o tens permissÃ£o para remover esta observaÃ§Ã£o.');
+            throw new ForbiddenHttpException('Não tens permissão para remover esta observação.');
         }
 
         $observation->delete();
-        Yii::$app->session->setFlash('success', 'ObservaÃ§Ã£o removida com sucesso.');
+        Yii::$app->session->setFlash('success', 'Observação removida com sucesso.');
 
         return $this->redirect(['observation/index']);
     }
