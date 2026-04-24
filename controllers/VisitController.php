@@ -53,6 +53,8 @@ class VisitController extends Controller
             ->orderBy(['created_at' => SORT_DESC, 'saved_visit_target_id' => SORT_DESC])
             ->all();
 
+        $this->primeTargetMapObservations($targets);
+
         $plans = RoutePlan::find()
             ->where(['user_id' => Yii::$app->user->id])
             ->orderBy(['updated_at' => SORT_DESC, 'route_plan_id' => SORT_DESC])
@@ -62,10 +64,9 @@ class VisitController extends Controller
         foreach ($targets as $target) {
             $observation = $target->getMapObservation();
             if ($observation !== null) {
-                $savedObservationIds[] = (int) $observation->observation_id;
+                $savedObservationIds[(int) $observation->observation_id] = true;
             }
         }
-        $savedObservationIds = array_values(array_unique($savedObservationIds));
 
         $observations = Observation::find()
             ->with(['user', 'plantSpecies', 'publication'])
@@ -84,7 +85,7 @@ class VisitController extends Controller
                 'latitude' => (float) $observation->latitude,
                 'longitude' => (float) $observation->longitude,
                 'detailUrl' => \yii\helpers\Url::to(['observation/view', 'id' => $observation->observation_id]),
-                'isSaved' => in_array((int) $observation->observation_id, $savedObservationIds, true),
+                'isSaved' => isset($savedObservationIds[(int) $observation->observation_id]),
             ];
         }, $observations);
 
@@ -178,6 +179,8 @@ class VisitController extends Controller
             ->orderBy(['created_at' => SORT_ASC, 'saved_visit_target_id' => SORT_ASC])
             ->all();
 
+        $this->primeTargetMapObservations($targets);
+
         if (empty($targets)) {
             Yii::$app->session->setFlash('error', 'Primeiro tens de marcar no mapa os pontos por onde queres passar.');
             return $this->redirect(['visit/index']);
@@ -262,6 +265,52 @@ class VisitController extends Controller
         }
 
         return $this->redirect(['visit/index']);
+    }
+
+    /**
+     * Resolve species-based targets in bulk so we avoid one query per item.
+     *
+     * @param SavedVisitTarget[] $targets
+     */
+    private function primeTargetMapObservations(array $targets): void
+    {
+        $speciesIds = [];
+
+        foreach ($targets as $target) {
+            if ($target->observation?->hasCoordinates() || $target->publication?->observation?->hasCoordinates()) {
+                continue;
+            }
+
+            if ($target->plant_species_id !== null) {
+                $speciesIds[] = (int) $target->plant_species_id;
+            }
+        }
+
+        if ($speciesIds === []) {
+            return;
+        }
+
+        $speciesIds = array_values(array_unique($speciesIds));
+        $candidateObservations = Observation::find()
+            ->where(['plant_species_id' => $speciesIds])
+            ->andWhere(['not', ['latitude' => null]])
+            ->andWhere(['not', ['longitude' => null]])
+            ->orderBy(['observed_at' => SORT_DESC, 'observation_id' => SORT_DESC])
+            ->all();
+
+        $observationsBySpecies = [];
+        foreach ($candidateObservations as $observation) {
+            $speciesId = (int) $observation->plant_species_id;
+            $observationsBySpecies[$speciesId] ??= $observation;
+        }
+
+        foreach ($targets as $target) {
+            if ($target->plant_species_id === null) {
+                continue;
+            }
+
+            $target->setMapObservationOverride($observationsBySpecies[(int) $target->plant_species_id] ?? null);
+        }
     }
 }
 

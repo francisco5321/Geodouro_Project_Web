@@ -82,7 +82,9 @@ class RoutePlanController extends Controller
     {
         $plan = $this->findOwnedPlan($id);
         $plan->populateRelation('routePlanPoints', $plan->getRoutePlanPoints()->with(['savedVisitTarget.plantSpecies', 'savedVisitTarget.publication.plantSpecies', 'savedVisitTarget.publication.observation', 'savedVisitTarget.observation'])->all());
+        $this->primeTargetMapObservations(array_map(static fn (RoutePlanPoint $point): ?\app\models\SavedVisitTarget => $point->savedVisitTarget, $plan->routePlanPoints));
         $availableTargets = $plan->getPlannableTargets();
+        $this->primeTargetMapObservations($availableTargets);
         $speciesSearch = trim((string) Yii::$app->request->get('speciesQ', ''));
         $plannableSpecies = $plan->getPlannableSpecies($speciesSearch);
 
@@ -96,7 +98,7 @@ class RoutePlanController extends Controller
                 continue;
             }
 
-            $routeObservationIds[] = (int) $observation->observation_id;
+            $routeObservationIds[(int) $observation->observation_id] = true;
             $marker = [
                 'id' => $point->route_plan_point_id,
                 'title' => $target->getTargetTitle(),
@@ -108,7 +110,6 @@ class RoutePlanController extends Controller
             $markers[] = $marker;
             $routeCoordinates[] = [$marker['latitude'], $marker['longitude']];
         }
-        $routeObservationIds = array_values(array_unique($routeObservationIds));
 
         $backgroundObservations = Observation::find()
             ->with(['user', 'plantSpecies'])
@@ -127,7 +128,7 @@ class RoutePlanController extends Controller
                 'scientificName' => $observation->getResolvedScientificName() ?: 'Sem classificação enriquecida',
                 'status' => $observation->is_published ? 'Publicada' : $observation->sync_status,
                 'detailUrl' => \yii\helpers\Url::to(['observation/view', 'id' => $observation->observation_id]),
-                'isInRoute' => in_array((int) $observation->observation_id, $routeObservationIds, true),
+                'isInRoute' => isset($routeObservationIds[(int) $observation->observation_id]),
             ];
         }, $backgroundObservations);
 
@@ -296,5 +297,53 @@ class RoutePlanController extends Controller
         }
 
         return $plan;
+    }
+
+    /**
+     * @param array<int, \app\models\SavedVisitTarget|null> $targets
+     */
+    private function primeTargetMapObservations(array $targets): void
+    {
+        $speciesIds = [];
+
+        foreach ($targets as $target) {
+            if ($target === null) {
+                continue;
+            }
+
+            if ($target->observation?->hasCoordinates() || $target->publication?->observation?->hasCoordinates()) {
+                continue;
+            }
+
+            if ($target->plant_species_id !== null) {
+                $speciesIds[] = (int) $target->plant_species_id;
+            }
+        }
+
+        if ($speciesIds === []) {
+            return;
+        }
+
+        $speciesIds = array_values(array_unique($speciesIds));
+        $candidateObservations = Observation::find()
+            ->where(['plant_species_id' => $speciesIds])
+            ->andWhere(['not', ['latitude' => null]])
+            ->andWhere(['not', ['longitude' => null]])
+            ->orderBy(['observed_at' => SORT_DESC, 'observation_id' => SORT_DESC])
+            ->all();
+
+        $observationsBySpecies = [];
+        foreach ($candidateObservations as $observation) {
+            $speciesId = (int) $observation->plant_species_id;
+            $observationsBySpecies[$speciesId] ??= $observation;
+        }
+
+        foreach ($targets as $target) {
+            if ($target === null || $target->plant_species_id === null) {
+                continue;
+            }
+
+            $target->setMapObservationOverride($observationsBySpecies[(int) $target->plant_species_id] ?? null);
+        }
     }
 }

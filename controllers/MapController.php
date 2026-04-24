@@ -4,9 +4,9 @@ namespace app\controllers;
 
 use app\models\Observation;
 use app\models\SavedVisitTarget;
+use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
-use Yii;
 
 class MapController extends Controller
 {
@@ -47,30 +47,28 @@ class MapController extends Controller
         $targetObservationIds = [];
         foreach ($visitTargets as $target) {
             if ($target->plant_species_id !== null) {
-                $targetSpeciesIds[] = (int) $target->plant_species_id;
+                $targetSpeciesIds[(int) $target->plant_species_id] = true;
             }
             if ($target->observation_id !== null) {
-                $targetObservationIds[] = (int) $target->observation_id;
+                $targetObservationIds[(int) $target->observation_id] = true;
             }
             if ($target->publication?->observation_id !== null) {
-                $targetObservationIds[] = (int) $target->publication->observation_id;
+                $targetObservationIds[(int) $target->publication->observation_id] = true;
             }
         }
-        $targetSpeciesIds = array_values(array_unique($targetSpeciesIds));
-        $targetObservationIds = array_values(array_unique($targetObservationIds));
 
         $markers = array_map(static function (Observation $observation) use ($targetSpeciesIds, $targetObservationIds): array {
             return [
                 'id' => $observation->observation_id,
-                'title' => $observation->getResolvedCommonName() ?: 'Observação botânica',
-                'scientificName' => $observation->getResolvedScientificName() ?: 'Sem classificação enriquecida',
+                'title' => $observation->getResolvedCommonName() ?: 'Observacao botanica',
+                'scientificName' => $observation->getResolvedScientificName() ?: 'Sem classificacao enriquecida',
                 'status' => $observation->is_published ? 'Publicada' : $observation->sync_status,
                 'latitude' => (float) $observation->latitude,
                 'longitude' => (float) $observation->longitude,
                 'detailUrl' => \yii\helpers\Url::to(['observation/view', 'id' => $observation->observation_id]),
                 'speciesUrl' => $observation->plant_species_id ? \yii\helpers\Url::to(['species/view', 'id' => $observation->plant_species_id]) : null,
-                'isVisitTarget' => in_array((int) $observation->plant_species_id, $targetSpeciesIds, true)
-                    || in_array((int) $observation->observation_id, $targetObservationIds, true),
+                'isVisitTarget' => isset($targetSpeciesIds[(int) $observation->plant_species_id])
+                    || isset($targetObservationIds[(int) $observation->observation_id]),
             ];
         }, $observations);
 

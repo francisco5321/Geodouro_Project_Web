@@ -38,7 +38,7 @@ class MediaController extends Controller
             ->one();
 
         if ($observation === null) {
-            throw new NotFoundHttpException('Observação não encontrada.');
+            throw new NotFoundHttpException('Observacao nao encontrada.');
         }
 
         return $this->sendRelativeUpload($observation->getImageGalleryPaths()[$index] ?? null);
@@ -52,7 +52,7 @@ class MediaController extends Controller
             ->one();
 
         if ($publication === null) {
-            throw new NotFoundHttpException('Publicação não encontrada.');
+            throw new NotFoundHttpException('Publicacao nao encontrada.');
         }
 
         return $this->sendRelativeUpload($publication->getImageGalleryPaths()[$index] ?? null);
@@ -61,19 +61,32 @@ class MediaController extends Controller
     private function sendRelativeUpload(?string $relativePath): Response
     {
         if ($relativePath === null || trim($relativePath) === '') {
-            throw new NotFoundHttpException('Imagem não encontrada.');
+            throw new NotFoundHttpException('Imagem nao encontrada.');
         }
 
         $basePath = Yii::$app->params['backendUploadsPath'] ?? null;
         if (!$basePath) {
-            throw new NotFoundHttpException('Diretório de uploads não configurado.');
+            throw new NotFoundHttpException('Diretorio de uploads nao configurado.');
         }
 
         $candidatePath = realpath($basePath . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativePath));
         $resolvedBase = realpath($basePath);
 
         if ($candidatePath === false || $resolvedBase === false || !str_starts_with($candidatePath, $resolvedBase) || !is_file($candidatePath)) {
-            throw new NotFoundHttpException('Ficheiro de imagem indisponível.');
+            throw new NotFoundHttpException('Ficheiro de imagem indisponivel.');
+        }
+
+        $fileMTime = (int) filemtime($candidatePath);
+        $etag = '"' . sha1($candidatePath . '|' . $fileMTime . '|' . filesize($candidatePath)) . '"';
+
+        Yii::$app->response->headers
+            ->set('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800')
+            ->set('ETag', $etag)
+            ->set('Last-Modified', gmdate('D, d M Y H:i:s', $fileMTime) . ' GMT');
+
+        if (Yii::$app->request->headers->get('If-None-Match') === $etag) {
+            Yii::$app->response->setStatusCode(304);
+            return Yii::$app->response;
         }
 
         return Yii::$app->response->sendFile($candidatePath, basename($candidatePath), ['inline' => true]);

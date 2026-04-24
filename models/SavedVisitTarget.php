@@ -22,6 +22,8 @@ use yii\db\ActiveRecord;
  */
 class SavedVisitTarget extends ActiveRecord
 {
+    private ?Observation $mapObservationOverride = null;
+
     public static function tableName(): string
     {
         return '{{%saved_visit_target}}';
@@ -123,6 +125,10 @@ class SavedVisitTarget extends ActiveRecord
 
     public function getMapObservation(): ?Observation
     {
+        if ($this->mapObservationOverride !== null) {
+            return $this->mapObservationOverride;
+        }
+
         if ($this->observation?->hasCoordinates()) {
             return $this->observation;
         }
@@ -141,5 +147,10 @@ class SavedVisitTarget extends ActiveRecord
             ->andWhere(['not', ['longitude' => null]])
             ->orderBy(['observed_at' => SORT_DESC])
             ->one();
+    }
+
+    public function setMapObservationOverride(?Observation $observation): void
+    {
+        $this->mapObservationOverride = $observation;
     }
 }
