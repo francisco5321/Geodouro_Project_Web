@@ -192,6 +192,8 @@ class ObservationController extends Controller
             $model->sync_status = Observation::SYNC_PENDING;
             $model->is_synced = false;
             $model->is_published = false;
+            $model->enriched_wikipedia_url = null;
+            $model->enriched_photo_url = null;
             $this->fillSpeciesClassification($model);
 
             foreach ([
@@ -242,6 +244,8 @@ class ObservationController extends Controller
             }
             $model->confidence = 0;
             $model->sync_status = Observation::SYNC_PENDING;
+            $model->enriched_wikipedia_url = null;
+            $model->enriched_photo_url = null;
             $this->fillSpeciesClassification($model);
 
             foreach ([

@@ -88,16 +88,6 @@ $cancelUrl = $isNewRecord ? ['map/index'] : ['observation/view', 'id' => $model-
                 ->hint('URL ou caminho relativo para a imagem principal da observacao') ?>
         </div>
 
-        <div class="auth-grid-two">
-            <?= $form->field($model, 'enriched_wikipedia_url')
-                ->label('Referencia Wikipedia')
-                ->textInput(['class' => 'form-control', 'type' => 'url', 'placeholder' => 'https://pt.wikipedia.org/wiki/...'])
-                ->hint('Link para Wikipedia sobre a especie') ?>
-            <?= $form->field($model, 'enriched_photo_url')
-                ->label('Referencia de foto')
-                ->textInput(['class' => 'form-control', 'type' => 'url', 'placeholder' => 'https://...'])
-                ->hint('Link para foto de referencia') ?>
-        </div>
     </fieldset>
 
     <div class="form-action-row">
