@@ -65,6 +65,7 @@ class ObservationController extends Controller
     public function actionIndex(): string
     {
         $status = trim((string) Yii::$app->request->get('status', 'all'));
+        $queryText = trim((string) Yii::$app->request->get('q', ''));
         $myObservationsOnly = (bool) Yii::$app->request->get('my', false);
         $allowedStatuses = ['all', Observation::SYNC_PENDING, Observation::SYNC_SYNCED, Observation::SYNC_FAILED, 'PUBLISHED'];
 
@@ -73,8 +74,24 @@ class ObservationController extends Controller
         }
 
         $query = Observation::find()
-            ->with(['user', 'plantSpecies'])
+            ->with(['user', 'plantSpecies', 'publication.user'])
+            ->joinWith([
+                'plantSpecies' => static function ($query) {
+                    $query->alias('species');
+                },
+            ])
             ->orderBy(['observed_at' => SORT_DESC, 'observation_id' => SORT_DESC]);
+
+        if ($queryText !== '') {
+            $query->andWhere([
+                'or',
+                ['ilike', 'species.common_name', $queryText],
+                ['ilike', 'species.scientific_name', $queryText],
+                ['ilike', 'enriched_common_name', $queryText],
+                ['ilike', 'enriched_scientific_name', $queryText],
+                ['ilike', 'predicted_scientific_name', $queryText],
+            ]);
+        }
 
         // Filtrar por utilizador actual se my=1
         if ($myObservationsOnly) {
@@ -123,6 +140,7 @@ class ObservationController extends Controller
         return $this->render('index', [
             'observations' => $observations,
             'pagination' => $pagination,
+            'queryText' => $queryText,
             'status' => $status,
             'summary' => $summary,
         ]);
@@ -131,7 +149,7 @@ class ObservationController extends Controller
     public function actionView(int $id): string
     {
         $observation = Observation::find()
-            ->with(['user', 'plantSpecies', 'observationImages', 'publication'])
+            ->with(['user', 'plantSpecies', 'observationImages', 'publication.user'])
             ->where(['observation_id' => $id])
             ->one();
 

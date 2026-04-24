@@ -69,7 +69,6 @@ class MapController extends Controller
                 'longitude' => (float) $observation->longitude,
                 'detailUrl' => \yii\helpers\Url::to(['observation/view', 'id' => $observation->observation_id]),
                 'speciesUrl' => $observation->plant_species_id ? \yii\helpers\Url::to(['species/view', 'id' => $observation->plant_species_id]) : null,
-                'author' => $observation->user?->getFullName() ?? 'Sistema',
                 'isVisitTarget' => in_array((int) $observation->plant_species_id, $targetSpeciesIds, true)
                     || in_array((int) $observation->observation_id, $targetObservationIds, true),
             ];

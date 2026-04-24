@@ -33,7 +33,7 @@ markers.forEach((marker) => {
         <div class="map-popup">
             <strong>${marker.title}</strong>
             <p>${marker.scientificName}</p>
-            <p>${marker.author} - ${marker.status}</p>
+            <p>${marker.status}</p>
             <a href="${marker.detailUrl}">Abrir observação</a>
         </div>
     `;
@@ -136,7 +136,6 @@ $this->registerJs($js, View::POS_END);
                     <article class="map-observation-item">
                         <p class="species-scientific-name"><?= Html::encode($observation->getResolvedScientificName() ?: 'Sem classificação') ?></p>
                         <h3><?= Html::encode($observation->getResolvedCommonName() ?: 'Observação botânica') ?></h3>
-                        <p><?= Html::encode($observation->user?->getFullName() ?? 'Sistema') ?></p>
                         <a href="<?= Url::to(['observation/view', 'id' => $observation->observation_id]) ?>">Abrir detalhe</a>
                     </article>
                 <?php endforeach; ?>

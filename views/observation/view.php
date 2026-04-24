@@ -84,9 +84,11 @@ JS, View::POS_END);
         </div>
         <div class="detail-stat-grid">
             <article class="detail-stat-card"><span>Confiança</span><strong><?= $observation->confidence !== null ? (int) round($observation->confidence * 100) . '%' : 'N/D' ?></strong></article>
-            <article class="detail-stat-card"><span>Autor</span><strong><?= Html::encode($observation->user?->getFullName() ?? 'Sistema') ?></strong></article>
             <article class="detail-stat-card"><span>Data</span><strong><?= Html::encode(Yii::$app->formatter->asDate($observation->observed_at, 'php:d/m/Y')) ?></strong></article>
             <article class="detail-stat-card"><span>Imagens</span><strong><?= count($imagePaths) ?></strong></article>
+            <?php if ($observation->publication !== null): ?>
+                <article class="detail-stat-card"><span>Publicado por</span><strong><?= Html::encode($observation->publication->user?->getFullName() ?? 'Sistema') ?></strong></article>
+            <?php endif; ?>
         </div>
     </section>
 

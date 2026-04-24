@@ -11,6 +11,7 @@ use yii\widgets\LinkPager;
 /** @var yii\web\View $this */
 /** @var Observation[] $observations */
 /** @var yii\data\Pagination $pagination */
+/** @var string $queryText */
 /** @var string $status */
 /** @var array $summary */
 
@@ -56,18 +57,40 @@ $this->title = 'Observações';
         <div class="toolbar-header">
             <h2 class="section-title">
                 <i class="fas fa-filter" aria-hidden="true"></i>
-                Filtrar por Status
+                Pesquisar e Filtrar
             </h2>
         </div>
+        <form class="catalog-search mb-3" method="get" action="<?= Url::to(['observation/index']) ?>" role="search">
+            <label class="search-field">
+                <span class="search-icon" aria-hidden="true">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input
+                    type="search"
+                    name="q"
+                    value="<?= Html::encode($queryText) ?>"
+                    placeholder="Pesquisar por espécie"
+                    aria-label="Pesquisar observações por espécie"
+                >
+            </label>
+            <?php if ($status !== 'all'): ?>
+                <input type="hidden" name="status" value="<?= Html::encode($status) ?>">
+            <?php endif; ?>
+            <?php if ((bool) Yii::$app->request->get('my', false)): ?>
+                <input type="hidden" name="my" value="1">
+            <?php endif; ?>
+            <button type="submit" class="btn btn-brand">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                Pesquisar
+            </button>
+        </form>
         <div class="filter-row">
             <?php foreach ([
                 'all' => ['label' => 'Todas', 'icon' => 'fas fa-list'],
-                Observation::SYNC_PENDING => ['label' => 'Pendentes', 'icon' => 'fas fa-clock'],
                 Observation::SYNC_SYNCED => ['label' => 'Sincronizadas', 'icon' => 'fas fa-sync'],
-                Observation::SYNC_FAILED => ['label' => 'Falhadas', 'icon' => 'fas fa-times-circle'],
                 'PUBLISHED' => ['label' => 'Publicadas', 'icon' => 'fas fa-star'],
             ] as $value => $config): ?>
-                <a class="btn <?= $status === $value ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'status' => $value === 'all' ? null : $value]) ?>">
+                <a class="btn <?= $status === $value ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'status' => $value === 'all' ? null : $value, 'q' => $queryText ?: null, 'my' => Yii::$app->request->get('my') ? 1 : null]) ?>">
                     <i class="<?= Html::encode($config['icon']) ?>" aria-hidden="true"></i>
                     <?= Html::encode($config['label']) ?>
                 </a>
@@ -163,15 +186,6 @@ $this->title = 'Observações';
                     <div class="timeline-item-meta">
                         <div class="timeline-item-meta-item">
                             <span class="timeline-item-meta-label">
-                                <i class="fas fa-user" aria-hidden="true"></i>
-                                Autor
-                            </span>
-                            <strong class="timeline-item-meta-value">
-                                <?= Html::encode($observation->user?->getFullName() ?? 'Sistema') ?>
-                            </strong>
-                        </div>
-                        <div class="timeline-item-meta-item">
-                            <span class="timeline-item-meta-label">
                                 <i class="fas fa-calendar" aria-hidden="true"></i>
                                 Data
                             </span>
@@ -197,6 +211,17 @@ $this->title = 'Observações';
                                 <?= Html::encode($observation->plantSpecies?->common_name ?? $observation->plantSpecies?->scientific_name ?? 'Não associada') ?>
                             </strong>
                         </div>
+                        <?php if ($observation->publication !== null): ?>
+                            <div class="timeline-item-meta-item">
+                                <span class="timeline-item-meta-label">
+                                    <i class="fas fa-newspaper" aria-hidden="true"></i>
+                                    Publicado por
+                                </span>
+                                <strong class="timeline-item-meta-value">
+                                    <?= Html::encode($observation->publication->user?->getFullName() ?? 'Sistema') ?>
+                                </strong>
+                            </div>
+                        <?php endif; ?>
                     </div>
 
                     <div class="timeline-item-actions">

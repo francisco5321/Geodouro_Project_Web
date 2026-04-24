@@ -132,11 +132,51 @@ class SpeciesController extends Controller
         }
 
         $observations = Observation::find()
-            ->with(['user'])
+            ->with(['user', 'publication.user', 'observationImages'])
             ->where(['plant_species_id' => $species->plant_species_id])
             ->orderBy(['observed_at' => SORT_DESC, 'observation_id' => SORT_DESC])
             ->limit(8)
             ->all();
+
+        $imageObservations = Observation::find()
+            ->with(['observationImages'])
+            ->where(['plant_species_id' => $species->plant_species_id])
+            ->orderBy(['observed_at' => SORT_DESC, 'observation_id' => SORT_DESC])
+            ->limit(24)
+            ->all();
+
+        $galleryImages = [];
+        foreach ($imageObservations as $imageObservation) {
+            foreach ($imageObservation->getImageGalleryPaths() as $index => $path) {
+                $galleryImages[] = [
+                    'observationId' => (int) $imageObservation->observation_id,
+                    'imageIndex' => (int) $index,
+                ];
+            }
+        }
+        $galleryImages = array_values(array_slice($galleryImages, 0, 12));
+
+        $locationRows = Observation::find()
+            ->select(['latitude', 'longitude'])
+            ->where(['plant_species_id' => $species->plant_species_id])
+            ->andWhere(['not', ['latitude' => null]])
+            ->andWhere(['not', ['longitude' => null]])
+            ->asArray()
+            ->all();
+
+        $locationSummary = null;
+        if (!empty($locationRows)) {
+            $latitudes = array_map(static fn (array $row): float => (float) $row['latitude'], $locationRows);
+            $longitudes = array_map(static fn (array $row): float => (float) $row['longitude'], $locationRows);
+            $locationSummary = sprintf(
+                'Localizações registadas em %d observações. Intervalo aproximado: %.4f, %.4f até %.4f, %.4f.',
+                count($locationRows),
+                min($latitudes),
+                min($longitudes),
+                max($latitudes),
+                max($longitudes)
+            );
+        }
 
         $stats = [
             'observationsCount' => Observation::find()->where(['plant_species_id' => $species->plant_species_id])->count(),
@@ -144,12 +184,18 @@ class SpeciesController extends Controller
                 'plant_species_id' => $species->plant_species_id,
                 'is_published' => true,
             ])->count(),
+            'syncedCount' => Observation::find()->where([
+                'plant_species_id' => $species->plant_species_id,
+                'sync_status' => Observation::SYNC_SYNCED,
+            ])->count(),
             'avgConfidence' => Observation::find()->where(['plant_species_id' => $species->plant_species_id])->average('confidence'),
         ];
 
         return $this->render('view', [
             'species' => $species,
             'observations' => $observations,
+            'galleryImages' => $galleryImages,
+            'locationSummary' => $locationSummary,
             'stats' => $stats,
         ]);
     }
