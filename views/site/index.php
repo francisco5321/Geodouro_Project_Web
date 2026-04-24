@@ -120,6 +120,21 @@ $this->title = 'Dashboard';
                 </a>
             </div>
 
+            <!-- Map -->
+            <div class="module-card">
+                <div class="module-icon map">
+                    <i class="fas fa-map" aria-hidden="true"></i>
+                </div>
+                <div class="module-content">
+                    <h3>Mapa Interativo</h3>
+                    <p>Visualiza todas as observacoes e especies num mapa interativo.</p>
+                </div>
+                <a href="<?= Url::to(['map/index']) ?>" class="module-link">
+                    Abrir mapa
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                </a>
+            </div>
+
             <!-- Visits -->
             <div class="module-card">
                 <div class="module-icon visit">
@@ -164,20 +179,6 @@ $this->title = 'Dashboard';
                 <?php endif; ?>
             </div>
 
-            <!-- Map -->
-            <div class="module-card">
-                <div class="module-icon map">
-                    <i class="fas fa-map" aria-hidden="true"></i>
-                </div>
-                <div class="module-content">
-                    <h3>Mapa Interativo</h3>
-                    <p>Visualiza todas as observações e espécies num mapa interativo.</p>
-                </div>
-                <a href="<?= Url::to(['map/index']) ?>" class="module-link">
-                    Abrir mapa
-                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
-                </a>
-            </div>
         </div>
     </section>
 </div>
