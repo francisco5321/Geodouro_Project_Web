@@ -135,27 +135,6 @@ $this->title = 'Dashboard';
                 </a>
             </div>
 
-            <!-- Visits -->
-            <div class="module-card">
-                <div class="module-icon visit">
-                    <i class="fas fa-route" aria-hidden="true"></i>
-                </div>
-                <div class="module-content">
-                    <h3>Quero Visitar</h3>
-                    <p>Marca espécies e publicações e transforma em objetivos de visita.</p>
-                </div>
-                <?php if (Yii::$app->user->isGuest): ?>
-                    <a href="<?= Url::to(['site/login']) ?>" class="module-link">
-                        <i class="fas fa-lock" aria-hidden="true"></i>
-                        Entrar para aceder
-                    </a>
-                <?php else: ?>
-                    <a href="<?= Url::to(['visit/index']) ?>" class="module-link">
-                        Para Visitar
-                        <i class="fas fa-arrow-right" aria-hidden="true"></i>
-                    </a>
-                <?php endif; ?>
-            </div>
 
             <!-- Routes -->
             <div class="module-card">

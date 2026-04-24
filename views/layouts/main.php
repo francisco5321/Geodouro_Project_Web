@@ -79,12 +79,6 @@ $this->beginPage();
             <div class="nav-divider"></div>
 
             <div class="nav-section secondary-nav">
-                    <a href="<?= yii\helpers\Url::to(['visit/index']) ?>" 
-                       class="nav-link<?= Yii::$app->controller->id === 'visit' ? ' is-active' : '' ?>"
-                       title="Quero Visitar">
-                        <i class="fas fa-route" aria-hidden="true"></i>
-                        <span>Visitas</span>
-                    </a>
                     <a href="<?= yii\helpers\Url::to(['route-plan/index']) ?>" 
                        class="nav-link<?= Yii::$app->controller->id === 'route-plan' ? ' is-active' : '' ?>"
                        title="Planeamento de Percursos">
@@ -219,7 +213,6 @@ $this->beginPage();
                 <ul class="footer-link-list">
                     <li><a href="<?= Url::to(['site/index']) ?>"><i class="fas fa-home" aria-hidden="true"></i><span>Dashboard</span></a></li>
                     <li><a href="<?= Url::to(['map/index']) ?>"><i class="fas fa-map" aria-hidden="true"></i><span>Mapa interativo</span></a></li>
-                    <li><a href="<?= Url::to(['visit/index']) ?>"><i class="fas fa-map-pin" aria-hidden="true"></i><span>Quero visitar</span></a></li>
                     <li><a href="<?= Url::to(['route-plan/index']) ?>"><i class="fas fa-route" aria-hidden="true"></i><span>Percursos</span></a></li>
                 </ul>
             </section>
@@ -227,7 +220,7 @@ $this->beginPage();
             <section class="footer-block">
                 <span class="footer-kicker">Atualizações</span>
                 <h2>Acompanha o portal</h2>
-                <p>Consulta o mapa, guarda pontos em "Quero visitar" e constrói percursos antes de ires para o terreno.</p>
+                <p>Consulta o mapa e constrói percursos antes de ires para o terreno.</p>
                 <div class="footer-pill-row">
                     <span class="footer-pill">
                         <i class="fas fa-life-ring" aria-hidden="true"></i>

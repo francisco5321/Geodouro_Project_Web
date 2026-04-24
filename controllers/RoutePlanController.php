@@ -154,7 +154,10 @@ class RoutePlanController extends Controller
             try {
                 $response = Yii::$app->routePlanApi->createRoutePlan($this->routePlanPayload($plan));
                 Yii::$app->session->setFlash('success', $response['message'] ?? 'Percurso criado com sucesso.');
-                return $this->redirect(['route-plan/index']);
+                $routePlanId = (int) ($response['routePlanId'] ?? 0);
+                return $routePlanId > 0
+                    ? $this->redirect(['route-plan/view', 'id' => $routePlanId])
+                    : $this->redirect(['route-plan/index']);
             } catch (RuntimeException $exception) {
                 Yii::$app->session->setFlash('error', 'Não foi possível criar o percurso no backend comum: ' . $exception->getMessage());
             }

@@ -11,7 +11,7 @@ $this->title = 'Novo percurso';
         <div>
             <span class="eyebrow">Planeamento</span>
             <h1 class="hero-title hero-title-tight">Criar percurso</h1>
-            <p class="hero-text">Dá um nome ao percurso, define um ponto de partida opcional e depois adiciona as paragens escolhidas em Quero visitar.</p>
+            <p class="hero-text">Dá um nome ao percurso e depois adiciona as paragens no mapa do detalhe.</p>
         </div>
     </section>
     <?= $this->render('_form', ['model' => $model]) ?>

@@ -55,7 +55,7 @@ $this->title = 'Percursos';
                 <i class="fas fa-plus-circle" aria-hidden="true"></i>
                 Criar Percurso
             </h2>
-            <p class="section-description mb-0">Cria primeiro o percurso e depois adiciona as paragens a partir do mapa em "Quero Visitar".</p>
+            <p class="section-description mb-0">Cria primeiro o percurso e depois adiciona as paragens no mapa do detalhe.</p>
         </div>
         <?= Html::beginForm(['route-plan/create'], 'post', ['class' => 'visit-route-builder-form']) ?>
             <div class="visit-route-builder-grid">
@@ -77,7 +77,7 @@ $this->title = 'Percursos';
                 </div>
             </div>
             <div class="visit-route-builder-actions">
-                <span class="section-description mb-0">O percurso fica criado sem paragens. Usa o mapa para escolher os pontos que queres visitar.</span>
+                <span class="section-description mb-0">O percurso fica criado sem paragens. Abre o detalhe para escolher os pontos no mapa.</span>
                 <?= Html::submitButton('Criar Percurso', ['class' => 'btn btn-brand']) ?>
             </div>
         <?= Html::endForm() ?>
@@ -102,7 +102,7 @@ $this->title = 'Percursos';
                 </div>
                 <h3 class="mb-2">Ainda não tens percursos</h3>
                 <p class="hero-text mx-auto mb-0">
-                    Vai a "Quero Visitar" para criar o teu primeiro percurso ordenando as plantas e publicações que queres visitar no terreno.
+                    Cria o teu primeiro percurso aqui e depois abre o detalhe para adicionar paragens no mapa.
                 </p>
             </div>
         <?php endif; ?>
@@ -155,7 +155,7 @@ $this->title = 'Percursos';
                     </div>
                     <div class="route-card-actions">
                         <?php if ($stopCount === 0): ?>
-                            <?= Html::a('Adicionar paragens', Url::to(['visit/index']), ['class' => 'btn btn-outline route-add-stops-button']) ?>
+                            <?= Html::a('Adicionar paragens', Url::to(['route-plan/view', 'id' => $routePlanId]), ['class' => 'btn btn-outline route-add-stops-button']) ?>
                         <?php endif; ?>
                         <?= Html::a('Abrir', Url::to(['route-plan/view',   'id' => $routePlanId]), ['class' => 'btn-link']) ?>
                         <?= Html::a('Editar', Url::to(['route-plan/update', 'id' => $routePlanId]), ['class' => 'btn-link']) ?>

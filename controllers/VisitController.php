@@ -44,56 +44,9 @@ class VisitController extends Controller
         ];
     }
 
-    public function actionIndex(): string
+    public function actionIndex(): Response
     {
-        $targets = SavedVisitTarget::find()
-            ->with(['plantSpecies', 'publication.plantSpecies', 'publication.observation', 'observation.plantSpecies'])
-            ->where(['user_id' => Yii::$app->user->id])
-            ->andWhere(['or', ['notes' => null], ['<>', 'notes', self::CONSUMED_VISIT_TARGET_NOTE]])
-            ->orderBy(['created_at' => SORT_DESC, 'saved_visit_target_id' => SORT_DESC])
-            ->all();
-
-        $this->primeTargetMapObservations($targets);
-
-        $plans = RoutePlan::find()
-            ->where(['user_id' => Yii::$app->user->id])
-            ->orderBy(['updated_at' => SORT_DESC, 'route_plan_id' => SORT_DESC])
-            ->all();
-
-        $savedObservationIds = [];
-        foreach ($targets as $target) {
-            $observation = $target->getMapObservation();
-            if ($observation !== null) {
-                $savedObservationIds[(int) $observation->observation_id] = true;
-            }
-        }
-
-        $observations = Observation::find()
-            ->with(['user', 'plantSpecies', 'publication'])
-            ->where(['not', ['latitude' => null]])
-            ->andWhere(['not', ['longitude' => null]])
-            ->orderBy(['observed_at' => SORT_DESC, 'observation_id' => SORT_DESC])
-            ->limit(300)
-            ->all();
-
-        $markers = array_map(static function (Observation $observation) use ($savedObservationIds): array {
-            return [
-                'id' => $observation->observation_id,
-                'title' => $observation->getResolvedCommonName() ?: 'Observação botânica',
-                'scientificName' => $observation->getResolvedScientificName() ?: 'Sem classificação enriquecida',
-                'status' => $observation->is_published ? 'Publicada' : $observation->sync_status,
-                'latitude' => (float) $observation->latitude,
-                'longitude' => (float) $observation->longitude,
-                'detailUrl' => \yii\helpers\Url::to(['observation/view', 'id' => $observation->observation_id]),
-                'isSaved' => isset($savedObservationIds[(int) $observation->observation_id]),
-            ];
-        }, $observations);
-
-        return $this->render('index', [
-            'targets' => $targets,
-            'plans' => $plans,
-            'markersJson' => json_encode($markers, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-        ]);
+        return $this->redirect(['route-plan/index']);
     }
 
     public function actionToggleSpecies(int $id)
@@ -111,7 +64,7 @@ class VisitController extends Controller
             Yii::$app->session->setFlash('error', 'Não foi possível atualizar Quero visitar no backend comum. Confirma que o backend está atualizado e tenta novamente.');
         }
 
-        return $this->redirect(Yii::$app->request->referrer ?: ['visit/index']);
+        return $this->redirect(Yii::$app->request->referrer ?: ['route-plan/index']);
     }
     public function actionTogglePublication(int $id)
     {
@@ -128,7 +81,7 @@ class VisitController extends Controller
             Yii::$app->session->setFlash('error', 'Não foi possível atualizar Quero visitar no backend comum. Confirma que o backend está atualizado e tenta novamente.');
         }
 
-        return $this->redirect(Yii::$app->request->referrer ?: ['visit/index']);
+        return $this->redirect(Yii::$app->request->referrer ?: ['route-plan/index']);
     }
     public function actionToggleObservation(int $id): array|Response
     {
@@ -154,7 +107,7 @@ class VisitController extends Controller
                 ];
             }
             Yii::$app->session->setFlash('error', $message);
-            return $this->redirect(Yii::$app->request->referrer ?: ['visit/index']);
+            return $this->redirect(Yii::$app->request->referrer ?: ['route-plan/index']);
         }
 
         if (Yii::$app->request->isAjax) {
@@ -167,7 +120,7 @@ class VisitController extends Controller
         }
 
         Yii::$app->session->setFlash('success', $message);
-        return $this->redirect(Yii::$app->request->referrer ?: ['visit/index']);
+        return $this->redirect(Yii::$app->request->referrer ?: ['route-plan/index']);
     }
     public function actionCreateRoute(): Response
     {
@@ -182,20 +135,20 @@ class VisitController extends Controller
 
         if (empty($targets)) {
             Yii::$app->session->setFlash('error', 'Primeiro tens de marcar no mapa os pontos por onde queres passar.');
-            return $this->redirect(['visit/index']);
+            return $this->redirect(['route-plan/index']);
         }
 
         $routePlan = new RoutePlan();
         $routePlan->user_id = (int) Yii::$app->user->id;
         if (!$routePlan->load(Yii::$app->request->post())) {
             Yii::$app->session->setFlash('error', 'Não foi possível ler os dados do percurso.');
-            return $this->redirect(['visit/index']);
+            return $this->redirect(['route-plan/index']);
         }
 
         if (!$routePlan->validate(['name', 'description'])) {
             $firstError = $routePlan->getFirstError('name') ?: $routePlan->getFirstError('description') ?: 'Reve os dados do percurso.';
             Yii::$app->session->setFlash('error', $firstError);
-            return $this->redirect(['visit/index']);
+            return $this->redirect(['route-plan/index']);
         }
 
         $transaction = Yii::$app->db->beginTransaction();
@@ -240,7 +193,7 @@ class VisitController extends Controller
         } catch (\Throwable $exception) {
             $transaction->rollBack();
             Yii::$app->session->setFlash('error', $exception->getMessage());
-            return $this->redirect(['visit/index']);
+            return $this->redirect(['route-plan/index']);
         }
     }
 
@@ -263,7 +216,7 @@ class VisitController extends Controller
             Yii::$app->session->setFlash('error', 'Não foi possível remover este alvo no backend comum. Confirma que o backend está atualizado e tenta novamente.');
         }
 
-        return $this->redirect(['visit/index']);
+        return $this->redirect(['route-plan/index']);
     }
 
     /**

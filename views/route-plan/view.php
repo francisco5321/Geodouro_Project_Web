@@ -192,7 +192,7 @@ async function drawPlannedRoute() {
 }
 
 function buildObservationPopup(marker) {
-    const buttonLabel = marker.isInRoute ? 'Remover do percurso' : 'Quero passar aqui';
+    const buttonLabel = marker.isInRoute ? 'Remover do percurso' : 'Adicionar ao percurso';
     return `
         <div class="map-popup map-popup-rich">
             <strong>${marker.title}</strong>
@@ -358,7 +358,7 @@ $this->registerJs($js, View::POS_END);
         <div class="toolbar-row">
             <div>
                 <strong>Fluxo simplificado</strong>
-                <p class="table-subtext mb-0">Seleciona diretamente uma observação no mapa e usa "Quero passar aqui". No mobile, o Google Maps parte da localização atual do utilizador.</p>
+                <p class="table-subtext mb-0">Seleciona diretamente uma observação no mapa e usa "Adicionar ao percurso". No mobile, o Google Maps parte da localização atual do utilizador.</p>
             </div>
             <div class="toolbar-actions">
                 <a class="btn btn-outline-brand" href="<?= Url::to(['route-plan/update', 'id' => $plan->route_plan_id]) ?>">Editar percurso</a>
@@ -378,7 +378,7 @@ $this->registerJs($js, View::POS_END);
                 <?php if (empty($plan->routePlanPoints)): ?>
                     <div class="empty-state-card compact-empty-state">
                         <h3>Sem paragens ainda</h3>
-                        <p>Clica num ponto do mapa e usa "Quero passar aqui" para adicionar a primeira paragem.</p>
+                        <p>Clica num ponto do mapa e usa "Adicionar ao percurso" para adicionar a primeira paragem.</p>
                     </div>
                 <?php else: ?>
                     <?php foreach ($plan->routePlanPoints as $point): ?>
