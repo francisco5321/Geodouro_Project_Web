@@ -14,7 +14,7 @@ $submitLabel = $isNewRecord ? 'Criar observacao' : 'Guardar alteracoes';
 $cancelUrl = $isNewRecord ? ['map/index'] : ['observation/view', 'id' => $model->observation_id];
 ?>
 <div class="content-card publication-form-card">
-    <?php $form = ActiveForm::begin(['options' => ['class' => 'stacked-form']]); ?>
+    <?php $form = ActiveForm::begin(['options' => ['class' => 'stacked-form', 'enctype' => 'multipart/form-data']]); ?>
 
     <fieldset class="form-section mb-4">
         <legend class="form-section-title">
@@ -82,10 +82,17 @@ $cancelUrl = $isNewRecord ? ['map/index'] : ['observation/view', 'id' => $model-
         </legend>
 
         <div>
-            <?= $form->field($model, 'image_uri')
-                ->label('Imagem principal')
-                ->textInput(['class' => 'form-control', 'placeholder' => 'Caminho ou URL da imagem'])
-                ->hint('URL ou caminho relativo para a imagem principal da observacao') ?>
+            <?= Html::label('Imagem principal', 'observation-image-file', ['class' => 'form-label']) ?>
+            <?= Html::fileInput('observation_image_file', null, [
+                'id' => 'observation-image-file',
+                'class' => 'form-control',
+                'accept' => 'image/*',
+            ]) ?>
+            <?= Html::error($model, 'image_uri', ['class' => 'invalid-feedback d-block']) ?>
+            <small class="form-text">Seleciona uma imagem do teu sistema de ficheiros</small>
+            <?php if (!$model->isNewRecord && trim((string) $model->image_uri) !== ''): ?>
+                <small class="form-text d-block">Imagem atual: <?= Html::encode(basename((string) $model->image_uri)) ?></small>
+            <?php endif; ?>
         </div>
 
     </fieldset>

@@ -10,9 +10,11 @@ use yii\data\Pagination;
 use yii\db\Expression;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
+use yii\helpers\FileHelper;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
+use yii\web\UploadedFile;
 
 class ObservationController extends Controller
 {
@@ -195,6 +197,13 @@ class ObservationController extends Controller
             $model->enriched_wikipedia_url = null;
             $model->enriched_photo_url = null;
             $this->fillSpeciesClassification($model);
+            if (!$this->saveUploadedObservationImage($model)) {
+                return $this->render('create', [
+                    'model' => $model,
+                    'userOptions' => $this->getUserOptions(),
+                    'speciesOptions' => $this->getSpeciesOptions(),
+                ]);
+            }
 
             foreach ([
                 'device_observation_id',
@@ -247,6 +256,13 @@ class ObservationController extends Controller
             $model->enriched_wikipedia_url = null;
             $model->enriched_photo_url = null;
             $this->fillSpeciesClassification($model);
+            if (!$this->saveUploadedObservationImage($model)) {
+                return $this->render('update', [
+                    'model' => $model,
+                    'userOptions' => $this->getUserOptions(),
+                    'speciesOptions' => $this->getSpeciesOptions(),
+                ]);
+            }
 
             foreach ([
                 'device_observation_id',
@@ -318,6 +334,47 @@ class ObservationController extends Controller
         }
 
         return $options;
+    }
+
+    private function saveUploadedObservationImage(Observation $model): bool
+    {
+        $uploadedFile = UploadedFile::getInstanceByName('observation_image_file');
+        if ($uploadedFile === null || $uploadedFile->error === UPLOAD_ERR_NO_FILE) {
+            return true;
+        }
+
+        $extension = strtolower($uploadedFile->extension ?: '');
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        if (!in_array($extension, $allowedExtensions, true) || !str_starts_with((string) $uploadedFile->type, 'image/') || @getimagesize($uploadedFile->tempName) === false) {
+            $model->addError('image_uri', 'Seleciona um ficheiro de imagem valido.');
+            return false;
+        }
+
+        if ($uploadedFile->hasError) {
+            $model->addError('image_uri', 'Nao foi possivel carregar a imagem selecionada.');
+            return false;
+        }
+
+        $basePath = Yii::$app->params['backendUploadsPath'] ?? null;
+        if (!$basePath) {
+            $model->addError('image_uri', 'Diretorio de uploads nao configurado.');
+            return false;
+        }
+
+        $relativeDirectory = 'observations/manual';
+        $targetDirectory = rtrim($basePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativeDirectory);
+        FileHelper::createDirectory($targetDirectory);
+
+        $fileName = 'observation_' . date('Ymd_His') . '_' . Yii::$app->security->generateRandomString(8) . '.' . $extension;
+        $targetPath = $targetDirectory . DIRECTORY_SEPARATOR . $fileName;
+
+        if (!$uploadedFile->saveAs($targetPath)) {
+            $model->addError('image_uri', 'Nao foi possivel guardar a imagem selecionada.');
+            return false;
+        }
+
+        $model->image_uri = $relativeDirectory . '/' . $fileName;
+        return true;
     }
 
     private function fillSpeciesClassification(Observation $model): void
