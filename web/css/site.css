@@ -1045,6 +1045,7 @@ body.app-shell {
 
 .observation-hero .detail-stat-grid {
     grid-template-columns: minmax(206px, 206px);
+    justify-self: end;
 }
 
 @media (max-width: 991.98px) {
@@ -1074,6 +1075,7 @@ body.app-shell {
 
     .observation-hero .detail-stat-grid {
         grid-template-columns: 1fr;
+        justify-self: stretch;
     }
 }
 
