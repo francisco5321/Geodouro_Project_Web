@@ -2715,7 +2715,7 @@ body.app-shell {
 }
 
 .publication-form-actions {
-    justify-content: flex-end;
+    justify-content: center;
 }
 
 .stacked-form .form-control,
