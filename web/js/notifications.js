@@ -17,6 +17,7 @@ const Notification = {
             toast: true,
             position: options.position || 'top-end',
             showConfirmButton: false,
+            showCloseButton: true,
             timer: options.timer || 4000,
             timerProgressBar: true,
             didOpen: (toast) => {
@@ -40,6 +41,7 @@ const Notification = {
             toast: true,
             position: options.position || 'top-end',
             showConfirmButton: false,
+            showCloseButton: true,
             timer: options.timer || 5000,
             timerProgressBar: true,
             didOpen: (toast) => {
@@ -63,6 +65,7 @@ const Notification = {
             toast: true,
             position: options.position || 'top-end',
             showConfirmButton: false,
+            showCloseButton: true,
             timer: options.timer || 4000,
             timerProgressBar: true,
             didOpen: (toast) => {
@@ -86,6 +89,7 @@ const Notification = {
             toast: true,
             position: options.position || 'top-end',
             showConfirmButton: false,
+            showCloseButton: true,
             timer: options.timer || 4000,
             timerProgressBar: true,
             didOpen: (toast) => {
