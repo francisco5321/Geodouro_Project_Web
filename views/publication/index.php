@@ -73,12 +73,6 @@ $this->title = 'Publicações';
                     Minhas publicações
                 </a>
             </div>
-            <div class="toolbar-actions">
-                <a class="btn btn-outline" href="<?= Url::to(['visit/index']) ?>">
-                    <i class="fas fa-heart" aria-hidden="true"></i>
-                    Quero visitar
-                </a>
-            </div>
         </div>
     </section>
 
