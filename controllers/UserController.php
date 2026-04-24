@@ -59,7 +59,7 @@ class UserController extends Controller
 
         $pagination = new Pagination([
             'totalCount' => (clone $query)->count(),
-            'pageSize' => 20,
+            'pageSize' => 10,
             'params' => array_merge(Yii::$app->request->get(), ['q' => $search]),
         ]);
 

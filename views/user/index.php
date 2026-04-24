@@ -122,8 +122,6 @@ $this->title = 'Utilizadores';
                                                 <?= Html::submitButton('Tornar admin', ['class' => 'btn btn-link table-action-button', 'data-confirm' => 'Tens a certeza que queres promover este utilizador a administrador?']) ?>
                                             <?= Html::endForm() ?>
                                         <?php endif; ?>
-                                    <?php else: ?>
-                                        <span class="table-subtext">Sem ação</span>
                                     <?php endif; ?>
                                 </div>
                             </td>
