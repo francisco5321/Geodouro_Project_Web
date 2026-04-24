@@ -2714,6 +2714,10 @@ body.app-shell {
     border-radius: 24px;
 }
 
+.publication-form-actions {
+    justify-content: flex-end;
+}
+
 .stacked-form .form-control,
 .stacked-form .form-select {
     border-radius: 16px;
