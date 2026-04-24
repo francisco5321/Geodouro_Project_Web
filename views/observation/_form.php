@@ -74,15 +74,15 @@ $cancelUrl = $isNewRecord ? ['map/index'] : ['observation/view', 'id' => $model-
         </div>
     </fieldset>
 
-    <div class="form-action-row">
-        <?= Html::submitButton(
-            '<i class="fas fa-save" aria-hidden="true"></i> ' . $submitLabel,
-            ['class' => 'btn btn-brand btn-lg', 'id' => 'submit-btn']
-        ) ?>
+    <div class="form-action-row observation-form-actions">
         <a class="btn btn-outline-brand btn-lg" href="<?= yii\helpers\Url::to($cancelUrl) ?>" title="Cancelar">
             <i class="fas fa-times" aria-hidden="true"></i>
             Cancelar
         </a>
+        <?= Html::submitButton(
+            '<i class="fas fa-save" aria-hidden="true"></i> ' . $submitLabel,
+            ['class' => 'btn btn-brand btn-lg', 'id' => 'submit-btn']
+        ) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

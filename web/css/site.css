@@ -2714,7 +2714,8 @@ body.app-shell {
     border-radius: 24px;
 }
 
-.publication-form-actions {
+.publication-form-actions,
+.observation-form-actions {
     justify-content: center;
 }
 
