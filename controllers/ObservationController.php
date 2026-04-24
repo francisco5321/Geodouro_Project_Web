@@ -28,9 +28,20 @@ class ObservationController extends Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['create'],
+                        'actions' => ['create', 'update'],
                         'roles' => ['@'],
-                        'matchCallback' => static fn() => Yii::$app->user->identity?->isAdmin() ?? false,
+                        'matchCallback' => static function () {
+                            $identity = Yii::$app->user->identity;
+                            if ($identity === null) {
+                                return false;
+                            }
+
+                            if (Yii::$app->requestedAction?->id === 'update') {
+                                return true;
+                            }
+
+                            return $identity->isAdmin();
+                        },
                     ],
                 ],
                 'denyCallback' => static function () {
@@ -184,6 +195,56 @@ class ObservationController extends Controller
         ]);
     }
 
+    public function actionUpdate(int $id)
+    {
+        $model = $this->findModel($id);
+        $this->ensureManageAccess($model);
+
+        if (!empty($model->observed_at)) {
+            $model->observed_at = date('Y-m-d\TH:i', strtotime((string) $model->observed_at));
+        }
+
+        if ($model->load(Yii::$app->request->post())) {
+            if (!empty($model->observed_at)) {
+                $observedAt = str_replace('T', ' ', (string) $model->observed_at);
+                $model->observed_at = strlen($observedAt) === 16 ? $observedAt . ':00' : $observedAt;
+            }
+            if (empty($model->captured_at)) {
+                $model->captured_at = null;
+            }
+            if (trim((string) $model->sync_status) === '') {
+                $model->sync_status = Observation::SYNC_PENDING;
+            }
+
+            foreach ([
+                'device_observation_id',
+                'image_uri',
+                'predicted_scientific_name',
+                'enriched_scientific_name',
+                'enriched_common_name',
+                'enriched_family',
+                'enriched_wikipedia_url',
+                'enriched_photo_url',
+                'notes',
+            ] as $attribute) {
+                if (trim((string) $model->$attribute) === '') {
+                    $model->$attribute = null;
+                }
+            }
+
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Observação atualizada com sucesso.');
+                return $this->redirect(['observation/view', 'id' => $model->observation_id]);
+            }
+        }
+
+        return $this->render('update', [
+            'model' => $model,
+            'userOptions' => $this->getUserOptions(),
+            'speciesOptions' => $this->getSpeciesOptions(),
+        ]);
+    }
+
     private function getUserOptions(): array
     {
         $users = AppUser::find()
@@ -211,5 +272,27 @@ class ObservationController extends Controller
         }
 
         return $options;
+    }
+
+    private function ensureManageAccess(Observation $observation): void
+    {
+        $identity = Yii::$app->user->identity;
+        if ($identity === null) {
+            throw new ForbiddenHttpException('Precisas de iniciar sessão para editar observações.');
+        }
+
+        if (!$identity->isAdmin() && (int) $identity->user_id !== (int) $observation->user_id) {
+            throw new ForbiddenHttpException('Não tens permissão para editar esta observação.');
+        }
+    }
+
+    private function findModel(int $id): Observation
+    {
+        $model = Observation::findOne(['observation_id' => $id]);
+        if ($model === null) {
+            throw new NotFoundHttpException('Observação não encontrada.');
+        }
+
+        return $model;
     }
 }
