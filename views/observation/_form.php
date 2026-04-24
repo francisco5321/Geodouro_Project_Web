@@ -100,35 +100,6 @@ $cancelUrl = $isNewRecord ? ['map/index'] : ['observation/view', 'id' => $model-
         </div>
     </fieldset>
 
-    <fieldset class="form-section mb-4">
-        <legend class="form-section-title">
-            <i class="fas fa-sync-alt" aria-hidden="true"></i>
-            Status de Sincronizacao
-        </legend>
-
-        <div class="auth-grid-two">
-            <?= $form->field($model, 'sync_status')
-                ->label('Status de sincronizacao')
-                ->dropDownList([
-                    Observation::SYNC_PENDING => 'Pendente',
-                    Observation::SYNC_SYNCED => 'Sincronizada',
-                    Observation::SYNC_FAILED => 'Falhada',
-                ])
-                ->hint('Estado de sincronizacao com backend') ?>
-            <?= $form->field($model, 'device_observation_id')
-                ->label('ID do dispositivo')
-                ->textInput(['class' => 'form-control', 'placeholder' => 'UUID opcional'])
-                ->hint('Identificador unico do dispositivo (UUID)') ?>
-        </div>
-
-        <div class="auth-grid-two">
-            <?= $form->field($model, 'is_synced')->checkbox()
-                ->hint('Marcado se foi sincronizado com o backend') ?>
-            <?= $form->field($model, 'is_published')->checkbox()
-                ->hint('Marcado se a observacao esta publicada') ?>
-        </div>
-    </fieldset>
-
     <div class="form-action-row">
         <?= Html::submitButton(
             '<i class="fas fa-save" aria-hidden="true"></i> ' . $submitLabel,

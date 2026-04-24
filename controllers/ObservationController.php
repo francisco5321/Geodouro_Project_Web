@@ -188,10 +188,10 @@ class ObservationController extends Controller
             if (empty($model->captured_at)) {
                 $model->captured_at = time();
             }
-            if (trim((string) $model->sync_status) === '') {
-                $model->sync_status = Observation::SYNC_PENDING;
-            }
             $model->confidence = 0;
+            $model->sync_status = Observation::SYNC_PENDING;
+            $model->is_synced = false;
+            $model->is_published = false;
             $this->fillSpeciesClassification($model);
 
             foreach ([
@@ -240,10 +240,8 @@ class ObservationController extends Controller
             if (empty($model->captured_at)) {
                 $model->captured_at = null;
             }
-            if (trim((string) $model->sync_status) === '') {
-                $model->sync_status = Observation::SYNC_PENDING;
-            }
             $model->confidence = 0;
+            $model->sync_status = Observation::SYNC_PENDING;
             $this->fillSpeciesClassification($model);
 
             foreach ([
