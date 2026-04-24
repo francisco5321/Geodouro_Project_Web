@@ -61,8 +61,10 @@ body.app-shell {
     transition: all 0.16s ease;
 }
 
-.brand:hover {
+.brand:hover,
+.brand:focus {
     color: var(--gf-brand);
+    text-decoration: none;
 }
 
 .brand-icon {
@@ -154,6 +156,12 @@ body.app-shell {
 .nav-link:hover {
     background: var(--gf-surface-soft);
     color: var(--gf-brand);
+    text-decoration: none;
+}
+
+.nav-link:focus,
+.nav-link.is-active {
+    text-decoration: none;
 }
 
 .nav-link:hover i {
