@@ -18,6 +18,7 @@ class AppAsset extends AssetBundle
         'css/accessibility.css',
     ];
     public $js = [
+        'https://cdn.jsdelivr.net/npm/sweetalert2@11',
         'js/notifications.js',
         'js/ui-helpers.js',
     ];
