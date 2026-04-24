@@ -81,6 +81,75 @@ function ensureNotificationStyles() {
         @keyframes gf-spin {
             to { transform: rotate(360deg); }
         }
+        .gf-confirm-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1100;
+            display: grid;
+            place-items: center;
+            padding: 1rem;
+            background: rgba(17, 25, 20, 0.44);
+            backdrop-filter: blur(5px);
+        }
+        .gf-confirm-dialog {
+            width: min(26rem, 100%);
+            display: grid;
+            gap: 1rem;
+            padding: 1.25rem;
+            border-radius: 18px;
+            background: #ffffff;
+            color: #203528;
+            border: 1px solid rgba(62, 122, 87, 0.16);
+            box-shadow: 0 24px 70px rgba(19, 32, 23, 0.24);
+            transform: translateY(8px) scale(0.98);
+            opacity: 0;
+            transition: opacity 0.16s ease, transform 0.16s ease;
+        }
+        .gf-confirm-overlay.is-visible .gf-confirm-dialog {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+        .gf-confirm-title {
+            margin: 0;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #173320;
+        }
+        .gf-confirm-message {
+            margin: 0;
+            color: #5d6a60;
+            line-height: 1.55;
+        }
+        .gf-confirm-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .gf-confirm-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 2.5rem;
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .gf-confirm-button--cancel {
+            background: #f4f7f2;
+            color: #315340;
+            border-color: rgba(62, 122, 87, 0.18);
+        }
+        .gf-confirm-button--confirm {
+            background: #2f7a4f;
+            color: #ffffff;
+        }
+        .gf-confirm-button:focus-visible {
+            outline: 3px solid rgba(127, 192, 132, 0.45);
+            outline-offset: 2px;
+        }
     `;
 
     document.head.appendChild(style);
@@ -146,10 +215,60 @@ const Notification = {
 
     confirm(message, onConfirm, title = 'Confirmar', options = {}) {
         const confirmText = options.confirmButtonText || 'Confirmar';
-        const prompt = `${title}\n\n${message}\n\n${confirmText}?`;
-        if (window.confirm(prompt) && typeof onConfirm === 'function') {
-            onConfirm();
-        }
+        const cancelText = options.cancelButtonText || 'Cancelar';
+        ensureNotificationStyles();
+
+        const overlay = document.createElement('div');
+        overlay.className = 'gf-confirm-overlay';
+        overlay.innerHTML = `
+            <section class="gf-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="gf-confirm-title" aria-describedby="gf-confirm-message">
+                <h2 class="gf-confirm-title" id="gf-confirm-title"></h2>
+                <p class="gf-confirm-message" id="gf-confirm-message"></p>
+                <div class="gf-confirm-actions">
+                    <button type="button" class="gf-confirm-button gf-confirm-button--cancel"></button>
+                    <button type="button" class="gf-confirm-button gf-confirm-button--confirm"></button>
+                </div>
+            </section>
+        `;
+
+        overlay.querySelector('.gf-confirm-title').textContent = title;
+        overlay.querySelector('.gf-confirm-message').textContent = message;
+        const cancelButton = overlay.querySelector('.gf-confirm-button--cancel');
+        const confirmButton = overlay.querySelector('.gf-confirm-button--confirm');
+        cancelButton.textContent = cancelText;
+        confirmButton.textContent = confirmText;
+
+        const close = () => {
+            overlay.classList.remove('is-visible');
+            window.setTimeout(() => overlay.remove(), 180);
+            document.removeEventListener('keydown', handleKeydown);
+        };
+
+        const handleKeydown = (event) => {
+            if (event.key === 'Escape') {
+                close();
+            }
+        };
+
+        cancelButton.addEventListener('click', close);
+        overlay.addEventListener('click', (event) => {
+            if (event.target === overlay) {
+                close();
+            }
+        });
+        confirmButton.addEventListener('click', () => {
+            close();
+            if (typeof onConfirm === 'function') {
+                onConfirm();
+            }
+        });
+
+        document.body.appendChild(overlay);
+        document.addEventListener('keydown', handleKeydown);
+        requestAnimationFrame(() => {
+            overlay.classList.add('is-visible');
+            confirmButton.focus();
+        });
     },
 
     loading(message = 'Carregando...') {
@@ -178,7 +297,11 @@ const Notification = {
 // Expose to global scope
 window.Notification = Notification;
 
-if (window.yii) {
+function installYiiConfirmAdapter() {
+    if (!window.yii) {
+        return;
+    }
+
     window.yii.confirm = function(message, ok, cancel) {
         Notification.confirm(message, () => {
             if (typeof ok === 'function') {
@@ -192,6 +315,9 @@ if (window.yii) {
         return false;
     };
 }
+
+installYiiConfirmAdapter();
+document.addEventListener('DOMContentLoaded', installYiiConfirmAdapter);
 
 /**
  * Automatically show validation errors if present
