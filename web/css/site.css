@@ -2755,7 +2755,7 @@ body.app-shell {
     border: 0;
     color: #1f5f43;
     padding: 0;
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 .compact-empty-state {
@@ -2823,7 +2823,7 @@ body.app-shell {
 .table-action-button:hover,
 .table-action-button:focus {
     color: var(--gf-brand-dark, #163f2e);
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 @media (max-width: 768px) {

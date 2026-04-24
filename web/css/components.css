@@ -151,7 +151,7 @@
 }
 
 .timeline-item-action-link:hover {
-    text-decoration: underline;
+    text-decoration: none;
     color: #34694b;
 }
 

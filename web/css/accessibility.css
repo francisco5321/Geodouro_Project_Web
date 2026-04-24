@@ -138,7 +138,7 @@ textarea:focus-visible {
 /* Tooltip improvements */
 [data-bs-toggle="tooltip"],
 [role="tooltip"] {
-    text-decoration: underline;
+    text-decoration: none;
     text-decoration-style: dashed;
     text-decoration-color: var(--gf-brand);
 }
@@ -165,7 +165,7 @@ a:not(.btn):not(.species-card-link):not([class*="badge"]):not([class*="pill"]) {
 }
 
 a:not(.btn):not(.brand):not(.nav-link):not(.species-card-link):not([class*="badge"]):not([class*="pill"]):hover {
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 .brand,
