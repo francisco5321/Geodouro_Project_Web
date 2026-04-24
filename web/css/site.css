@@ -1043,12 +1043,20 @@ body.app-shell {
     justify-self: end;
 }
 
+.observation-hero .detail-stat-grid {
+    grid-template-columns: minmax(206px, 206px);
+}
+
 @media (max-width: 991.98px) {
     .detail-stat-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .route-plan-hero .detail-stat-grid {
+        grid-template-columns: minmax(206px, 206px);
+    }
+
+    .observation-hero .detail-stat-grid {
         grid-template-columns: minmax(206px, 206px);
     }
 }
@@ -1062,6 +1070,10 @@ body.app-shell {
     .route-plan-hero .detail-stat-grid {
         grid-template-columns: 1fr;
         justify-self: stretch;
+    }
+
+    .observation-hero .detail-stat-grid {
+        grid-template-columns: 1fr;
     }
 }
 

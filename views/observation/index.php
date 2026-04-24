@@ -19,7 +19,7 @@ $this->title = 'Observações';
 ?>
 <div class="module-shell">
     <!-- Hero Section -->
-    <section class="species-hero mb-4">
+    <section class="species-hero observation-hero mb-4">
         <div>
             <span class="eyebrow">
                 <i class="fas fa-binoculars" aria-hidden="true"></i>
