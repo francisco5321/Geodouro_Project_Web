@@ -16,8 +16,7 @@ use yii\bootstrap5\Html;
             <?= $form->field($model, 'plant_species_id')->dropDownList($speciesOptions, ['prompt' => 'Herda automaticamente da observação']) ?>
         </div>
         <?= $form->field($model, 'title')->textInput(['maxlength' => true, 'placeholder' => 'Ex.: Flora primaveril junto ao percurso']) ?>
-        <?= $form->field($model, 'description')->textarea(['rows' => 6, 'placeholder' => 'Escreve o texto editorial, contexto botânico e observações relevantes.']) ?>
-        <?= $form->field($model, 'status')->dropDownList(Publication::statusOptions()) ?>
+        <?= $form->field($model, 'description')->textarea(['rows' => 6, 'class' => 'form-control publication-description-textarea', 'placeholder' => 'Escreve o texto editorial, contexto botânico e observações relevantes.']) ?>
         <div class="form-action-row publication-form-actions">
             <a class="btn btn-outline-brand btn-lg" href="<?= yii\helpers\Url::to($model->isNewRecord ? ['publication/index'] : ['publication/view', 'id' => $model->publication_id]) ?>">Cancelar</a>
             <?= Html::submitButton($model->isNewRecord ? 'Criar publicação' : 'Guardar alterações', ['class' => 'btn btn-brand btn-lg']) ?>

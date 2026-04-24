@@ -2718,6 +2718,10 @@ body.app-shell {
     justify-content: center;
 }
 
+.publication-description-textarea {
+    resize: none;
+}
+
 .stacked-form .form-control,
 .stacked-form .form-select {
     border-radius: 16px;
