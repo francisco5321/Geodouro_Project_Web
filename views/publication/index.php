@@ -30,21 +30,6 @@ $this->title = 'Publicações';
                 'value' => (int) $summary['total'],
                 'icon' => 'fas fa-chart-line',
             ]) ?>
-            <?= StatCard::widget([
-                'label' => 'Rascunhos',
-                'value' => (int) $summary['drafts'],
-                'icon' => 'fas fa-file-alt',
-            ]) ?>
-            <?= StatCard::widget([
-                'label' => 'Publicadas',
-                'value' => (int) $summary['published'],
-                'icon' => 'fas fa-star',
-            ]) ?>
-            <?= StatCard::widget([
-                'label' => 'Observações Prontas',
-                'value' => (int) $summary['availableObservationCount'],
-                'icon' => 'fas fa-check',
-            ]) ?>
         </div>
     </section>
 
