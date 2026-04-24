@@ -4,17 +4,16 @@ namespace app\controllers;
 
 use app\models\AppUser;
 use app\models\Observation;
+use app\models\ObservationImage;
 use app\models\PlantSpecies;
 use Yii;
 use yii\data\Pagination;
 use yii\db\Expression;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
-use yii\helpers\FileHelper;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
-use yii\web\UploadedFile;
 
 class ObservationController extends Controller
 {
@@ -197,6 +196,7 @@ class ObservationController extends Controller
             $model->enriched_wikipedia_url = null;
             $model->enriched_photo_url = null;
             $this->fillSpeciesClassification($model);
+            $this->assignRandomImage($model);
             foreach ([
                 'device_observation_id',
                 'image_uri',
@@ -213,7 +213,7 @@ class ObservationController extends Controller
                 }
             }
 
-            if ($model->validate() && $this->saveUploadedObservationImage($model) && $this->saveObservation($model)) {
+            if ($model->validate() && $this->saveObservation($model)) {
                 Yii::$app->session->setFlash('success', 'Observação criada com sucesso.');
                 return $this->redirect(['observation/view', 'id' => $model->observation_id]);
             }
@@ -248,6 +248,7 @@ class ObservationController extends Controller
             $model->enriched_wikipedia_url = null;
             $model->enriched_photo_url = null;
             $this->fillSpeciesClassification($model);
+            $this->assignRandomImage($model);
             foreach ([
                 'device_observation_id',
                 'image_uri',
@@ -264,7 +265,7 @@ class ObservationController extends Controller
                 }
             }
 
-            if ($model->validate() && $this->saveUploadedObservationImage($model) && $this->saveObservation($model)) {
+            if ($model->validate() && $this->saveObservation($model)) {
                 Yii::$app->session->setFlash('success', 'Observação atualizada com sucesso.');
                 return $this->redirect(['observation/view', 'id' => $model->observation_id]);
             }
@@ -320,73 +321,39 @@ class ObservationController extends Controller
         return $options;
     }
 
-    private function saveUploadedObservationImage(Observation $model): bool
+    private function assignRandomImage(Observation $model): void
     {
-        $uploadedFile = UploadedFile::getInstanceByName('observation_image_file');
-        if ($uploadedFile === null || $uploadedFile->error === UPLOAD_ERR_NO_FILE) {
-            return true;
-        }
-
-        $extension = strtolower($uploadedFile->extension ?: '');
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-        if (!in_array($extension, $allowedExtensions, true) || !str_starts_with((string) $uploadedFile->type, 'image/') || @getimagesize($uploadedFile->tempName) === false) {
-            $model->addError('image_uri', 'Seleciona um ficheiro de imagem valido.');
-            return false;
-        }
-
-        if ($uploadedFile->hasError) {
-            $model->addError('image_uri', 'Nao foi possivel carregar a imagem selecionada.');
-            return false;
-        }
-
-        $relativeDirectory = 'observations/manual';
-        $targetDirectory = $this->resolveWritableUploadDirectory($relativeDirectory, $model);
-        if ($targetDirectory === null) {
-            return false;
-        }
-
-        try {
-            $fileName = 'observation_' . date('Ymd_His') . '_' . Yii::$app->security->generateRandomString(8) . '.' . $extension;
-            $targetPath = $targetDirectory . DIRECTORY_SEPARATOR . $fileName;
-            $saved = $uploadedFile->saveAs($targetPath);
-        } catch (\Throwable $exception) {
-            Yii::error($exception->getMessage(), __METHOD__);
-            $saved = false;
-        }
-
-        if (!$saved) {
-            $model->addError('image_uri', 'Nao foi possivel guardar a imagem selecionada.');
-            return false;
-        }
-
-        $model->image_uri = $relativeDirectory . '/' . $fileName;
-        return true;
+        $speciesId = $model->plant_species_id ? (int) $model->plant_species_id : null;
+        $model->image_uri = $this->findRandomImagePath($speciesId) ?? $this->findRandomImagePath(null);
     }
 
-    private function resolveWritableUploadDirectory(string $relativeDirectory, Observation $model): ?string
+    private function findRandomImagePath(?int $speciesId): ?string
     {
-        $basePaths = array_filter([
-            Yii::$app->params['backendUploadsPath'] ?? null,
-            Yii::getAlias('@webroot/uploads', false),
-        ]);
+        $imagePath = ObservationImage::find()
+            ->alias('image')
+            ->select(new Expression("COALESCE(NULLIF(image.thumbnail_path, ''), image.image_path)"))
+            ->innerJoin(['observation' => Observation::tableName()], 'observation.observation_id = image.observation_id')
+            ->andWhere(['is not', 'image.image_path', null])
+            ->andWhere(['<>', 'image.image_path', ''])
+            ->andFilterWhere(['observation.plant_species_id' => $speciesId])
+            ->orderBy(new Expression('RANDOM()'))
+            ->limit(1)
+            ->scalar();
 
-        foreach ($basePaths as $basePath) {
-            $targetDirectory = rtrim($basePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativeDirectory);
-
-            try {
-                FileHelper::createDirectory($targetDirectory);
-            } catch (\Throwable $exception) {
-                Yii::warning($exception->getMessage(), __METHOD__);
-                continue;
-            }
-
-            if (is_dir($targetDirectory) && is_writable($targetDirectory)) {
-                return $targetDirectory;
-            }
+        if ($imagePath !== false && trim((string) $imagePath) !== '') {
+            return (string) $imagePath;
         }
 
-        $model->addError('image_uri', 'Nao foi possivel criar a pasta para guardar a imagem.');
-        return null;
+        $fallbackPath = Observation::find()
+            ->select('image_uri')
+            ->andWhere(['is not', 'image_uri', null])
+            ->andWhere(['<>', 'image_uri', ''])
+            ->andFilterWhere(['plant_species_id' => $speciesId])
+            ->orderBy(new Expression('RANDOM()'))
+            ->limit(1)
+            ->scalar();
+
+        return $fallbackPath !== false && trim((string) $fallbackPath) !== '' ? (string) $fallbackPath : null;
     }
 
     private function saveObservation(Observation $model): bool
