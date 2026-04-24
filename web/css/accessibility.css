@@ -164,8 +164,19 @@ a:not(.btn):not(.species-card-link):not([class*="badge"]):not([class*="pill"]) {
     position: relative;
 }
 
-a:not(.btn):not(.species-card-link):not([class*="badge"]):not([class*="pill"]):hover {
+a:not(.btn):not(.brand):not(.nav-link):not(.species-card-link):not([class*="badge"]):not([class*="pill"]):hover {
     text-decoration: underline;
+}
+
+.brand,
+.brand:hover,
+.brand:focus,
+.brand:focus-visible,
+.nav-link,
+.nav-link:hover,
+.nav-link:focus,
+.nav-link:focus-visible {
+    text-decoration: none;
 }
 
 .species-card-link,
