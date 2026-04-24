@@ -64,15 +64,23 @@ class MediaController extends Controller
             throw new NotFoundHttpException('Imagem nao encontrada.');
         }
 
-        $basePath = Yii::$app->params['backendUploadsPath'] ?? null;
-        if (!$basePath) {
-            throw new NotFoundHttpException('Diretorio de uploads nao configurado.');
+        $basePaths = array_filter([
+            Yii::$app->params['backendUploadsPath'] ?? null,
+            Yii::getAlias('@webroot/uploads', false),
+        ]);
+
+        $candidatePath = null;
+        foreach ($basePaths as $basePath) {
+            $resolvedBase = realpath($basePath);
+            $resolvedCandidate = realpath($basePath . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativePath));
+
+            if ($resolvedCandidate !== false && $resolvedBase !== false && str_starts_with($resolvedCandidate, $resolvedBase) && is_file($resolvedCandidate)) {
+                $candidatePath = $resolvedCandidate;
+                break;
+            }
         }
 
-        $candidatePath = realpath($basePath . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativePath));
-        $resolvedBase = realpath($basePath);
-
-        if ($candidatePath === false || $resolvedBase === false || !str_starts_with($candidatePath, $resolvedBase) || !is_file($candidatePath)) {
+        if ($candidatePath === null) {
             throw new NotFoundHttpException('Ficheiro de imagem indisponivel.');
         }
 

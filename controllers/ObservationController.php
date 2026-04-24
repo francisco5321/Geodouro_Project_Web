@@ -339,19 +339,9 @@ class ObservationController extends Controller
             return false;
         }
 
-        $basePath = Yii::$app->params['backendUploadsPath'] ?? null;
-        if (!$basePath) {
-            $model->addError('image_uri', 'Diretorio de uploads nao configurado.');
-            return false;
-        }
-
         $relativeDirectory = 'observations/manual';
-        $targetDirectory = rtrim($basePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativeDirectory);
-        try {
-            FileHelper::createDirectory($targetDirectory);
-        } catch (\Throwable $exception) {
-            Yii::error($exception->getMessage(), __METHOD__);
-            $model->addError('image_uri', 'Nao foi possivel criar a pasta para guardar a imagem.');
+        $targetDirectory = $this->resolveWritableUploadDirectory($relativeDirectory, $model);
+        if ($targetDirectory === null) {
             return false;
         }
 
@@ -371,6 +361,32 @@ class ObservationController extends Controller
 
         $model->image_uri = $relativeDirectory . '/' . $fileName;
         return true;
+    }
+
+    private function resolveWritableUploadDirectory(string $relativeDirectory, Observation $model): ?string
+    {
+        $basePaths = array_filter([
+            Yii::$app->params['backendUploadsPath'] ?? null,
+            Yii::getAlias('@webroot/uploads', false),
+        ]);
+
+        foreach ($basePaths as $basePath) {
+            $targetDirectory = rtrim($basePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativeDirectory);
+
+            try {
+                FileHelper::createDirectory($targetDirectory);
+            } catch (\Throwable $exception) {
+                Yii::warning($exception->getMessage(), __METHOD__);
+                continue;
+            }
+
+            if (is_dir($targetDirectory) && is_writable($targetDirectory)) {
+                return $targetDirectory;
+            }
+        }
+
+        $model->addError('image_uri', 'Nao foi possivel criar a pasta para guardar a imagem.');
+        return null;
     }
 
     private function saveObservation(Observation $model): bool
