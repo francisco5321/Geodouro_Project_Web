@@ -89,7 +89,7 @@ class ObservationController extends Controller
 
         $pagination = new Pagination([
             'totalCount' => (clone $query)->count(),
-            'pageSize' => 2,
+            'pageSize' => 5,
         ]);
 
         $observations = $query

@@ -4,7 +4,9 @@ namespace app\controllers;
 
 use app\models\Observation;
 use app\models\PlantSpecies;
+use app\models\Publication;
 use yii\data\Pagination;
+use yii\db\Expression;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -37,7 +39,21 @@ class SpeciesController extends Controller
             $sort = 'species';
         }
 
-        $query = PlantSpecies::find();
+        $activeSpeciesQuery = PlantSpecies::find()
+            ->alias('species')
+            ->andWhere([
+                'or',
+                ['exists', Observation::find()
+                    ->alias('observation')
+                    ->select(new Expression('1'))
+                    ->where('observation.plant_species_id = species.plant_species_id')],
+                ['exists', Publication::find()
+                    ->alias('publication')
+                    ->select(new Expression('1'))
+                    ->where('publication.plant_species_id = species.plant_species_id')],
+            ]);
+
+        $query = clone $activeSpeciesQuery;
 
         if ($queryText !== '') {
             $query->andWhere([
@@ -92,9 +108,9 @@ class SpeciesController extends Controller
         }
 
         $summary = [
-            'speciesCount' => PlantSpecies::find()->count(),
+            'speciesCount' => (clone $activeSpeciesQuery)->limit(-1)->offset(-1)->orderBy([])->count(),
             'observationsCount' => Observation::find()->count(),
-            'familiesCount' => PlantSpecies::find()->select('family')->distinct()->count(),
+            'familiesCount' => (clone $activeSpeciesQuery)->limit(-1)->offset(-1)->orderBy([])->select('family')->distinct()->count(),
         ];
 
         return $this->render('index', [
