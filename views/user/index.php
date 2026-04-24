@@ -35,11 +35,6 @@ $this->title = 'Utilizadores';
                 'value' => count(array_filter($users, static fn($user) => $user->isAdmin())),
                 'icon' => 'fas fa-crown',
             ]) ?>
-            <?= StatCard::widget([
-                'label' => 'Roles',
-                'value' => $roleColumnAvailable ? 'Ativo' : 'Pendente',
-                'icon' => 'fas fa-cogs',
-            ]) ?>
         </div>
     </section>
 
