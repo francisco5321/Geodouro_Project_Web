@@ -67,9 +67,8 @@ $cancelUrl = $isNewRecord ? ['map/index'] : ['observation/view', 'id' => $model-
                 ->label('Descricao')
                 ->textarea([
                     'rows' => 5,
-                    'class' => 'form-control',
+                    'class' => 'form-control observation-description-textarea',
                     'placeholder' => 'Descreva a observacao, contexto e detalhes relevantes',
-                    'data-auto-resize' => true,
                 ])
                 ->hint('Descricao e contexto da observacao') ?>
         </div>
