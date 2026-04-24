@@ -86,7 +86,7 @@ $js = str_replace('__FOCUS_OBSERVATION_ID__', (string) (int) $focusObservationId
 $this->registerJs($js, View::POS_END);
 ?>
 <div class="module-shell">
-    <section class="species-hero mb-4">
+    <section class="species-hero map-hero mb-4">
         <div>
             <span class="eyebrow">
                 <i class="fas fa-map" aria-hidden="true"></i>
@@ -100,11 +100,6 @@ $this->registerJs($js, View::POS_END);
                 'label' => 'Observações',
                 'value' => (int) count($observations),
                 'icon' => 'fas fa-binoculars',
-            ]) ?>
-            <?= StatCard::widget([
-                'label' => 'Pontos guardados',
-                'value' => (int) $visitTargetCount,
-                'icon' => 'fas fa-route',
             ]) ?>
         </div>
     </section>

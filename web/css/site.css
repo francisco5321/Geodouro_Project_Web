@@ -1048,6 +1048,11 @@ body.app-shell {
     justify-self: end;
 }
 
+.map-hero .detail-stat-grid {
+    grid-template-columns: minmax(206px, 206px);
+    justify-self: end;
+}
+
 @media (max-width: 991.98px) {
     .detail-stat-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1058,6 +1063,10 @@ body.app-shell {
     }
 
     .observation-hero .detail-stat-grid {
+        grid-template-columns: minmax(206px, 206px);
+    }
+
+    .map-hero .detail-stat-grid {
         grid-template-columns: minmax(206px, 206px);
     }
 }
@@ -1074,6 +1083,11 @@ body.app-shell {
     }
 
     .observation-hero .detail-stat-grid {
+        grid-template-columns: 1fr;
+        justify-self: stretch;
+    }
+
+    .map-hero .detail-stat-grid {
         grid-template-columns: 1fr;
         justify-self: stretch;
     }
