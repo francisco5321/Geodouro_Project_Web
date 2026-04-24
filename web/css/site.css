@@ -3089,6 +3089,11 @@ body.app-shell {
     word-break: break-word;
 }
 
+.route-empty-stops {
+    margin-top: 0.75rem;
+    color: var(--gf-muted);
+}
+
 .route-card-footer {
     display: flex;
     align-items: center;
@@ -3121,6 +3126,13 @@ body.app-shell {
     display: flex;
     gap: 0.8rem;
     align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.route-add-stops-button {
+    padding: 0.5rem 0.9rem;
+    font-size: 0.9rem;
 }
 
 .route-card-actions .btn-link {

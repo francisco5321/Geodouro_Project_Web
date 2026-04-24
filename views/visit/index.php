@@ -10,7 +10,6 @@ use yii\web\View;
 /** @var yii\web\View $this */
 /** @var SavedVisitTarget[] $targets */
 /** @var RoutePlan[] $plans */
-/** @var RoutePlan $newPlan */
 /** @var string $markersJson */
 
 $this->title = 'Quero visitar';
@@ -212,46 +211,6 @@ $this->registerJs($js, View::POS_END);
             <?= Yii::$app->session->getFlash('error') ?>
         </div>
     <?php endif; ?>
-
-    <section class="catalog-toolbar mb-4 visit-route-builder-card">
-        <div class="toolbar-header">
-            <h2 class="section-title">
-                <i class="fas fa-plus-circle" aria-hidden="true"></i>
-                Criar Percurso
-            </h2>
-            <p class="section-description mb-0">Os pontos que marcares com "Quero passar aqui" ficam guardados e entram no novo percurso pela ordem de escolha.</p>
-        </div>
-        <div class="toolbar-actions">
-            <a class="btn btn-outline" href="<?= Url::to(['route-plan/index']) ?>">
-                <i class="fas fa-eye" aria-hidden="true"></i>
-                Ver Percursos
-            </a>
-        </div>
-        <?= Html::beginForm(['visit/create-route'], 'post', ['class' => 'visit-route-builder-form']) ?>
-            <div class="visit-route-builder-grid">
-                <div>
-                    <?= Html::activeLabel($newPlan, 'name', ['class' => 'form-label']) ?>
-                    <?= Html::activeTextInput($newPlan, 'name', [
-                        'class' => 'form-control',
-                        'placeholder' => 'Ex.: Plantas ribeirinhas do Pocinho',
-                        'maxlength' => true,
-                    ]) ?>
-                </div>
-                <div>
-                    <?= Html::activeLabel($newPlan, 'description', ['class' => 'form-label']) ?>
-                    <?= Html::activeTextarea($newPlan, 'description', [
-                        'class' => 'form-control',
-                        'rows' => 2,
-                        'placeholder' => 'Objetivo do percurso, espécies a validar e notas para a visita de campo.',
-                    ]) ?>
-                </div>
-            </div>
-            <div class="visit-route-builder-actions">
-                <span class="section-description mb-0">Ao criar o percurso, esta lista fica limpa e as paragens passam para o percurso. Na aplicação mobile, a partida será a localização atual.</span>
-                <?= Html::submitButton('Criar Percurso com os Pontos Selecionados', ['class' => 'btn btn-brand']) ?>
-            </div>
-        <?= Html::endForm() ?>
-    </section>
 
     <section class="map-layout">
         <div id="visit-planner-map" class="leaflet-shell"></div>

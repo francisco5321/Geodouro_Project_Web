@@ -47,6 +47,7 @@ class RoutePlanController extends Controller
         $plans = [];
         $pagination = null;
         $backendError = null;
+        $newPlan = new RoutePlan();
 
         try {
             $plans = Yii::$app->routePlanApi->listRoutePlans();
@@ -75,6 +76,7 @@ class RoutePlanController extends Controller
             'plans' => $plans,
             'pagination' => $pagination,
             'backendError' => $backendError,
+            'newPlan' => $newPlan,
         ]);
     }
 
@@ -152,7 +154,7 @@ class RoutePlanController extends Controller
             try {
                 $response = Yii::$app->routePlanApi->createRoutePlan($this->routePlanPayload($plan));
                 Yii::$app->session->setFlash('success', $response['message'] ?? 'Percurso criado com sucesso.');
-                return $this->redirect(['route-plan/view', 'id' => (int) ($response['routePlanId'] ?? 0)]);
+                return $this->redirect(['route-plan/index']);
             } catch (RuntimeException $exception) {
                 Yii::$app->session->setFlash('error', 'Não foi possível criar o percurso no backend comum: ' . $exception->getMessage());
             }

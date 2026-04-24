@@ -93,7 +93,6 @@ class VisitController extends Controller
             'targets' => $targets,
             'plans' => $plans,
             'markersJson' => json_encode($markers, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-            'newPlan' => new RoutePlan(),
         ]);
     }
 

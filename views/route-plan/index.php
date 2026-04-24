@@ -3,6 +3,7 @@
 /** @var array<int, array>|app\models\RoutePlan[] $plans */
 /** @var yii\data\Pagination|null $pagination */
 /** @var string|null $backendError */
+/** @var app\models\RoutePlan $newPlan */
 
 use app\components\StatCard;
 use yii\helpers\Html;
@@ -48,6 +49,40 @@ $this->title = 'Percursos';
     <?php endif; ?>
 
     <!-- Toolbar: contagem + botão criar -->
+    <section class="catalog-toolbar mb-4 visit-route-builder-card">
+        <div class="toolbar-header">
+            <h2 class="section-title">
+                <i class="fas fa-plus-circle" aria-hidden="true"></i>
+                Criar Percurso
+            </h2>
+            <p class="section-description mb-0">Cria primeiro o percurso e depois adiciona as paragens a partir do mapa em "Quero Visitar".</p>
+        </div>
+        <?= Html::beginForm(['route-plan/create'], 'post', ['class' => 'visit-route-builder-form']) ?>
+            <div class="visit-route-builder-grid">
+                <div>
+                    <?= Html::activeLabel($newPlan, 'name', ['class' => 'form-label']) ?>
+                    <?= Html::activeTextInput($newPlan, 'name', [
+                        'class' => 'form-control',
+                        'placeholder' => 'Ex.: Plantas ribeirinhas do Pocinho',
+                        'maxlength' => true,
+                    ]) ?>
+                </div>
+                <div>
+                    <?= Html::activeLabel($newPlan, 'description', ['class' => 'form-label']) ?>
+                    <?= Html::activeTextarea($newPlan, 'description', [
+                        'class' => 'form-control',
+                        'rows' => 2,
+                        'placeholder' => 'Objetivo do percurso, especies a validar e notas para a visita de campo.',
+                    ]) ?>
+                </div>
+            </div>
+            <div class="visit-route-builder-actions">
+                <span class="section-description mb-0">O percurso fica criado sem paragens. Usa o mapa para escolher os pontos que queres visitar.</span>
+                <?= Html::submitButton('Criar Percurso', ['class' => 'btn btn-brand']) ?>
+            </div>
+        <?= Html::endForm() ?>
+    </section>
+
     <div class="catalog-toolbar mb-4">
         <div class="toolbar-header">
             <h2 class="section-title">
@@ -101,6 +136,11 @@ $this->title = 'Percursos';
                     <p class="route-card-description">
                         <?= Html::encode($description ?: 'Sem descrição definida.') ?>
                     </p>
+                    <?php if ($stopCount === 0): ?>
+                        <p class="route-card-description route-empty-stops">
+                            Ainda nao tem paragens. Adiciona pontos no mapa para comecares a montar o percurso.
+                        </p>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Rodapé com ações -->
@@ -114,6 +154,9 @@ $this->title = 'Percursos';
                         <?php endif; ?>
                     </div>
                     <div class="route-card-actions">
+                        <?php if ($stopCount === 0): ?>
+                            <?= Html::a('Adicionar paragens', Url::to(['visit/index']), ['class' => 'btn btn-outline route-add-stops-button']) ?>
+                        <?php endif; ?>
                         <?= Html::a('Abrir', Url::to(['route-plan/view',   'id' => $routePlanId]), ['class' => 'btn-link']) ?>
                         <?= Html::a('Editar', Url::to(['route-plan/update', 'id' => $routePlanId]), ['class' => 'btn-link']) ?>
                     </div>
