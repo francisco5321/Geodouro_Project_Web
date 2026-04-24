@@ -3130,11 +3130,6 @@ body.app-shell {
     justify-content: flex-end;
 }
 
-.route-add-stops-button {
-    padding: 0.5rem 0.9rem;
-    font-size: 0.9rem;
-}
-
 .route-plan-empty-state {
     grid-column: 1 / -1;
     justify-self: center;

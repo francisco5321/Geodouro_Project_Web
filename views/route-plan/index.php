@@ -154,9 +154,6 @@ $this->title = 'Percursos';
                         <?php endif; ?>
                     </div>
                     <div class="route-card-actions">
-                        <?php if ($stopCount === 0): ?>
-                            <?= Html::a('Adicionar paragens', Url::to(['route-plan/view', 'id' => $routePlanId]), ['class' => 'btn btn-outline route-add-stops-button']) ?>
-                        <?php endif; ?>
                         <?= Html::a('Abrir', Url::to(['route-plan/view',   'id' => $routePlanId]), ['class' => 'btn-link']) ?>
                         <?= Html::a('Editar', Url::to(['route-plan/update', 'id' => $routePlanId]), ['class' => 'btn-link']) ?>
                     </div>
