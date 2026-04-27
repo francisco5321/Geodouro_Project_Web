@@ -15,7 +15,7 @@ use yii\widgets\LinkPager;
 $this->title = 'Publicações';
 ?>
 <div class="module-shell">
-    <section class="species-hero mb-4">
+    <section class="species-hero publication-hero mb-4">
         <div>
             <span class="eyebrow">
                 <i class="fas fa-newspaper" aria-hidden="true"></i>
