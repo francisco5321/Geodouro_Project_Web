@@ -28,11 +28,6 @@ $this->title = 'Observacoes';
         </div>
         <div class="detail-stat-grid">
             <?= StatCard::widget([
-                'label' => 'Revisao manual',
-                'value' => (int) ($summary['manualReview'] ?? 0),
-                'icon' => 'fas fa-user-check',
-            ]) ?>
-            <?= StatCard::widget([
                 'label' => 'Total',
                 'value' => (int) $summary['total'],
                 'icon' => 'fas fa-chart-line',
@@ -41,6 +36,12 @@ $this->title = 'Observacoes';
                 'label' => 'Publicadas',
                 'value' => (int) $summary['published'],
                 'icon' => 'fas fa-check-circle',
+            ]) ?>
+            <?= StatCard::widget([
+                'label' => 'Revisao manual',
+                'value' => (int) ($summary['manualReview'] ?? 0),
+                'icon' => 'fas fa-user-check',
+                'cssClass' => 'manual-review-left',
             ]) ?>
         </div>
     </section>

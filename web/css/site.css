@@ -1061,6 +1061,10 @@ body.app-shell {
     justify-self: end;
 }
 
+.observation-hero .detail-stat-grid .manual-review-left {
+    order: -1;
+}
+
 .map-hero .detail-stat-grid {
     grid-template-columns: minmax(206px, 206px);
     justify-self: end;
