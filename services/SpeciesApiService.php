@@ -36,17 +36,18 @@ class SpeciesApiService extends Component
         $species = isset($response['species']) && is_array($response['species'])
             ? $response['species']
             : $response;
-        $observations = $this->extractList($response, ['observations', 'items', 'data']);
-        $apiObservations = array_map(
-            static fn (array $item): ApiObservation => ApiObservation::fromArray([
-                ...$item,
-                'image_uri' => $item['imagePath'] ?? $item['image_path'] ?? null,
-                'observed_at' => isset($item['capturedAt']) && is_numeric($item['capturedAt']) ? date('Y-m-d H:i:s', (int) $item['capturedAt']) : null,
-                'enriched_common_name' => $item['commonName'] ?? $item['common_name'] ?? null,
-                'enriched_scientific_name' => $item['scientificName'] ?? $item['scientific_name'] ?? null,
-            ]),
-            array_filter($observations, 'is_array')
-        );
+        $apiObservations = is_array($species)
+            ? $this->fetchAllSpeciesObservations((int) ($species['plantSpeciesId'] ?? $species['plant_species_id'] ?? 0))
+            : [];
+
+        if ($apiObservations === []) {
+            $observations = $this->extractList($response, ['observations', 'items', 'data']);
+            $apiObservations = array_map(
+                fn (array $item): ApiObservation => $this->observationFromSpeciesDetail($item),
+                array_filter($observations, 'is_array')
+            );
+        }
+
         $pagedObservations = array_slice($apiObservations, max(0, $page) * $pageSize, $pageSize);
 
         return [
@@ -82,6 +83,75 @@ class SpeciesApiService extends Component
         }
 
         return (string) $speciesId;
+    }
+
+    /**
+     * @return ApiObservation[]
+     */
+    private function fetchAllSpeciesObservations(int $plantSpeciesId): array
+    {
+        if ($plantSpeciesId <= 0) {
+            return [];
+        }
+
+        $response = Yii::$app->backendApi->getJson('/api/observations', $this->headers());
+        $items = $this->extractList($response, ['items', 'observations', 'data']);
+        $observations = array_map(
+            fn (array $item): ApiObservation => $this->observationFromObservationList($item),
+            array_filter($items, static fn (mixed $item): bool => is_array($item) && (int) ($item['plantSpeciesId'] ?? $item['plant_species_id'] ?? 0) === $plantSpeciesId)
+        );
+
+        usort($observations, static fn (ApiObservation $left, ApiObservation $right): int => strcmp((string) $right->observed_at, (string) $left->observed_at));
+
+        return $observations;
+    }
+
+    private function observationFromObservationList(array $item): ApiObservation
+    {
+        return ApiObservation::fromArray([
+            ...$item,
+            'observation_id' => $item['observationId'] ?? $item['observation_id'] ?? null,
+            'device_observation_id' => $item['deviceObservationId'] ?? $item['device_observation_id'] ?? null,
+            'user_id' => $item['userId'] ?? $item['user_id'] ?? null,
+            'plant_species_id' => $item['plantSpeciesId'] ?? $item['plant_species_id'] ?? null,
+            'image_uri' => $item['imagePath'] ?? $item['image_path'] ?? $item['storedImagePath'] ?? $item['stored_image_path'] ?? null,
+            'observationImages' => $item['imagePaths'] ?? $item['image_paths'] ?? [],
+            'observed_at' => $this->formatInstant($item['observedAt'] ?? $item['observed_at'] ?? $item['capturedAt'] ?? $item['captured_at'] ?? null),
+            'predicted_scientific_name' => $item['predictedScientificName'] ?? $item['predicted_scientific_name'] ?? null,
+            'enriched_scientific_name' => $item['scientificName'] ?? $item['scientific_name'] ?? null,
+            'enriched_common_name' => $item['commonName'] ?? $item['common_name'] ?? null,
+            'enriched_family' => $item['family'] ?? null,
+            'enriched_wikipedia_url' => $item['wikipediaUrl'] ?? $item['wikipedia_url'] ?? null,
+            'enriched_photo_url' => $item['photoUrl'] ?? $item['photo_url'] ?? null,
+            'is_published' => $item['isPublished'] ?? $item['is_published'] ?? false,
+            'sync_status' => $item['syncStatus'] ?? $item['sync_status'] ?? 'PENDING',
+        ]);
+    }
+
+    private function observationFromSpeciesDetail(array $item): ApiObservation
+    {
+        return ApiObservation::fromArray([
+            ...$item,
+            'image_uri' => $item['imagePath'] ?? $item['image_path'] ?? null,
+            'observed_at' => $this->formatInstant($item['capturedAt'] ?? $item['captured_at'] ?? null),
+            'enriched_common_name' => $item['commonName'] ?? $item['common_name'] ?? null,
+            'enriched_scientific_name' => $item['scientificName'] ?? $item['scientific_name'] ?? null,
+        ]);
+    }
+
+    private function formatInstant(mixed $value): ?string
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return null;
+        }
+
+        if (ctype_digit($value)) {
+            return date('Y-m-d H:i:s', (int) $value);
+        }
+
+        $timestamp = strtotime($value);
+        return $timestamp !== false ? date('Y-m-d H:i:s', $timestamp) : $value;
     }
 
     private function headers(): array
