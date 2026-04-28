@@ -1816,7 +1816,7 @@ body.app-shell {
 
 .publication-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    align-items: start;
+    align-items: stretch;
 }
 
 @media (max-width: 1199.98px) {
@@ -2173,6 +2173,9 @@ body.app-shell {
 .publication-card-rich {
     overflow: hidden;
     padding: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
 
@@ -2281,6 +2284,9 @@ body.app-shell {
 
 .publication-card-body {
     padding: 1.35rem;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
 }
 
 .publication-card-body h2 {
@@ -2305,7 +2311,8 @@ body.app-shell {
 }
 
 .publication-card-footer {
-    margin-top: 1rem;
+    margin-top: auto;
+    padding-top: 1rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
