@@ -33,7 +33,9 @@ class SpeciesApiService extends Component
         $speciesSlug = $this->findSpeciesSlug($speciesId);
         $response = Yii::$app->backendApi->getJson('/api/species/' . rawurlencode($speciesSlug), $this->headers());
 
-        $species = $response['species'] ?? $response;
+        $species = isset($response['species']) && is_array($response['species'])
+            ? $response['species']
+            : $response;
         $observations = $this->extractList($response, ['observations', 'items', 'data']);
         $apiObservations = array_map(
             static fn (array $item): ApiObservation => ApiObservation::fromArray([
