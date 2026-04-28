@@ -17,8 +17,8 @@ class ApiPlantSpecies extends ApiDataObject
     public static function fromArray(array $data): self
     {
         return new self([
-            'plant_species_id' => self::first($data, ['plant_species_id', 'plantSpeciesId', 'speciesId', 'id']) !== null ? (int) self::first($data, ['plant_species_id', 'plantSpeciesId', 'speciesId', 'id']) : null,
-            'species_id' => self::stringOrNull(self::first($data, ['species_id', 'speciesId', 'slug'])),
+            'plant_species_id' => self::first($data, ['plant_species_id', 'plantSpeciesId', 'id']) !== null ? (int) self::first($data, ['plant_species_id', 'plantSpeciesId', 'id']) : null,
+            'species_id' => self::stringOrNull(self::first($data, ['slug', 'species_id', 'speciesId'])),
             'scientific_name' => self::stringOrNull(self::first($data, ['scientific_name', 'scientificName'])),
             'common_name' => self::stringOrNull(self::first($data, ['common_name', 'commonName'])),
             'family' => self::stringOrNull(self::first($data, ['family'])),

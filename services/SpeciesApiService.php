@@ -66,6 +66,14 @@ class SpeciesApiService extends Component
             }
 
             $species = ApiPlantSpecies::fromArray($item);
+            $candidateId = $item['plantSpeciesId'] ?? $item['plant_species_id'] ?? $item['id'] ?? null;
+            if ($candidateId !== null && (int) $candidateId === $speciesId) {
+                $slug = trim((string) ($item['slug'] ?? $item['species_id'] ?? $species->species_id ?? ''));
+                if ($slug !== '') {
+                    return $slug;
+                }
+            }
+
             if ((int) $species->plant_species_id === $speciesId && $species->species_id !== null) {
                 return $species->species_id;
             }
