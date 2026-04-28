@@ -125,28 +125,7 @@ class SavedVisitTarget extends ActiveRecord
 
     public function getMapObservation(): ?Observation
     {
-        if ($this->mapObservationOverride !== null) {
-            return $this->mapObservationOverride;
-        }
-
-        if ($this->observation?->hasCoordinates()) {
-            return $this->observation;
-        }
-
-        if ($this->publication?->observation?->hasCoordinates()) {
-            return $this->publication->observation;
-        }
-
-        if ($this->plant_species_id === null) {
-            return null;
-        }
-
-        return Observation::find()
-            ->where(['plant_species_id' => $this->plant_species_id])
-            ->andWhere(['not', ['latitude' => null]])
-            ->andWhere(['not', ['longitude' => null]])
-            ->orderBy(['observed_at' => SORT_DESC])
-            ->one();
+        return $this->mapObservationOverride;
     }
 
     public function setMapObservationOverride(?Observation $observation): void

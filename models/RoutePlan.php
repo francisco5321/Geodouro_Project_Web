@@ -109,7 +109,7 @@ class RoutePlan extends ActiveRecord
         ];
     }
 
-    public function canBeManagedBy(?AppUser $user): bool
+    public function canBeManagedBy($user): bool
     {
         if ($user === null) {
             return false;
@@ -130,62 +130,16 @@ class RoutePlan extends ActiveRecord
 
     public function getPlannableTargets(): array
     {
-        $existingTargetIds = array_map(
-            static fn(RoutePlanPoint $point): int => (int) $point->saved_visit_target_id,
-            $this->routePlanPoints
-        );
-
-        return SavedVisitTarget::find()
-            ->with(['plantSpecies', 'publication.plantSpecies', 'publication.observation'])
-            ->where(['user_id' => $this->user_id])
-            ->andFilterWhere(['not in', 'saved_visit_target_id', $existingTargetIds])
-            ->orderBy(['created_at' => SORT_DESC, 'saved_visit_target_id' => SORT_DESC])
-            ->all();
+        return [];
     }
 
     public function getPlannableSpecies(string $search = ''): array
     {
-        $existingSpeciesIds = [];
-        foreach ($this->routePlanPoints as $point) {
-            $speciesId = $point->savedVisitTarget?->plant_species_id;
-            if ($speciesId !== null) {
-                $existingSpeciesIds[] = (int) $speciesId;
-            }
-        }
-
-        $query = PlantSpecies::find()
-            ->alias('ps')
-            ->distinct()
-            ->innerJoinWith(['observations o'])
-            ->where(['not', ['o.latitude' => null]])
-            ->andWhere(['not', ['o.longitude' => null]]);
-
-        if (!empty($existingSpeciesIds)) {
-            $query->andWhere(['not in', 'ps.plant_species_id', $existingSpeciesIds]);
-        }
-
-        if ($search !== '') {
-            $query->andWhere([
-                'or',
-                ['ilike', 'ps.common_name', $search],
-                ['ilike', 'ps.scientific_name', $search],
-                ['ilike', 'ps.family', $search],
-                ['ilike', 'ps.genus', $search],
-            ]);
-        }
-
-        return $query
-            ->orderBy(['ps.common_name' => SORT_ASC, 'ps.scientific_name' => SORT_ASC])
-            ->limit(12)
-            ->all();
+        return [];
     }
 
     public function getNextVisitOrder(): int
     {
-        $maxOrder = RoutePlanPoint::find()
-            ->where(['route_plan_id' => $this->route_plan_id])
-            ->max('visit_order');
-
-        return $maxOrder === null ? 1 : ((int) $maxOrder + 1);
+        return 1;
     }
 }

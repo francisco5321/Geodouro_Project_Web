@@ -172,7 +172,7 @@ class AppUser extends ActiveRecord implements IdentityInterface
 
     public static function findIdentity($id): ?self
     {
-        return static::findOne(['user_id' => $id, 'is_authenticated' => true]);
+        return null;
     }
 
     public static function findIdentityByAccessToken($token, $type = null): ?IdentityInterface
@@ -182,26 +182,12 @@ class AppUser extends ActiveRecord implements IdentityInterface
 
     public static function findByUsername(string $username): ?self
     {
-        return static::find()
-            ->andWhere(['username' => trim($username), 'is_authenticated' => true])
-            ->one();
+        return null;
     }
 
     public static function findByLoginIdentifier(string $identifier): ?self
     {
-        $identifier = trim($identifier);
-        if ($identifier === '') {
-            return null;
-        }
-
-        return static::find()
-            ->andWhere(['is_authenticated' => true])
-            ->andWhere([
-                'or',
-                ['username' => $identifier],
-                ['email' => $identifier],
-            ])
-            ->one();
+        return null;
     }
 
     public function getId(): int

@@ -98,7 +98,7 @@ class Publication extends ActiveRecord
         return $this->status === self::STATUS_PUBLISHED;
     }
 
-    public function canBeManagedBy(?AppUser $user): bool
+    public function canBeManagedBy($user): bool
     {
         if ($user === null) {
             return false;
@@ -107,18 +107,9 @@ class Publication extends ActiveRecord
         return $user->isAdmin() || (int) $user->user_id === (int) $this->user_id;
     }
 
-    public function isSavedForUser(?AppUser $user): bool
+    public function isSavedForUser($user): bool
     {
-        if ($user === null) {
-            return false;
-        }
-
-        return SavedVisitTarget::find()
-            ->where([
-                'user_id' => $user->user_id,
-                'publication_id' => $this->publication_id,
-            ])
-            ->exists();
+        return false;
     }
 
     public function getObservation(): ActiveQuery

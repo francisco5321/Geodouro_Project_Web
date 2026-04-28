@@ -80,18 +80,9 @@ class PlantSpecies extends ActiveRecord
         return $this->common_name ?: $this->scientific_name;
     }
 
-    public function isSavedForUser(?AppUser $user): bool
+    public function isSavedForUser($user): bool
     {
-        if ($user === null) {
-            return false;
-        }
-
-        return SavedVisitTarget::find()
-            ->where([
-                'user_id' => $user->user_id,
-                'plant_species_id' => $this->plant_species_id,
-            ])
-            ->exists();
+        return false;
     }
 
     public function getObservations(): ActiveQuery

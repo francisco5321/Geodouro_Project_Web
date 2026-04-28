@@ -42,16 +42,26 @@ class PublicationApiService extends Component
 
     public function getPublicationById(int $publicationId): ?ApiPublication
     {
-        $response = Yii::$app->backendApi->getJson('/api/publications', $this->headers());
-        foreach ($this->extractList($response) as $item) {
-            if (!is_array($item) || (int) ($item['publicationId'] ?? $item['publication_id'] ?? 0) !== $publicationId) {
-                continue;
-            }
+        return ApiPublication::fromArray(Yii::$app->backendApi->getJson('/api/publications/by-id/' . $publicationId, $this->headers()));
+    }
 
-            return ApiPublication::fromArray($item);
-        }
+    public function publishObservation(string $deviceObservationId, ?string $title, ?string $description): ApiPublication
+    {
+        return ApiPublication::fromArray(Yii::$app->backendApi->postJson('/api/publications', [
+            'deviceObservationId' => $deviceObservationId,
+            'title' => $title,
+            'description' => $description,
+        ], $this->headers()));
+    }
 
-        return null;
+    public function updatePublication(int $publicationId, array $payload): ApiPublication
+    {
+        return ApiPublication::fromArray(Yii::$app->backendApi->patchJson('/api/publications/' . $publicationId, $payload, $this->headers()));
+    }
+
+    public function deletePublication(int $publicationId): void
+    {
+        Yii::$app->backendApi->deleteJson('/api/publications/' . $publicationId, $this->headers());
     }
 
     private function headers(): array

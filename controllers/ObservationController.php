@@ -2,14 +2,10 @@
 
 namespace app\controllers;
 
-use app\models\AppUser;
 use app\models\Observation;
-use app\models\ObservationImage;
-use app\models\PlantSpecies;
 use RuntimeException;
 use Yii;
 use yii\data\Pagination;
-use yii\db\Expression;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
@@ -38,12 +34,7 @@ class ObservationController extends Controller
                             if ($identity === null) {
                                 return false;
                             }
-
-                            if (in_array(Yii::$app->requestedAction?->id, ['update', 'delete'], true)) {
-                                return true;
-                            }
-
-                            return $identity->isAdmin();
+                            return in_array(Yii::$app->requestedAction?->id, ['update', 'delete'], true) || $identity->isAdmin();
                         },
                     ],
                 ],
@@ -51,8 +42,7 @@ class ObservationController extends Controller
                     if (Yii::$app->user->isGuest) {
                         return Yii::$app->user->loginRequired();
                     }
-
-                    throw new ForbiddenHttpException('Não tens permissão para criar observações manualmente.');
+                    throw new ForbiddenHttpException('Nao tens permissao para criar observacoes manualmente.');
                 },
             ],
             'verbs' => [
@@ -70,34 +60,18 @@ class ObservationController extends Controller
         $queryText = trim((string) Yii::$app->request->get('q', ''));
         $myObservationsOnly = (bool) Yii::$app->request->get('my', false);
         $allowedStatuses = ['all', Observation::SYNC_PENDING, Observation::SYNC_SYNCED, Observation::SYNC_FAILED, 'PUBLISHED'];
-
         if (!in_array($status, $allowedStatuses, true)) {
             $status = 'all';
         }
 
-        $pagination = new Pagination([
-            'totalCount' => 0,
-            'pageSize' => 5,
-        ]);
-
+        $pagination = new Pagination(['totalCount' => 0, 'pageSize' => 5]);
         try {
-            $result = Yii::$app->observationApi->listObservations(
-                $queryText,
-                $status,
-                $myObservationsOnly,
-                $pagination->getPage(),
-                $pagination->getPageSize()
-            );
+            $result = Yii::$app->observationApi->listObservations($queryText, $status, $myObservationsOnly, $pagination->getPage(), $pagination->getPageSize());
         } catch (RuntimeException $exception) {
             Yii::error($exception->getMessage(), __METHOD__);
             Yii::$app->session->setFlash('error', 'Nao foi possivel carregar as observacoes a partir da API.');
-            $result = [
-                'items' => [],
-                'totalCount' => 0,
-                'summary' => ['total' => 0, 'published' => 0, 'pending' => 0, 'failed' => 0],
-            ];
+            $result = ['items' => [], 'totalCount' => 0, 'summary' => ['total' => 0, 'published' => 0, 'pending' => 0, 'failed' => 0]];
         }
-
         $pagination->totalCount = (int) $result['totalCount'];
 
         return $this->render('index', [
@@ -119,12 +93,10 @@ class ObservationController extends Controller
         }
 
         if ($observation === null) {
-            throw new NotFoundHttpException('Observação não encontrada.');
+            throw new NotFoundHttpException('Observacao nao encontrada.');
         }
 
-        return $this->render('view', [
-            'observation' => $observation,
-        ]);
+        return $this->render('view', ['observation' => $observation]);
     }
 
     public function actionCreate()
@@ -146,40 +118,12 @@ class ObservationController extends Controller
         }
 
         if ($model->load(Yii::$app->request->post())) {
-            if (!empty($model->observed_at)) {
-                $observedAt = str_replace('T', ' ', (string) $model->observed_at);
-                $model->observed_at = strlen($observedAt) === 16 ? $observedAt . ':00' : $observedAt;
-            }
-            if (empty($model->captured_at)) {
-                $model->captured_at = time();
-            }
-            $model->confidence = 0;
-            $model->sync_status = Observation::SYNC_PENDING;
-            $model->is_synced = false;
-            $model->is_published = false;
-            $model->enriched_wikipedia_url = null;
-            $model->enriched_photo_url = null;
-            $this->fillSpeciesClassification($model);
-            $this->assignRandomImage($model);
-            foreach ([
-                'device_observation_id',
-                'image_uri',
-                'predicted_scientific_name',
-                'enriched_scientific_name',
-                'enriched_common_name',
-                'enriched_family',
-                'enriched_wikipedia_url',
-                'enriched_photo_url',
-                'notes',
-            ] as $attribute) {
-                if (trim((string) $model->$attribute) === '') {
-                    $model->$attribute = null;
-                }
-            }
-
-            if ($model->validate() && $this->saveObservation($model)) {
-                Yii::$app->session->setFlash('success', 'Observação criada com sucesso.');
-                return $this->redirect(['observation/view', 'id' => $model->observation_id]);
+            try {
+                $response = Yii::$app->observationApi->saveObservation($this->observationPayload($model));
+                Yii::$app->session->setFlash('success', 'Observacao criada com sucesso.');
+                return $this->redirect(['observation/view', 'id' => (int) ($response['observationId'] ?? 0)]);
+            } catch (RuntimeException $exception) {
+                $model->addError('notes', 'Nao foi possivel guardar a observacao no backend: ' . $exception->getMessage());
             }
         }
 
@@ -192,7 +136,7 @@ class ObservationController extends Controller
 
     public function actionUpdate(int $id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findApiModel($id);
         $this->ensureManageAccess($model);
 
         if (!empty($model->observed_at)) {
@@ -200,38 +144,12 @@ class ObservationController extends Controller
         }
 
         if ($model->load(Yii::$app->request->post())) {
-            if (!empty($model->observed_at)) {
-                $observedAt = str_replace('T', ' ', (string) $model->observed_at);
-                $model->observed_at = strlen($observedAt) === 16 ? $observedAt . ':00' : $observedAt;
-            }
-            if (empty($model->captured_at)) {
-                $model->captured_at = null;
-            }
-            $model->confidence = 0;
-            $model->sync_status = Observation::SYNC_PENDING;
-            $model->enriched_wikipedia_url = null;
-            $model->enriched_photo_url = null;
-            $this->fillSpeciesClassification($model);
-            $this->assignRandomImage($model);
-            foreach ([
-                'device_observation_id',
-                'image_uri',
-                'predicted_scientific_name',
-                'enriched_scientific_name',
-                'enriched_common_name',
-                'enriched_family',
-                'enriched_wikipedia_url',
-                'enriched_photo_url',
-                'notes',
-            ] as $attribute) {
-                if (trim((string) $model->$attribute) === '') {
-                    $model->$attribute = null;
-                }
-            }
-
-            if ($model->validate() && $this->saveObservation($model)) {
-                Yii::$app->session->setFlash('success', 'Observação atualizada com sucesso.');
+            try {
+                Yii::$app->observationApi->saveObservation($this->observationPayload($model));
+                Yii::$app->session->setFlash('success', 'Observacao atualizada com sucesso.');
                 return $this->redirect(['observation/view', 'id' => $model->observation_id]);
+            } catch (RuntimeException $exception) {
+                $model->addError('notes', 'Nao foi possivel atualizar a observacao no backend: ' . $exception->getMessage());
             }
         }
 
@@ -244,133 +162,140 @@ class ObservationController extends Controller
 
     public function actionDelete(int $id)
     {
-        $observation = $this->findModel($id);
-
         if (!(Yii::$app->user->identity?->isAdmin() ?? false)) {
-            throw new ForbiddenHttpException('Não tens permissão para remover esta observação.');
+            throw new ForbiddenHttpException('Nao tens permissao para remover esta observacao.');
         }
 
-        $observation->delete();
-        Yii::$app->session->setFlash('success', 'Observação removida com sucesso.');
+        try {
+            Yii::$app->observationApi->deleteObservation($id);
+            Yii::$app->session->setFlash('success', 'Observacao removida com sucesso.');
+        } catch (RuntimeException $exception) {
+            Yii::$app->session->setFlash('error', 'Nao foi possivel remover a observacao no backend: ' . $exception->getMessage());
+        }
 
         return $this->redirect(['observation/index']);
     }
 
     private function getUserOptions(): array
     {
-        $users = AppUser::find()
-            ->where(['is_authenticated' => true])
-            ->orderBy(['first_name' => SORT_ASC, 'last_name' => SORT_ASC, 'username' => SORT_ASC])
-            ->all();
+        try {
+            $users = Yii::$app->accountApi->listUsers();
+        } catch (RuntimeException) {
+            $users = [[
+                'userId' => Yii::$app->user->id,
+                'displayName' => Yii::$app->user->identity?->getFullName(),
+                'username' => Yii::$app->user->identity?->username,
+            ]];
+        }
 
         $options = [];
         foreach ($users as $user) {
-            $options[$user->user_id] = $user->getFullName() . ' (@' . ($user->username ?: 'sem-username') . ')';
+            if (!is_array($user)) {
+                continue;
+            }
+            $userId = (int) ($user['userId'] ?? $user['user_id'] ?? 0);
+            $name = trim((string) ($user['displayName'] ?? (($user['firstName'] ?? '') . ' ' . ($user['lastName'] ?? ''))));
+            $username = (string) ($user['username'] ?? 'sem-username');
+            if ($userId > 0) {
+                $options[$userId] = ($name !== '' ? $name : $username) . ' (@' . ($username ?: 'sem-username') . ')';
+            }
         }
-
         return $options;
     }
 
     private function getSpeciesOptions(): array
     {
-        $species = PlantSpecies::find()
-            ->orderBy(['common_name' => SORT_ASC, 'scientific_name' => SORT_ASC])
-            ->all();
+        try {
+            $species = Yii::$app->speciesApi->listSpecies('', 'species', 0, 1000)['items'];
+        } catch (RuntimeException) {
+            $species = [];
+        }
 
         $options = [];
         foreach ($species as $item) {
             $options[$item->plant_species_id] = $item->getDisplayName() . ' (' . $item->scientific_name . ')';
         }
-
         return $options;
-    }
-
-    private function assignRandomImage(Observation $model): void
-    {
-        $speciesId = $model->plant_species_id ? (int) $model->plant_species_id : null;
-        $model->image_uri = $this->findRandomImagePath($speciesId) ?? $this->findRandomImagePath(null);
-    }
-
-    private function findRandomImagePath(?int $speciesId): ?string
-    {
-        $imagePath = ObservationImage::find()
-            ->alias('image')
-            ->select(new Expression("COALESCE(NULLIF(image.thumbnail_path, ''), image.image_path)"))
-            ->innerJoin(['observation' => Observation::tableName()], 'observation.observation_id = image.observation_id')
-            ->andWhere(['is not', 'image.image_path', null])
-            ->andWhere(['<>', 'image.image_path', ''])
-            ->andFilterWhere(['observation.plant_species_id' => $speciesId])
-            ->orderBy(new Expression('RANDOM()'))
-            ->limit(1)
-            ->scalar();
-
-        if ($imagePath !== false && trim((string) $imagePath) !== '') {
-            return (string) $imagePath;
-        }
-
-        $fallbackPath = Observation::find()
-            ->select('image_uri')
-            ->andWhere(['is not', 'image_uri', null])
-            ->andWhere(['<>', 'image_uri', ''])
-            ->andFilterWhere(['plant_species_id' => $speciesId])
-            ->orderBy(new Expression('RANDOM()'))
-            ->limit(1)
-            ->scalar();
-
-        return $fallbackPath !== false && trim((string) $fallbackPath) !== '' ? (string) $fallbackPath : null;
-    }
-
-    private function saveObservation(Observation $model): bool
-    {
-        try {
-            return $model->save(false);
-        } catch (\Throwable $exception) {
-            Yii::error($exception->getMessage(), __METHOD__);
-            $model->addError('notes', 'Nao foi possivel guardar a observacao. Confirma os dados e tenta novamente.');
-            return false;
-        }
-    }
-
-    private function fillSpeciesClassification(Observation $model): void
-    {
-        if (empty($model->plant_species_id)) {
-            $model->predicted_scientific_name = null;
-            $model->enriched_scientific_name = null;
-            $model->enriched_common_name = null;
-            $model->enriched_family = null;
-            return;
-        }
-
-        $species = PlantSpecies::findOne(['plant_species_id' => $model->plant_species_id]);
-        if ($species === null) {
-            return;
-        }
-
-        $model->predicted_scientific_name = $species->scientific_name;
-        $model->enriched_scientific_name = $species->scientific_name;
-        $model->enriched_common_name = $species->common_name;
-        $model->enriched_family = $species->family;
     }
 
     private function ensureManageAccess(Observation $observation): void
     {
         $identity = Yii::$app->user->identity;
         if ($identity === null) {
-            throw new ForbiddenHttpException('Precisas de iniciar sessão para editar observações.');
+            throw new ForbiddenHttpException('Precisas de iniciar sessao para editar observacoes.');
         }
-
         if (!$identity->isAdmin() && (int) $identity->user_id !== (int) $observation->user_id) {
-            throw new ForbiddenHttpException('Não tens permissão para editar esta observação.');
+            throw new ForbiddenHttpException('Nao tens permissao para editar esta observacao.');
         }
     }
 
-    private function findModel(int $id): Observation
+    private function findApiModel(int $id): Observation
     {
-        $model = Observation::findOne(['observation_id' => $id]);
-        if ($model === null) {
-            throw new NotFoundHttpException('Observação não encontrada.');
+        $apiObservation = Yii::$app->observationApi->getObservationById($id);
+        if ($apiObservation === null) {
+            throw new NotFoundHttpException('Observacao nao encontrada.');
         }
 
+        $model = new Observation();
+        $model->observation_id = $apiObservation->observation_id;
+        $model->device_observation_id = $apiObservation->device_observation_id;
+        $model->user_id = $apiObservation->user_id ?? (int) Yii::$app->user->id;
+        $model->plant_species_id = $apiObservation->plant_species_id;
+        $model->latitude = $apiObservation->latitude;
+        $model->longitude = $apiObservation->longitude;
+        $model->observed_at = $apiObservation->observed_at;
+        $model->notes = $apiObservation->notes;
+        $model->confidence = $apiObservation->confidence;
+        $model->sync_status = $apiObservation->sync_status;
+        $model->is_published = $apiObservation->is_published;
+        $model->setIsNewRecord(false);
         return $model;
+    }
+
+    private function observationPayload(Observation $model): array
+    {
+        $observedAt = trim((string) $model->observed_at);
+        $timestamp = $observedAt !== '' ? strtotime(str_replace('T', ' ', $observedAt)) : time();
+        $species = $this->speciesData((int) $model->plant_species_id);
+
+        return [
+            'deviceObservationId' => trim((string) $model->device_observation_id) !== '' ? $model->device_observation_id : null,
+            'userId' => (int) $model->user_id,
+            'plantSpeciesId' => $model->plant_species_id ? (int) $model->plant_species_id : null,
+            'capturedAt' => time(),
+            'predictedScientificName' => $species['scientificName'] ?? 'Observacao botanica',
+            'enrichedScientificName' => $species['scientificName'] ?? null,
+            'enrichedCommonName' => $species['commonName'] ?? null,
+            'enrichedFamily' => $species['family'] ?? null,
+            'confidence' => 0,
+            'latitude' => $model->latitude !== null ? (float) $model->latitude : null,
+            'longitude' => $model->longitude !== null ? (float) $model->longitude : null,
+            'observedAt' => date('c', $timestamp ?: time()),
+            'isPublished' => (bool) $model->is_published,
+            'syncStatus' => $model->sync_status ?: Observation::SYNC_PENDING,
+            'notes' => trim((string) $model->notes) !== '' ? $model->notes : null,
+        ];
+    }
+
+    private function speciesData(int $speciesId): array
+    {
+        if ($speciesId <= 0) {
+            return [];
+        }
+        try {
+            $species = Yii::$app->speciesApi->listSpecies('', 'species', 0, 1000)['items'];
+        } catch (RuntimeException) {
+            return [];
+        }
+        foreach ($species as $item) {
+            if ((int) $item->plant_species_id === $speciesId) {
+                return [
+                    'scientificName' => $item->scientific_name,
+                    'commonName' => $item->common_name,
+                    'family' => $item->family,
+                ];
+            }
+        }
+        return [];
     }
 }

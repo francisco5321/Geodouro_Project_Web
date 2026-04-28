@@ -14,6 +14,11 @@ class RoutePlanApiService extends Component
         return is_array($plans) ? $plans : [];
     }
 
+    public function getRoutePlan(int $routePlanId): array
+    {
+        return Yii::$app->backendApi->getJson('/api/route-plans/' . $routePlanId, $this->headers());
+    }
+
     public function createRoutePlan(array $payload): array
     {
         return Yii::$app->backendApi->postJson('/api/route-plans', $payload, $this->headers());

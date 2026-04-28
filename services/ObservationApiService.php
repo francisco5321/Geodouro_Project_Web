@@ -52,6 +52,16 @@ class ObservationApiService extends Component
         return null;
     }
 
+    public function saveObservation(array $payload): array
+    {
+        return Yii::$app->backendApi->postJson('/api/observations', $payload, $this->headers());
+    }
+
+    public function deleteObservation(int $observationId): void
+    {
+        Yii::$app->backendApi->deleteJson('/api/observations/' . $observationId, $this->headers());
+    }
+
     private function headers(): array
     {
         return Yii::$app->backendAuthSession->getAuthorizationHeaders();
@@ -75,6 +85,7 @@ class ObservationApiService extends Component
             'observation_id' => $item['observationId'] ?? $item['observation_id'] ?? null,
             'device_observation_id' => $item['deviceObservationId'] ?? $item['device_observation_id'] ?? null,
             'user_id' => $item['userId'] ?? $item['user_id'] ?? null,
+            'plant_species_id' => $item['plantSpeciesId'] ?? $item['plant_species_id'] ?? null,
             'image_uri' => $item['imagePath'] ?? $item['image_path'] ?? $item['storedImagePath'] ?? $item['stored_image_path'] ?? null,
             'observationImages' => $item['imagePaths'] ?? $item['image_paths'] ?? [],
             'observed_at' => self::formatInstant($item['observedAt'] ?? $item['observed_at'] ?? null),
