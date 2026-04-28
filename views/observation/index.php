@@ -106,14 +106,6 @@ $this->title = 'Observacoes';
                     </div>
                 </div>
                 <div class="toolbar-actions">
-                    <a class="btn btn-outline-brand" href="<?= Url::to(['observation/index', 'status' => Observation::STATUS_MANUAL_REVIEW]) ?>" title="Abrir fila de revisao manual">
-                        <i class="fas fa-user-check" aria-hidden="true"></i>
-                        Fila de revisao
-                    </a>
-                    <a class="btn btn-outline-brand" href="<?= Url::to(['map/index']) ?>" title="Abrir mapa interativo">
-                        <i class="fas fa-map" aria-hidden="true"></i>
-                        Abrir mapa
-                    </a>
                     <a class="btn btn-brand" href="<?= Url::to(['observation/create']) ?>" title="Criar nova observacao">
                         <i class="fas fa-plus" aria-hidden="true"></i>
                         Nova observacao
