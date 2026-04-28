@@ -31,6 +31,9 @@ class ApiObservation extends ApiDataObject
     {
         $publication = self::first($data, ['publication']);
         $images = self::first($data, ['observationImages', 'observation_images', 'images'], []);
+        $publicationObject = is_array($publication)
+            ? ApiPublication::fromArray($publication)
+            : self::publicationFromObservationData($data);
 
         return new self([
             'observation_id' => self::first($data, ['observation_id', 'observationId', 'id']) !== null ? (int) self::first($data, ['observation_id', 'observationId', 'id']) : null,
@@ -52,7 +55,7 @@ class ApiObservation extends ApiDataObject
             'notes' => self::stringOrNull(self::first($data, ['notes'])),
             'is_published' => (bool) self::first($data, ['is_published', 'isPublished'], false),
             'sync_status' => (string) self::first($data, ['sync_status', 'syncStatus'], 'PENDING'),
-            'publication' => is_array($publication) ? ApiPublication::fromArray($publication) : null,
+            'publication' => $publicationObject,
             'observationImages' => self::imageObjects($images),
         ]);
     }
@@ -104,6 +107,42 @@ class ApiObservation extends ApiDataObject
     {
         $value = trim((string) $value);
         return $value !== '' ? $value : null;
+    }
+
+    private static function publicationFromObservationData(array $data): ?ApiPublication
+    {
+        $isPublished = (bool) self::first($data, ['is_published', 'isPublished'], false);
+        $publicationId = self::first($data, ['publicationId', 'publication_id']);
+        $authorName = self::stringOrNull(self::first($data, [
+            'publicationUserDisplayName',
+            'publication_user_display_name',
+            'userDisplayName',
+            'user_display_name',
+        ]));
+
+        if (!$isPublished && $publicationId === null && $authorName === null) {
+            return null;
+        }
+
+        return new ApiPublication([
+            'publication_id' => $publicationId !== null ? (int) $publicationId : null,
+            'observation_id' => self::first($data, ['observation_id', 'observationId', 'id']) !== null
+                ? (int) self::first($data, ['observation_id', 'observationId', 'id'])
+                : null,
+            'device_observation_id' => self::stringOrNull(self::first($data, ['device_observation_id', 'deviceObservationId'])),
+            'user_id' => self::first($data, ['publicationUserId', 'publication_user_id', 'userId', 'user_id']) !== null
+                ? (int) self::first($data, ['publicationUserId', 'publication_user_id', 'userId', 'user_id'])
+                : null,
+            'plant_species_id' => self::first($data, ['plant_species_id', 'plantSpeciesId', 'speciesId']) !== null
+                ? (int) self::first($data, ['plant_species_id', 'plantSpeciesId', 'speciesId'])
+                : null,
+            'title' => self::stringOrNull(self::first($data, ['publicationTitle', 'publication_title'])),
+            'description' => self::stringOrNull(self::first($data, ['publicationDescription', 'publication_description'])),
+            'status' => (string) self::first($data, ['publicationStatus', 'publication_status'], $isPublished ? 'published' : 'draft'),
+            'published_at' => self::stringOrNull(self::first($data, ['published_at', 'publishedAt', 'publicationPublishedAt', 'publication_published_at'])),
+            'user' => $authorName !== null ? new ApiUser(['displayName' => $authorName]) : null,
+            'publicationImages' => [],
+        ]);
     }
 
     /**
