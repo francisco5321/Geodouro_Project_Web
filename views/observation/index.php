@@ -80,7 +80,6 @@ $this->title = 'Observacoes';
         <div class="filter-row">
             <?php foreach ([
                 'all' => ['label' => 'Todas', 'icon' => 'fas fa-list'],
-                Observation::SYNC_SYNCED => ['label' => 'Sincronizadas', 'icon' => 'fas fa-sync'],
                 'PUBLISHED' => ['label' => 'Publicadas', 'icon' => 'fas fa-star'],
                 Observation::STATUS_MANUAL_REVIEW => ['label' => 'Revisao manual', 'icon' => 'fas fa-user-check'],
             ] as $value => $config): ?>
