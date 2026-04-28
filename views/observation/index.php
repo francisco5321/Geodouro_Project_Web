@@ -31,11 +31,19 @@ $this->title = 'Observacoes';
                 'label' => 'Revisao manual',
                 'value' => (int) ($summary['manualReview'] ?? 0),
                 'icon' => 'fas fa-user-check',
+                'cssClass' => 'obs-stat-manual',
             ]) ?>
             <?= StatCard::widget([
                 'label' => 'Publicadas',
                 'value' => (int) $summary['published'],
                 'icon' => 'fas fa-check-circle',
+                'cssClass' => 'obs-stat-published',
+            ]) ?>
+            <?= StatCard::widget([
+                'label' => 'Total',
+                'value' => (int) $summary['total'],
+                'icon' => 'fas fa-chart-line',
+                'cssClass' => 'obs-stat-total',
             ]) ?>
         </div>
     </section>

@@ -1058,7 +1058,23 @@ body.app-shell {
 
 .observation-hero .detail-stat-grid {
     grid-template-columns: repeat(2, minmax(170px, 206px));
+    grid-template-areas:
+        "manual published"
+        ". total";
+    align-items: start;
     justify-self: end;
+}
+
+.observation-hero .detail-stat-grid .obs-stat-manual {
+    grid-area: manual;
+}
+
+.observation-hero .detail-stat-grid .obs-stat-published {
+    grid-area: published;
+}
+
+.observation-hero .detail-stat-grid .obs-stat-total {
+    grid-area: total;
 }
 
 .map-hero .detail-stat-grid {
@@ -1081,6 +1097,9 @@ body.app-shell {
 
     .observation-hero .detail-stat-grid {
         grid-template-columns: repeat(2, minmax(170px, 206px));
+        grid-template-areas:
+            "manual published"
+            ". total";
     }
 
     .map-hero .detail-stat-grid {
@@ -1106,6 +1125,10 @@ body.app-shell {
 
     .observation-hero .detail-stat-grid {
         grid-template-columns: 1fr;
+        grid-template-areas:
+            "manual"
+            "published"
+            "total";
         justify-self: stretch;
     }
 
