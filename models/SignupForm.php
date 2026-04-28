@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use RuntimeException;
 use Yii;
 use yii\base\Model;
 
@@ -24,9 +23,7 @@ class SignupForm extends Model
             [['email', 'username'], 'string', 'max' => 255],
             [['email'], 'email'],
             [['password', 'passwordRepeat'], 'string', 'min' => 8, 'max' => 255],
-            ['passwordRepeat', 'compare', 'compareAttribute' => 'password', 'message' => 'As passwords não coincidem.'],
-            ['email', 'validateEmailIsUnique'],
-            ['username', 'validateUsernameIsUnique'],
+            ['passwordRepeat', 'compare', 'compareAttribute' => 'password', 'message' => 'As passwords nao coincidem.'],
         ];
     }
 
@@ -42,67 +39,25 @@ class SignupForm extends Model
         ];
     }
 
-    public function validateEmailIsUnique(string $attribute, $params = null): void
-    {
-        if ($this->hasErrors()) {
-            return;
-        }
-
-        if (AppUser::find()->andWhere(['email' => $this->email])->exists()) {
-            $this->addError($attribute, 'Já existe uma conta com este email.');
-        }
-    }
-
-    public function validateUsernameIsUnique(string $attribute, $params = null): void
-    {
-        if ($this->hasErrors()) {
-            return;
-        }
-
-        if (AppUser::find()->andWhere(['username' => $this->username])->exists()) {
-            $this->addError($attribute, 'Este username já está em uso.');
-        }
-    }
-
-    public function signup(): ?AppUser
+    public function signup(): ?ApiIdentity
     {
         if (!$this->validate()) {
             return null;
         }
 
-        $user = new AppUser();
-        $user->is_authenticated = true;
-        $user->guest_label = $this->generateGuestLabel();
-        $user->first_name = $this->first_name;
-        $user->last_name = $this->last_name;
-        $user->email = $this->email;
-        $user->username = $this->username;
-        if ($user->hasAttribute('role')) {
-            $user->role = AppUser::ROLE_USER;
-        }
-        $user->setPassword($this->password);
-        $user->generateAuthKey();
-
-        if (!$user->save()) {
-            return null;
-        }
-
         try {
-            Yii::$app->backendAuthSession->refreshForUser($user, $this->password);
-        } catch (RuntimeException $exception) {
-            $this->addError('password', 'A conta foi criada, mas não foi possível sincronizar a sessão com o backend: ' . $exception->getMessage());
+            $response = Yii::$app->accountApi->signup([
+                'firstName' => $this->first_name,
+                'lastName' => $this->last_name,
+                'email' => $this->email,
+                'username' => $this->username,
+                'password' => $this->password,
+            ]);
+
+            return Yii::$app->backendAuthSession->establishFromResponse($response);
+        } catch (\RuntimeException $exception) {
+            $this->addError('email', $exception->getMessage());
             return null;
         }
-
-        return $user;
-    }
-
-    private function generateGuestLabel(): string
-    {
-        do {
-            $candidate = 'web-' . Yii::$app->security->generateRandomString(12);
-        } while (AppUser::find()->andWhere(['guest_label' => $candidate])->exists());
-
-        return $candidate;
     }
 }

@@ -1,13 +1,12 @@
 <?php
 
 use app\components\StatCard;
-use app\models\Observation;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\web\View;
 
 /** @var yii\web\View $this */
-/** @var Observation[] $observations */
+/** @var app\services\ApiObservation[] $observations */
 /** @var string $markersJson */
 /** @var int $visitTargetCount */
 /** @var bool $canCreateObservation */

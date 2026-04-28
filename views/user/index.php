@@ -1,13 +1,13 @@
 <?php
 
 use app\components\StatCard;
-use app\models\AppUser;
+use app\models\ApiIdentity;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\LinkPager;
 
 /** @var yii\web\View $this */
-/** @var AppUser[] $users */
+/** @var app\services\ApiUser[] $users */
 /** @var yii\data\Pagination $pagination */
 /** @var bool $roleColumnAvailable */
 /** @var string $search */
@@ -102,17 +102,17 @@ $this->title = 'Utilizadores';
                             </td>
                             <td><?= Html::encode($user->email ?: 'Sem email') ?></td>
                             <td><span class="species-meta-chip"><?= Html::encode($user->getRoleLabel()) ?></span></td>
-                            <td><?= Html::encode(Yii::$app->formatter->asDate($user->created_at, 'php:d/m/Y')) ?></td>
+                            <td><?= Html::encode($user->created_at !== null ? Yii::$app->formatter->asDate($user->created_at, 'php:d/m/Y') : 'N/D') ?></td>
                             <td>
                                 <div class="table-action-row">
                                     <?php if ($roleColumnAvailable && (int) $user->user_id !== (int) Yii::$app->user->id): ?>
                                         <?php if ($user->isAdmin()): ?>
-                                            <?= Html::beginForm(['user/set-role', 'id' => $user->user_id, 'role' => AppUser::ROLE_USER], 'post') ?>
+                                            <?= Html::beginForm(['user/set-role', 'id' => $user->user_id, 'role' => ApiIdentity::ROLE_USER], 'post') ?>
                                                 <?= Html::hiddenInput('q', $search) ?>
                                                 <?= Html::submitButton('Tornar utilizador', ['class' => 'btn btn-link table-action-button', 'data-confirm' => 'Tens a certeza que queres remover privilégios de administrador a este utilizador?']) ?>
                                             <?= Html::endForm() ?>
                                         <?php else: ?>
-                                            <?= Html::beginForm(['user/set-role', 'id' => $user->user_id, 'role' => AppUser::ROLE_ADMIN], 'post') ?>
+                                            <?= Html::beginForm(['user/set-role', 'id' => $user->user_id, 'role' => ApiIdentity::ROLE_ADMIN], 'post') ?>
                                                 <?= Html::hiddenInput('q', $search) ?>
                                                 <?= Html::submitButton('Tornar admin', ['class' => 'btn btn-link table-action-button', 'data-confirm' => 'Tens a certeza que queres promover este utilizador a administrador?']) ?>
                                             <?= Html::endForm() ?>

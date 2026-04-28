@@ -2,6 +2,7 @@
 
 namespace app\components;
 
+use app\models\ApiIdentity;
 use app\models\AppUser;
 use RuntimeException;
 use Yii;
@@ -48,8 +49,50 @@ class BackendAuthSession extends Component
             'userId' => $response['userId'] ?? null,
             'username' => $response['username'] ?? null,
             'email' => $response['email'] ?? null,
+            'firstName' => $response['firstName'] ?? null,
+            'lastName' => $response['lastName'] ?? null,
             'displayName' => $response['displayName'] ?? null,
+            'role' => $response['role'] ?? ApiIdentity::ROLE_USER,
         ]);
+    }
+
+    public function establishFromResponse(array $response): ApiIdentity
+    {
+        $authToken = trim((string) ($response['authToken'] ?? ''));
+        if ($authToken === '') {
+            throw new RuntimeException('Backend response did not return an auth token.');
+        }
+
+        $user = [
+            'userId' => $response['userId'] ?? null,
+            'username' => $response['username'] ?? null,
+            'email' => $response['email'] ?? null,
+            'firstName' => $response['firstName'] ?? null,
+            'lastName' => $response['lastName'] ?? null,
+            'displayName' => $response['displayName'] ?? null,
+            'role' => $response['role'] ?? ApiIdentity::ROLE_USER,
+        ];
+
+        Yii::$app->session->set(self::TOKEN_KEY, $authToken);
+        Yii::$app->session->set(self::USER_KEY, $user);
+
+        return ApiIdentity::fromArray($user);
+    }
+
+    public function replaceCurrentUser(array $response): ApiIdentity
+    {
+        $user = [
+            'userId' => $response['userId'] ?? null,
+            'username' => $response['username'] ?? null,
+            'email' => $response['email'] ?? null,
+            'firstName' => $response['firstName'] ?? null,
+            'lastName' => $response['lastName'] ?? null,
+            'displayName' => $response['displayName'] ?? null,
+            'role' => $response['role'] ?? ApiIdentity::ROLE_USER,
+        ];
+
+        Yii::$app->session->set(self::USER_KEY, $user);
+        return ApiIdentity::fromArray($user);
     }
 
     public function refreshForUser(AppUser $user, string $password): void

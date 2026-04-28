@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Yii;
 use yii\base\Model;
 
 class ProfileForm extends Model
@@ -11,9 +12,9 @@ class ProfileForm extends Model
     public string $email = '';
     public string $username = '';
 
-    private AppUser $user;
+    private ApiIdentity $user;
 
-    public function __construct(AppUser $user, $config = [])
+    public function __construct(ApiIdentity $user, $config = [])
     {
         $this->user = $user;
         $this->first_name = (string) $user->first_name;
@@ -31,8 +32,6 @@ class ProfileForm extends Model
             [['first_name', 'last_name'], 'string', 'max' => 120],
             [['email', 'username'], 'string', 'max' => 255],
             [['email'], 'email'],
-            ['email', 'validateEmailIsUnique'],
-            ['username', 'validateUsernameIsUnique'],
         ];
     }
 
@@ -52,43 +51,18 @@ class ProfileForm extends Model
             return false;
         }
 
-        $this->user->first_name = $this->first_name;
-        $this->user->last_name = $this->last_name;
-        $this->user->email = $this->email;
-        $this->user->username = $this->username;
-
-        return $this->user->save(false, ['first_name', 'last_name', 'email', 'username', 'updated_at']);
-    }
-
-    public function validateEmailIsUnique(string $attribute, $params = null): void
-    {
-        if ($this->hasErrors()) {
-            return;
-        }
-
-        $exists = AppUser::find()
-            ->andWhere(['email' => $this->email])
-            ->andWhere(['<>', 'user_id', $this->user->user_id])
-            ->exists();
-
-        if ($exists) {
-            $this->addError($attribute, 'Já existe uma conta com este email.');
-        }
-    }
-
-    public function validateUsernameIsUnique(string $attribute, $params = null): void
-    {
-        if ($this->hasErrors()) {
-            return;
-        }
-
-        $exists = AppUser::find()
-            ->andWhere(['username' => $this->username])
-            ->andWhere(['<>', 'user_id', $this->user->user_id])
-            ->exists();
-
-        if ($exists) {
-            $this->addError($attribute, 'Este username já está em uso.');
+        try {
+            $response = Yii::$app->accountApi->updateProfile([
+                'firstName' => $this->first_name,
+                'lastName' => $this->last_name,
+                'email' => $this->email,
+                'username' => $this->username,
+            ]);
+            Yii::$app->backendAuthSession->replaceCurrentUser($response);
+            return true;
+        } catch (\RuntimeException $exception) {
+            $this->addError('email', $exception->getMessage());
+            return false;
         }
     }
 }

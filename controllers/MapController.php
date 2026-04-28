@@ -2,8 +2,8 @@
 
 namespace app\controllers;
 
-use app\models\Observation;
-use app\models\SavedVisitTarget;
+use app\services\ApiObservation;
+use RuntimeException;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -30,59 +30,62 @@ class MapController extends Controller
     {
         $focusObservationId = (int) Yii::$app->request->get('observationId', 0);
 
-        $observations = Observation::find()
-            ->with(['user', 'plantSpecies', 'publication'])
-            ->where(['not', ['latitude' => null]])
-            ->andWhere(['not', ['longitude' => null]])
-            ->orderBy(['observed_at' => SORT_DESC])
-            ->limit(250)
-            ->all();
+        try {
+            $result = Yii::$app->observationApi->listObservations('', 'all', false, 0, 250);
+            $observations = array_values(array_filter(
+                $result['items'],
+                static fn (ApiObservation $observation): bool => $observation->hasCoordinates()
+            ));
+        } catch (RuntimeException $exception) {
+            Yii::error($exception->getMessage(), __METHOD__);
+            $observations = [];
+        }
 
-        if ($focusObservationId > 0) {
-            $hasFocusedObservation = false;
-            foreach ($observations as $observation) {
-                if ((int) $observation->observation_id === $focusObservationId) {
-                    $hasFocusedObservation = true;
-                    break;
-                }
-            }
-
-            if (!$hasFocusedObservation) {
-                $focusedObservation = Observation::find()
-                    ->with(['user', 'plantSpecies', 'publication'])
-                    ->where(['observation_id' => $focusObservationId])
-                    ->andWhere(['not', ['latitude' => null]])
-                    ->andWhere(['not', ['longitude' => null]])
-                    ->one();
-
-                if ($focusedObservation !== null) {
-                    array_unshift($observations, $focusedObservation);
-                }
+        $hasFocusedObservation = false;
+        foreach ($observations as $observation) {
+            if ((int) $observation->observation_id === $focusObservationId) {
+                $hasFocusedObservation = true;
+                break;
             }
         }
 
-        $visitTargets = Yii::$app->user->isGuest
-            ? []
-            : SavedVisitTarget::find()
-                ->with(['publication', 'observation'])
-                ->where(['user_id' => Yii::$app->user->id])
-                ->all();
+        if ($focusObservationId > 0 && !$hasFocusedObservation) {
+            try {
+                $focusedObservation = Yii::$app->observationApi->getObservationById($focusObservationId);
+                if ($focusedObservation?->hasCoordinates()) {
+                    array_unshift($observations, $focusedObservation);
+                }
+            } catch (RuntimeException $exception) {
+                Yii::error($exception->getMessage(), __METHOD__);
+            }
+        }
+
+        $visitTargets = [];
+        if (!Yii::$app->user->isGuest) {
+            try {
+                $visitTargets = Yii::$app->visitTargetApi->listVisitTargets();
+            } catch (RuntimeException $exception) {
+                Yii::error($exception->getMessage(), __METHOD__);
+            }
+        }
 
         $targetSpeciesIds = [];
         $targetObservationIds = [];
         foreach ($visitTargets as $target) {
-            if ($target->plant_species_id !== null) {
-                $targetSpeciesIds[(int) $target->plant_species_id] = true;
+            if (!is_array($target)) {
+                continue;
             }
-            if ($target->observation_id !== null) {
-                $targetObservationIds[(int) $target->observation_id] = true;
+            $plantSpeciesId = $target['plantSpeciesId'] ?? $target['plant_species_id'] ?? null;
+            $observationId = $target['observationId'] ?? $target['observation_id'] ?? null;
+            if ($plantSpeciesId !== null) {
+                $targetSpeciesIds[(int) $plantSpeciesId] = true;
             }
-            if ($target->publication?->observation_id !== null) {
-                $targetObservationIds[(int) $target->publication->observation_id] = true;
+            if ($observationId !== null) {
+                $targetObservationIds[(int) $observationId] = true;
             }
         }
 
-        $markers = array_map(static function (Observation $observation) use ($targetSpeciesIds, $targetObservationIds): array {
+        $markers = array_map(static function (ApiObservation $observation) use ($targetSpeciesIds, $targetObservationIds): array {
             return [
                 'id' => $observation->observation_id,
                 'title' => $observation->getResolvedCommonName() ?: 'Observacao botanica',

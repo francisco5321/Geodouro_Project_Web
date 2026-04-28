@@ -2,8 +2,7 @@
 
 namespace app\controllers;
 
-use app\models\Observation;
-use app\models\Publication;
+use RuntimeException;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -32,10 +31,12 @@ class MediaController extends Controller
 
     public function actionObservationImage(int $id, int $index = 0): Response
     {
-        $observation = Observation::find()
-            ->with(['observationImages'])
-            ->where(['observation_id' => $id])
-            ->one();
+        try {
+            $observation = Yii::$app->observationApi->getObservationById($id);
+        } catch (RuntimeException $exception) {
+            Yii::error($exception->getMessage(), __METHOD__);
+            $observation = null;
+        }
 
         if ($observation === null) {
             throw new NotFoundHttpException('Observacao nao encontrada.');
@@ -46,10 +47,12 @@ class MediaController extends Controller
 
     public function actionPublicationImage(int $id, int $index = 0): Response
     {
-        $publication = Publication::find()
-            ->with(['publicationImages'])
-            ->where(['publication_id' => $id])
-            ->one();
+        try {
+            $publication = Yii::$app->publicationApi->getPublicationById($id);
+        } catch (RuntimeException $exception) {
+            Yii::error($exception->getMessage(), __METHOD__);
+            $publication = null;
+        }
 
         if ($publication === null) {
             throw new NotFoundHttpException('Publicacao nao encontrada.');

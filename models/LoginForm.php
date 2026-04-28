@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use RuntimeException;
 use Yii;
 use yii\base\Model;
 
@@ -12,7 +11,7 @@ class LoginForm extends Model
     public string $password = '';
     public bool $rememberMe = true;
 
-    private ?AppUser $_user = null;
+    private ?ApiIdentity $_user = null;
 
     public function rules(): array
     {
@@ -29,7 +28,7 @@ class LoginForm extends Model
         return [
             'username' => 'Username ou Email',
             'password' => 'Password',
-            'rememberMe' => 'Manter sessão iniciada',
+            'rememberMe' => 'Manter sessao iniciada',
         ];
     }
 
@@ -39,9 +38,12 @@ class LoginForm extends Model
             return;
         }
 
-        $user = $this->getUser();
-        if ($user === null || !$user->validatePassword($this->password)) {
-            $this->addError($attribute, 'Credenciais inválidas.');
+        try {
+            $response = Yii::$app->accountApi->login($this->username, $this->password);
+            $this->_user = Yii::$app->backendAuthSession->establishFromResponse($response);
+        } catch (\RuntimeException $exception) {
+            Yii::$app->backendAuthSession->clear();
+            $this->addError($attribute, 'Credenciais invalidas.');
         }
     }
 
@@ -51,42 +53,11 @@ class LoginForm extends Model
             return false;
         }
 
-        $backendAuthRequired = (bool) (Yii::$app->params['backendAuthRequired'] ?? false);
-        $backendAuthTimeout = (int) (Yii::$app->params['backendAuthTimeoutSeconds'] ?? 3);
-        $backendAuthStrategy = (string) (Yii::$app->params['backendAuthStrategy'] ?? 'local-token');
-        $user = $this->getUser();
-
-        try {
-            if ($backendAuthStrategy === 'http') {
-                $backendIdentifier = $user?->username ?: $user?->email ?: $this->username;
-                Yii::$app->backendAuthSession->syncLogin($backendIdentifier, $this->password, $backendAuthTimeout);
-            } elseif ($user !== null) {
-                Yii::$app->backendAuthSession->establishForUser($user);
-            }
-        } catch (RuntimeException $exception) {
-            Yii::$app->backendAuthSession->clear();
-            Yii::warning('Backend auth sync failed during web login: ' . $exception->getMessage(), __METHOD__);
-
-            if ($backendAuthRequired) {
-                $this->addError('password', 'Não foi possível ligar ao backend comum: ' . $exception->getMessage());
-                return false;
-            }
-
-            Yii::$app->session->setFlash(
-                'warning',
-                'Sessão iniciada no portal. O backend comum não respondeu, por isso algumas ações sincronizadas podem ficar indisponíveis temporariamente.'
-            );
-        }
-
-        return Yii::$app->user->login($user, 0);
+        return Yii::$app->user->login($this->getUser(), 0);
     }
 
-    public function getUser(): ?AppUser
+    public function getUser(): ?ApiIdentity
     {
-        if ($this->_user === null) {
-            $this->_user = AppUser::findByLoginIdentifier($this->username);
-        }
-
         return $this->_user;
     }
 }

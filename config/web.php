@@ -17,7 +17,7 @@ return [
             'cookieValidationKey' => getenv('COOKIE_VALIDATION_KEY') ?: 'change-me-in-production',
         ],
         'user' => [
-            'identityClass' => app\models\AppUser::class,
+            'identityClass' => app\models\ApiIdentity::class,
             'enableAutoLogin' => false,
             'loginUrl' => ['site/login'],
         ],
@@ -54,6 +54,9 @@ return [
         ],
         'publicationApi' => [
             'class' => app\services\PublicationApiService::class,
+        ],
+        'accountApi' => [
+            'class' => app\services\AccountApiService::class,
         ],
         'assetManager' => [
             'basePath' => dirname(__DIR__) . '/web/assets',

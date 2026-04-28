@@ -10,6 +10,8 @@ class ApiUser extends ApiDataObject
     public ?string $last_name = null;
     public ?string $email = null;
     public ?string $displayName = null;
+    public string $role = 'user';
+    public ?string $created_at = null;
 
     public static function fromArray(array $data): self
     {
@@ -20,6 +22,8 @@ class ApiUser extends ApiDataObject
             'last_name' => self::stringOrNull(self::first($data, ['last_name', 'lastName'])),
             'email' => self::stringOrNull(self::first($data, ['email'])),
             'displayName' => self::stringOrNull(self::first($data, ['displayName', 'display_name', 'fullName', 'name'])),
+            'role' => (string) self::first($data, ['role'], 'user'),
+            'created_at' => self::stringOrNull(self::first($data, ['created_at', 'createdAt'])),
         ]);
     }
 
@@ -27,6 +31,16 @@ class ApiUser extends ApiDataObject
     {
         $name = trim((string) ($this->displayName ?: trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? ''))));
         return $name !== '' ? $name : ($this->username ?: $this->email ?: 'Utilizador');
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function getRoleLabel(): string
+    {
+        return $this->isAdmin() ? 'Administrador' : 'Utilizador';
     }
 
     private static function stringOrNull(mixed $value): ?string
