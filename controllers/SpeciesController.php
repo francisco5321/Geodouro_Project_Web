@@ -50,6 +50,13 @@ class SpeciesController extends Controller
                 $pagination->getPageSize()
             );
         } catch (RuntimeException $exception) {
+            if (Yii::$app->user->isGuest) {
+                Yii::$app->session->setFlash('error', 'Tens de iniciar sessão para consultar o catálogo de espécies.');
+                Yii::$app->user->setReturnUrl(Yii::$app->request->url);
+                Yii::$app->user->loginRequired();
+                return '';
+            }
+
             Yii::error($exception->getMessage(), __METHOD__);
             Yii::$app->session->setFlash('error', 'Não foi possível carregar as espécies a partir da API.');
             $result = [
@@ -86,6 +93,13 @@ class SpeciesController extends Controller
                 $pagination->getPageSize()
             );
         } catch (RuntimeException $exception) {
+            if (Yii::$app->user->isGuest) {
+                Yii::$app->session->setFlash('error', 'Tens de iniciar sessão para abrir o detalhe de uma espécie.');
+                Yii::$app->user->setReturnUrl(Yii::$app->request->url);
+                Yii::$app->user->loginRequired();
+                return '';
+            }
+
             Yii::error($exception->getMessage(), __METHOD__);
             throw new NotFoundHttpException('Espécie não encontrada na API.');
         }
