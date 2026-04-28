@@ -28,6 +28,7 @@ const backgroundMarkers = __BACKGROUND_MARKERS__ || [];
 const routeCoordinates = __ROUTE_COORDS__ || [];
 const toggleObservationUrl = '__TOGGLE_URL__';
 const routeMap = L.map('route-plan-map').setView([41.3, -7.7], 8);
+let routePathLayer = null;
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
 const csrfParam = document.querySelector('meta[name="csrf-param"]')?.content || '_csrf';
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -73,8 +74,13 @@ routeMarkers.forEach((marker) => {
     }).addTo(routeMap).bindPopup(`<strong>${marker.order}. ${marker.title}</strong><p>${marker.subtitle || ''}</p>`);
 });
 
-if (routeCoordinates.length > 1) {
-    L.polyline([...routeCoordinates, routeCoordinates[0]], {
+function drawFallbackRoute() {
+    if (routeCoordinates.length <= 1) return;
+    const fallbackCoordinates = routeCoordinates.length > 2
+        ? [...routeCoordinates, routeCoordinates[0]]
+        : routeCoordinates;
+
+    routePathLayer = L.polyline(fallbackCoordinates, {
         color: '#1f5f43',
         weight: 5,
         opacity: 0.85,
@@ -84,6 +90,41 @@ if (routeCoordinates.length > 1) {
 if (bounds.length > 0) {
     routeMap.fitBounds(bounds, {padding: [28, 28]});
 }
+
+async function drawRoutedPath() {
+    if (routeCoordinates.length <= 1) return;
+
+    const waypointList = routeCoordinates.map(([latitude, longitude]) => `${longitude},${latitude}`).join(';');
+
+    try {
+        const response = await fetch(`https://router.project-osrm.org/route/v1/foot/${waypointList}?overview=full&geometries=geojson`);
+        if (!response.ok) throw new Error(`Routing HTTP ${response.status}`);
+        const data = await response.json();
+        const coordinates = data?.routes?.[0]?.geometry?.coordinates;
+        if (!Array.isArray(coordinates) || coordinates.length < 2) {
+            throw new Error('Routing geometry missing');
+        }
+
+        const latLngs = coordinates
+            .filter((coordinate) => Array.isArray(coordinate) && coordinate.length >= 2)
+            .map(([longitude, latitude]) => [latitude, longitude]);
+
+        if (latLngs.length < 2) {
+            throw new Error('Routing geometry invalid');
+        }
+
+        routePathLayer = L.polyline(latLngs, {
+            color: '#1f5f43',
+            weight: 5,
+            opacity: 0.85,
+        }).addTo(routeMap);
+    } catch (error) {
+        console.warn('Failed to draw routed path, falling back to straight polyline.', error);
+        drawFallbackRoute();
+    }
+}
+
+drawRoutedPath();
 
 document.addEventListener('click', async (event) => {
     const button = event.target.closest('.js-route-observation-toggle');

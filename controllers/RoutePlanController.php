@@ -101,6 +101,21 @@ class RoutePlanController extends Controller
             $routeCoordinates[] = [$marker['latitude'], $marker['longitude']];
         }
 
+        $geometryPoints = is_array($plan['routeGeometry'] ?? null)
+            ? array_values(array_filter($plan['routeGeometry'], static function ($point): bool {
+                return is_array($point)
+                    && isset($point['latitude'], $point['longitude'])
+                    && is_numeric($point['latitude'])
+                    && is_numeric($point['longitude']);
+            }))
+            : [];
+        if ($geometryPoints !== []) {
+            $routeCoordinates = array_map(
+                static fn (array $point): array => [(float) $point['latitude'], (float) $point['longitude']],
+                $geometryPoints
+            );
+        }
+
         try {
             $observationResult = Yii::$app->observationApi->listObservations('', 'all', false, 0, 250);
             $backgroundObservations = array_values(array_filter(
