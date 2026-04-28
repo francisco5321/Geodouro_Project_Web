@@ -10,11 +10,13 @@ class ObservationApiService extends Component
     public function listObservations(string $queryText, string $status, bool $mineOnly, int $page, int $pageSize): array
     {
         $path = '/api/observations';
+        $headers = [];
         if ($mineOnly && !Yii::$app->user->isGuest) {
             $path .= '?' . http_build_query(['userId' => Yii::$app->user->id]);
+            $headers = $this->headers();
         }
 
-        $response = Yii::$app->backendApi->getJson($path, $this->headers());
+        $response = Yii::$app->backendApi->getJson($path, $headers);
         $items = $this->extractList($response);
         $observations = array_map(
             static fn (array $item): ApiObservation => self::observationFromApi($item),
@@ -34,19 +36,21 @@ class ObservationApiService extends Component
 
     public function getObservationById(int $observationId): ?ApiObservation
     {
-        $response = Yii::$app->backendApi->getJson('/api/observations', $this->headers());
-        foreach ($this->extractList($response) as $item) {
-            if (!is_array($item) || (int) ($item['observationId'] ?? $item['observation_id'] ?? 0) !== $observationId) {
-                continue;
-            }
+        foreach ($this->candidateHeadersForDetail() as $headers) {
+            $response = Yii::$app->backendApi->getJson('/api/observations', $headers);
+            foreach ($this->extractList($response) as $item) {
+                if (!is_array($item) || (int) ($item['observationId'] ?? $item['observation_id'] ?? 0) !== $observationId) {
+                    continue;
+                }
 
-            $deviceObservationId = trim((string) ($item['deviceObservationId'] ?? $item['device_observation_id'] ?? ''));
-            if ($deviceObservationId === '') {
-                return self::observationFromApi($item);
-            }
+                $deviceObservationId = trim((string) ($item['deviceObservationId'] ?? $item['device_observation_id'] ?? ''));
+                if ($deviceObservationId === '') {
+                    return self::observationFromApi($item);
+                }
 
-            $detail = Yii::$app->backendApi->getJson('/api/observations/' . rawurlencode($deviceObservationId), $this->headers());
-            return self::observationFromApi($detail);
+                $detail = Yii::$app->backendApi->getJson('/api/observations/' . rawurlencode($deviceObservationId), $headers);
+                return self::observationFromApi($detail);
+            }
         }
 
         return null;
@@ -70,6 +74,20 @@ class ObservationApiService extends Component
     private function headers(): array
     {
         return Yii::$app->backendAuthSession->getAuthorizationHeaders();
+    }
+
+    /**
+     * @return array<int, array<string, string>>
+     */
+    private function candidateHeadersForDetail(): array
+    {
+        $candidates = [[]];
+        $authHeaders = $this->headers();
+        if ($authHeaders !== []) {
+            $candidates[] = $authHeaders;
+        }
+
+        return $candidates;
     }
 
     private function extractList(array $response): array

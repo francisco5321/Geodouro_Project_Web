@@ -171,6 +171,13 @@ $this->title = 'Observações';
                                 <i class="fas fa-tag" aria-hidden="true"></i>
                                 <?= Html::encode($subtitle) ?>
                             </p>
+                            <?php $publishedBy = $observation->publication?->user?->getFullName(); ?>
+                            <?php if ($observation->is_published && $publishedBy !== null && trim($publishedBy) !== ''): ?>
+                                <p class="timeline-item-subtitle">
+                                    <i class="fas fa-newspaper" aria-hidden="true"></i>
+                                    <?= Html::encode('Publicado por ' . $publishedBy) ?>
+                                </p>
+                            <?php endif; ?>
                         </div>
                         <span class="timeline-item-badge <?= $statusClass ?>">
                             <i class="<?= $statusIcon ?>" aria-hidden="true"></i>
