@@ -8,20 +8,20 @@ use yii\web\View;
 /** @var yii\web\View $this */
 /** @var Observation $observation */
 
-$this->title = 'Observacao #' . $observation->observation_id;
+$this->title = 'Observação #' . $observation->observation_id;
 $statusLabel = $observation->is_published
     ? 'Publicada'
     : ($observation->sync_status === Observation::SYNC_SYNCED
         ? 'Sincronizada'
-        : ($observation->sync_status === Observation::SYNC_FAILED ? 'Falha de sincronizacao' : 'Pendente'));
-$statusLabel = $observation->needsManualReview() ? 'Revisao manual' : $statusLabel;
+        : ($observation->sync_status === Observation::SYNC_FAILED ? 'Falha de sincronização' : 'Pendente'));
+$statusLabel = $observation->needsManualReview() ? 'Revisão manual' : $statusLabel;
 $imagePaths = $observation->getImageGalleryPaths();
 $canCreatePublication = Yii::$app->user->identity?->isAdmin() || (int) $observation->user_id === (int) Yii::$app->user->id;
 $canDeleteObservation = Yii::$app->user->identity?->isAdmin() ?? false;
 $canReviewObservation = $observation->needsManualReview() && (Yii::$app->user->identity?->isAdmin() ?? false);
 $coordinateLabel = $observation->hasCoordinates()
     ? number_format((float) $observation->latitude, 5) . ', ' . number_format((float) $observation->longitude, 5)
-    : 'Sem localizacao';
+    : 'Sem localização';
 
 if ($observation->hasCoordinates()) {
     $this->registerJs(<<<'JS'
@@ -29,7 +29,7 @@ const locationEl = document.getElementById('observation-location-name');
 if (locationEl) {
     const latitude = locationEl.dataset.latitude;
     const longitude = locationEl.dataset.longitude;
-    const fallback = locationEl.dataset.fallback || 'Localizacao registada';
+    const fallback = locationEl.dataset.fallback || 'Localização registada';
     const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&zoom=16&addressdetails=1&accept-language=pt`;
 
     fetch(url)
@@ -50,49 +50,49 @@ JS, View::POS_END);
 }
 ?>
 <div class="module-shell">
-    <a class="back-link" href="<?= Url::to(['observation/index']) ?>">&larr; Voltar as observacoes</a>
+    <a class="back-link" href="<?= Url::to(['observation/index']) ?>">&larr; Voltar as observações</a>
 
     <section class="species-detail-hero mb-4">
         <div class="species-detail-copy">
-            <span class="eyebrow">Observacao de campo</span>
-            <h1 class="hero-title hero-title-tight"><?= Html::encode($observation->needsManualReview() ? 'Observacao por identificar' : ($observation->getResolvedCommonName() ?: 'Observacao botanica')) ?></h1>
-            <p class="species-detail-scientific"><?= Html::encode($observation->getResolvedScientificName() ?: 'Sem classificacao enriquecida') ?></p>
+            <span class="eyebrow">Observação de campo</span>
+            <h1 class="hero-title hero-title-tight"><?= Html::encode($observation->needsManualReview() ? 'Observação por identificar' : ($observation->getResolvedCommonName() ?: 'Observação botânica')) ?></h1>
+            <p class="species-detail-scientific"><?= Html::encode($observation->getResolvedScientificName() ?: 'Sem classificação enriquecida') ?></p>
             <div class="species-meta-row">
                 <span class="species-meta-chip"><?= Html::encode($statusLabel) ?></span>
-                <span class="species-meta-chip"><?= Html::encode($observation->getResolvedFamily() ?: 'Familia desconhecida') ?></span>
+                <span class="species-meta-chip"><?= Html::encode($observation->getResolvedFamily() ?: 'Família desconhecida') ?></span>
                 <?php if ($observation->publication?->publication_id !== null): ?><span class="species-meta-chip chip-highlight">Ja publicada</span><?php endif; ?>
             </div>
             <?php if ($observation->needsManualReview()): ?>
-                <p class="hero-text">O YOLO detetou uma planta, mas o MobileNet nao conseguiu reconhecer a especie. Esta observacao esta na fila de revisao manual.</p>
+                <p class="hero-text">O YOLO detetou uma planta, mas o MobileNet nao conseguiu reconhecer a especie. Esta observação esta na fila de revisao manual.</p>
             <?php endif; ?>
-            <p class="hero-text"><?= Html::encode($observation->notes ?: 'Sem notas de campo registadas para esta observacao.') ?></p>
+            <p class="hero-text"><?= Html::encode($observation->notes ?: 'Sem notas de campo registadas para esta observação.') ?></p>
             <div class="hero-cta-row mt-4">
                 <?php if ($canReviewObservation && $observation->observation_id !== null): ?>
                     <a class="btn btn-brand" href="<?= Url::to(['observation/update', 'id' => $observation->observation_id]) ?>">
                         <i class="fas fa-user-check" aria-hidden="true"></i>
-                        Completar identificacao
+                        Completar identificação
                     </a>
                 <?php endif; ?>
                 <?php if ($canDeleteObservation && $observation->observation_id !== null): ?>
                     <?= Html::a(
-                        '<i class="fas fa-trash" aria-hidden="true"></i> Remover observacao',
+                        '<i class="fas fa-trash" aria-hidden="true"></i> Remover observação',
                         ['observation/delete', 'id' => $observation->observation_id],
                         [
                             'class' => 'btn btn-danger',
                             'data-method' => 'post',
-                            'data-confirm' => 'Tens a certeza que queres remover esta observacao? Esta acao tambem remove publicacoes e imagens associadas.',
+                            'data-confirm' => 'Tens a certeza que queres remover esta observação? Esta ação também remove publicações e imagens associadas.',
                         ]
                     ) ?>
                 <?php endif; ?>
                 <?php if ($observation->publication?->publication_id !== null): ?>
                     <a class="btn btn-outline-brand" href="<?= Url::to(['publication/view', 'id' => $observation->publication->publication_id]) ?>">
                         <i class="fas fa-newspaper" aria-hidden="true"></i>
-                        Abrir publicacao
+                        Abrir publicação
                     </a>
                 <?php elseif ($canCreatePublication && !$observation->needsManualReview() && $observation->observation_id !== null): ?>
                     <a class="btn btn-outline-brand" href="<?= Url::to(['publication/create', 'observationId' => $observation->observation_id]) ?>">
                         <i class="fas fa-plus" aria-hidden="true"></i>
-                        Criar publicacao
+                        Criar publicação
                     </a>
                 <?php endif; ?>
             </div>
@@ -115,23 +115,23 @@ JS, View::POS_END);
                     <h2>Contexto</h2>
                 </div>
                 <div class="info-list detail-info-list">
-                    <div class="detail-info-item"><span>Especie</span><strong><?= Html::encode($observation->needsManualReview() ? 'A aguardar identificacao manual' : ($observation->getResolvedCommonName() ?: 'Observacao botanica')) ?></strong></div>
+                    <div class="detail-info-item"><span>Especie</span><strong><?= Html::encode($observation->needsManualReview() ? 'A aguardar identificação manual' : ($observation->getResolvedCommonName() ?: 'Observação botânica')) ?></strong></div>
                     <?php if ($observation->needsManualReview()): ?>
-                        <div class="detail-info-item"><span>Predicao original</span><strong><?= Html::encode($observation->predicted_scientific_name ?: 'Nao conhecemos essa planta') ?></strong></div>
+                        <div class="detail-info-item"><span>Predição original</span><strong><?= Html::encode($observation->predicted_scientific_name ?: 'Nao conhecemos essa planta') ?></strong></div>
                     <?php endif; ?>
                     <div class="detail-info-item"><span>Familia</span><strong><?= Html::encode($observation->getResolvedFamily() ?: 'N/D') ?></strong></div>
                     <div class="detail-info-item">
-                        <span>Localizacao</span>
+                        <span>Localização</span>
                         <?php if ($observation->hasCoordinates()): ?>
                             <strong
                                 id="observation-location-name"
                                 data-latitude="<?= Html::encode((string) $observation->latitude) ?>"
                                 data-longitude="<?= Html::encode((string) $observation->longitude) ?>"
                                 data-fallback="<?= Html::encode($coordinateLabel) ?>"
-                            >Localizacao registada</strong>
+                            >Localização registada</strong>
                             <small><?= Html::encode($coordinateLabel) ?></small>
                         <?php else: ?>
-                            <strong>Sem localizacao</strong>
+                            <strong>Sem localização</strong>
                         <?php endif; ?>
                     </div>
                     <div class="detail-info-item"><span>Wikipedia</span><strong><?= $observation->enriched_wikipedia_url ? Html::a('Abrir referencia', $observation->enriched_wikipedia_url, ['target' => '_blank', 'rel' => 'noopener']) : 'Sem referencia' ?></strong></div>
@@ -140,11 +140,11 @@ JS, View::POS_END);
             <article class="content-card content-card-soft detail-actions-card">
                 <div class="detail-card-title">
                     <span class="detail-card-icon"><i class="fas fa-link" aria-hidden="true"></i></span>
-                    <h2>Ligacoes</h2>
+                    <h2>Ligações</h2>
                 </div>
                 <div class="module-link-list detail-action-list">
                     <?php if (!empty($observation->plant_species_id)): ?><a href="<?= Url::to(['species/view', 'id' => $observation->plant_species_id]) ?>"><i class="fas fa-leaf" aria-hidden="true"></i><span>Abrir ficha da especie</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
-                    <?php if ($observation->publication?->publication_id !== null): ?><a href="<?= Url::to(['publication/view', 'id' => $observation->publication->publication_id]) ?>"><i class="fas fa-newspaper" aria-hidden="true"></i><span>Abrir publicacao associada</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
+                    <?php if ($observation->publication?->publication_id !== null): ?><a href="<?= Url::to(['publication/view', 'id' => $observation->publication->publication_id]) ?>"><i class="fas fa-newspaper" aria-hidden="true"></i><span>Abrir publicação associada</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
                     <?php if ($observation->hasCoordinates() && $observation->observation_id !== null): ?><a href="<?= Url::to(['map/index', 'observationId' => $observation->observation_id]) ?>"><i class="fas fa-map-location-dot" aria-hidden="true"></i><span>Ver no mapa</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
                 </div>
             </article>
@@ -155,7 +155,7 @@ JS, View::POS_END);
         <div class="section-heading">
             <div>
                 <span class="eyebrow">Galeria</span>
-                <h2>Imagens da observacao</h2>
+                <h2>Imagens da observação</h2>
             </div>
             <?php if (!empty($imagePaths)): ?>
                 <span class="section-count"><?= count($imagePaths) ?> <?= count($imagePaths) === 1 ? 'imagem' : 'imagens' ?></span>
@@ -163,15 +163,15 @@ JS, View::POS_END);
         </div>
         <?php if (empty($imagePaths)): ?>
             <div class="empty-state-card">
-                <h3>Sem imagem acessivel</h3>
-                <p>Esta observacao nao tem ficheiros de imagem que a web consiga servir neste momento.</p>
+                <h3>Sem imagem acessível</h3>
+                <p>Esta observação não tem ficheiros de imagem que a web consiga servir neste momento.</p>
             </div>
         <?php else: ?>
             <div class="observation-gallery-grid">
                 <?php foreach ($imagePaths as $index => $path): ?>
                     <?php $imageUrl = Url::to(['media/upload-path', 'path' => $path]); ?>
                     <a class="observation-gallery-card" href="<?= $imageUrl ?>" target="_blank" rel="noopener">
-                        <img src="<?= $imageUrl ?>" alt="Imagem da observacao <?= (int) $observation->observation_id ?>">
+                        <img src="<?= $imageUrl ?>" alt="Imagem da observação <?= (int) $observation->observation_id ?>">
                         <span>Abrir imagem <?= $index + 1 ?></span>
                     </a>
                 <?php endforeach; ?>

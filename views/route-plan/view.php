@@ -42,7 +42,7 @@ function popup(marker) {
         <strong>${marker.title}</strong>
         <p>${marker.scientificName || marker.subtitle || ''}</p>
         <div class="map-popup-actions">
-            ${marker.detailUrl ? `<a href="${marker.detailUrl}">Abrir observacao</a>` : ''}
+            ${marker.detailUrl ? `<a href="${marker.detailUrl}">Abrir observação</a>` : ''}
             ${marker.id ? `<button type="button" class="map-popup-button js-route-observation-toggle" data-observation-id="${marker.id}">${label}</button>` : ''}
         </div>
     </div>`;
@@ -116,7 +116,7 @@ $this->registerJs($js, View::POS_END);
         <div>
             <span class="eyebrow">Percurso planeado</span>
             <h1 class="hero-title hero-title-tight"><?= Html::encode($planName) ?></h1>
-            <p class="hero-text"><?= Html::encode($planDescription ?: 'Sem descricao definida para este percurso.') ?></p>
+            <p class="hero-text"><?= Html::encode($planDescription ?: 'Sem descrição definida para este percurso.') ?></p>
         </div>
         <div class="detail-stat-grid">
             <article class="detail-stat-card"><span>Paragens</span><strong><?= count($stops) ?></strong></article>
@@ -134,8 +134,8 @@ $this->registerJs($js, View::POS_END);
     <section class="toolbar-card mb-4">
         <div class="toolbar-row">
             <div>
-                <strong>Gestao do percurso</strong>
-                <p class="table-subtext mb-0">Seleciona observacoes no mapa ou adiciona especies pela lista abaixo.</p>
+                <strong>Gestão do percurso</strong>
+                <p class="table-subtext mb-0">Seleciona observações no mapa ou adiciona espécies pela lista abaixo.</p>
             </div>
             <div class="toolbar-actions">
                 <a class="btn btn-outline-brand" href="<?= Url::to(['route-plan/update', 'id' => $planId]) ?>">Editar percurso</a>
@@ -164,12 +164,12 @@ $this->registerJs($js, View::POS_END);
                             <p><?= Html::encode($point['subtitle'] ?? 'Sem subtitulo') ?></p>
                             <div class="timeline-card-actions">
                                 <?php if (($point['observationId'] ?? null) !== null): ?>
-                                    <a href="<?= Url::to(['observation/view', 'id' => $point['observationId']]) ?>">Abrir observacao</a>
+                                    <a href="<?= Url::to(['observation/view', 'id' => $point['observationId']]) ?>">Abrir observação</a>
                                     <button type="button" class="link-button js-route-observation-toggle" data-observation-id="<?= (int) $point['observationId'] ?>">Remover do percurso</button>
                                 <?php elseif (($point['publicationId'] ?? null) !== null): ?>
-                                    <a href="<?= Url::to(['publication/view', 'id' => $point['publicationId']]) ?>">Abrir publicacao</a>
+                                    <a href="<?= Url::to(['publication/view', 'id' => $point['publicationId']]) ?>">Abrir publicação</a>
                                 <?php elseif (($point['plantSpeciesId'] ?? null) !== null): ?>
-                                    <a href="<?= Url::to(['species/view', 'id' => $point['plantSpeciesId']]) ?>">Abrir especie</a>
+                                    <a href="<?= Url::to(['species/view', 'id' => $point['plantSpeciesId']]) ?>">Abrir espécie</a>
                                 <?php endif; ?>
                                 <?php if (($point['observationId'] ?? null) === null): ?>
                                     <?= Html::beginForm(['route-plan/remove-point', 'id' => $point['routePlanPointId']], 'post') ?>
@@ -226,7 +226,7 @@ $this->registerJs($js, View::POS_END);
                                 <?= Html::hiddenInput('speciesQ', $speciesSearch) ?>
                                 <?= Html::submitButton('Adicionar planta ao percurso', ['class' => 'btn btn-brand']) ?>
                             <?= Html::endForm() ?>
-                            <a href="<?= Url::to(['species/view', 'id' => $species->plant_species_id]) ?>">Abrir especie</a>
+                            <a href="<?= Url::to(['species/view', 'id' => $species->plant_species_id]) ?>">Abrir espécie</a>
                         </div>
                     </article>
                 <?php endforeach; ?>

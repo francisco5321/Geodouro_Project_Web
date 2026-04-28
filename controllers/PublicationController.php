@@ -54,7 +54,7 @@ class PublicationController extends Controller
             $result = Yii::$app->publicationApi->listPublications($scope, $pagination->getPage(), $pagination->getPageSize());
         } catch (RuntimeException $exception) {
             Yii::error($exception->getMessage(), __METHOD__);
-            Yii::$app->session->setFlash('error', 'Nao foi possivel carregar as publicacoes a partir da API.');
+            Yii::$app->session->setFlash('error', 'Não foi possível carregar as publicações a partir da API.');
             $result = ['items' => [], 'totalCount' => 0, 'summary' => ['total' => 0]];
         }
         $pagination->totalCount = (int) $result['totalCount'];
@@ -77,7 +77,7 @@ class PublicationController extends Controller
         }
 
         if ($publication === null) {
-            throw new NotFoundHttpException('Publicacao nao encontrada.');
+            throw new NotFoundHttpException('Publicação nao encontrada.');
         }
 
         return $this->render('view', ['publication' => $publication]);
@@ -94,7 +94,7 @@ class PublicationController extends Controller
 
         $observationOptions = $this->getEditableObservationOptions($publication->observation_id ?: null);
         if (empty($observationOptions)) {
-            Yii::$app->session->setFlash('success', 'Nao ha observacoes elegiveis para criar uma nova publicacao.');
+            Yii::$app->session->setFlash('success', 'Não há observações elegíveis para criar uma nova publicação.');
             return $this->redirect(['publication/index']);
         }
 
@@ -102,13 +102,13 @@ class PublicationController extends Controller
             try {
                 $observation = Yii::$app->observationApi->getObservationById((int) $publication->observation_id);
                 if ($observation === null || $observation->device_observation_id === null) {
-                    throw new RuntimeException('Observacao nao encontrada.');
+                    throw new RuntimeException('Observação nao encontrada.');
                 }
                 $created = Yii::$app->publicationApi->publishObservation($observation->device_observation_id, $publication->title, $publication->description);
-                Yii::$app->session->setFlash('success', 'Publicacao criada com sucesso.');
+                Yii::$app->session->setFlash('success', 'Publicação criada com sucesso.');
                 return $this->redirect(['publication/view', 'id' => $created->publication_id]);
             } catch (RuntimeException $exception) {
-                $publication->addError('observation_id', 'Nao foi possivel criar a publicacao no backend: ' . $exception->getMessage());
+                $publication->addError('observation_id', 'Nao foi possivel criar a publicação no backend: ' . $exception->getMessage());
             }
         }
 
@@ -131,10 +131,10 @@ class PublicationController extends Controller
                     'description' => $publication->description,
                     'status' => $publication->status ?: Publication::STATUS_PUBLISHED,
                 ]);
-                Yii::$app->session->setFlash('success', 'Publicacao atualizada com sucesso.');
+                Yii::$app->session->setFlash('success', 'Publicação atualizada com sucesso.');
                 return $this->redirect(['publication/view', 'id' => $id]);
             } catch (RuntimeException $exception) {
-                $publication->addError('description', 'Nao foi possivel atualizar a publicacao no backend: ' . $exception->getMessage());
+                $publication->addError('description', 'Nao foi possivel atualizar a publicação no backend: ' . $exception->getMessage());
             }
         }
 
@@ -156,7 +156,7 @@ class PublicationController extends Controller
                 'description' => $publication->description,
                 'status' => Publication::STATUS_PUBLISHED,
             ]);
-            Yii::$app->session->setFlash('success', 'Publicacao publicada com sucesso.');
+            Yii::$app->session->setFlash('success', 'Publicação publicada com sucesso.');
         } catch (RuntimeException $exception) {
             Yii::$app->session->setFlash('error', 'Nao foi possivel publicar no backend: ' . $exception->getMessage());
         }
@@ -171,7 +171,7 @@ class PublicationController extends Controller
 
         try {
             Yii::$app->publicationApi->deletePublication($id);
-            Yii::$app->session->setFlash('success', 'Publicacao removida com sucesso.');
+            Yii::$app->session->setFlash('success', 'Publicação removida com sucesso.');
         } catch (RuntimeException $exception) {
             Yii::$app->session->setFlash('error', 'Nao foi possivel remover no backend: ' . $exception->getMessage());
         }
@@ -198,7 +198,7 @@ class PublicationController extends Controller
             $options[$observation->observation_id] = sprintf(
                 '#%d - %s - %s',
                 $observation->observation_id,
-                $observation->getResolvedCommonName() ?: 'Observacao botanica',
+                $observation->getResolvedCommonName() ?: 'Observação botanica',
                 Yii::$app->formatter->asDate($observation->observed_at, 'php:d/m/Y')
             );
         }
@@ -222,7 +222,7 @@ class PublicationController extends Controller
     private function ensureManageAccess(Publication $publication): void
     {
         if (!$publication->canBeManagedBy(Yii::$app->user->identity)) {
-            throw new ForbiddenHttpException('Nao tens permissao para gerir esta publicacao.');
+            throw new ForbiddenHttpException('Nao tens permissao para gerir esta publicação.');
         }
     }
 
@@ -230,7 +230,7 @@ class PublicationController extends Controller
     {
         $apiPublication = Yii::$app->publicationApi->getPublicationById($id);
         if ($apiPublication === null) {
-            throw new NotFoundHttpException('Publicacao nao encontrada.');
+            throw new NotFoundHttpException('Publicação nao encontrada.');
         }
 
         $publication = new Publication();

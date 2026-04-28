@@ -42,7 +42,7 @@ class ObservationController extends Controller
                     if (Yii::$app->user->isGuest) {
                         return Yii::$app->user->loginRequired();
                     }
-                    throw new ForbiddenHttpException('Nao tens permissao para criar observacoes manualmente.');
+                    throw new ForbiddenHttpException('Nao tens permissao para criar observações manualmente.');
                 },
             ],
             'verbs' => [
@@ -69,7 +69,7 @@ class ObservationController extends Controller
             $result = Yii::$app->observationApi->listObservations($queryText, $status, $myObservationsOnly, $pagination->getPage(), $pagination->getPageSize());
         } catch (RuntimeException $exception) {
             Yii::error($exception->getMessage(), __METHOD__);
-            Yii::$app->session->setFlash('error', 'Nao foi possivel carregar as observacoes a partir da API.');
+            Yii::$app->session->setFlash('error', 'Não foi possível carregar as observações a partir da API.');
             $result = ['items' => [], 'totalCount' => 0, 'summary' => ['total' => 0, 'published' => 0, 'pending' => 0, 'failed' => 0]];
         }
         $pagination->totalCount = (int) $result['totalCount'];
@@ -93,7 +93,7 @@ class ObservationController extends Controller
         }
 
         if ($observation === null) {
-            throw new NotFoundHttpException('Observacao nao encontrada.');
+            throw new NotFoundHttpException('Observação nao encontrada.');
         }
 
         return $this->render('view', ['observation' => $observation]);
@@ -120,10 +120,10 @@ class ObservationController extends Controller
         if ($model->load(Yii::$app->request->post())) {
             try {
                 $response = Yii::$app->observationApi->saveObservation($this->observationPayload($model));
-                Yii::$app->session->setFlash('success', 'Observacao criada com sucesso.');
+                Yii::$app->session->setFlash('success', 'Observação criada com sucesso.');
                 return $this->redirect(['observation/view', 'id' => (int) ($response['observationId'] ?? 0)]);
             } catch (RuntimeException $exception) {
-                $model->addError('notes', 'Nao foi possivel guardar a observacao no backend: ' . $exception->getMessage());
+                $model->addError('notes', 'Não foi possível guardar a observação no backend: ' . $exception->getMessage());
             }
         }
 
@@ -150,14 +150,14 @@ class ObservationController extends Controller
                         (string) $model->device_observation_id,
                         $this->manualReviewPayload($model)
                     );
-                    Yii::$app->session->setFlash('success', 'Observacao identificada manualmente com sucesso.');
+                    Yii::$app->session->setFlash('success', 'Observação identificada manualmente com sucesso.');
                 } else {
                     Yii::$app->observationApi->saveObservation($this->observationPayload($model));
-                    Yii::$app->session->setFlash('success', 'Observacao atualizada com sucesso.');
+                    Yii::$app->session->setFlash('success', 'Observação atualizada com sucesso.');
                 }
                 return $this->redirect(['observation/view', 'id' => $model->observation_id]);
             } catch (RuntimeException $exception) {
-                $model->addError('notes', 'Nao foi possivel atualizar a observacao no backend: ' . $exception->getMessage());
+                $model->addError('notes', 'Não foi possível atualizar a observação no backend: ' . $exception->getMessage());
             }
         }
 
@@ -171,14 +171,14 @@ class ObservationController extends Controller
     public function actionDelete(int $id)
     {
         if (!(Yii::$app->user->identity?->isAdmin() ?? false)) {
-            throw new ForbiddenHttpException('Nao tens permissao para remover esta observacao.');
+            throw new ForbiddenHttpException('Nao tens permissao para remover esta observação.');
         }
 
         try {
             Yii::$app->observationApi->deleteObservation($id);
-            Yii::$app->session->setFlash('success', 'Observacao removida com sucesso.');
+            Yii::$app->session->setFlash('success', 'Observação removida com sucesso.');
         } catch (RuntimeException $exception) {
-            Yii::$app->session->setFlash('error', 'Nao foi possivel remover a observacao no backend: ' . $exception->getMessage());
+            Yii::$app->session->setFlash('error', 'Nao foi possivel remover a observação no backend: ' . $exception->getMessage());
         }
 
         return $this->redirect(['observation/index']);
@@ -230,10 +230,10 @@ class ObservationController extends Controller
     {
         $identity = Yii::$app->user->identity;
         if ($identity === null) {
-            throw new ForbiddenHttpException('Precisas de iniciar sessao para editar observacoes.');
+            throw new ForbiddenHttpException('Precisas de iniciar sessao para editar observações.');
         }
         if (!$identity->isAdmin() && (int) $identity->user_id !== (int) $observation->user_id) {
-            throw new ForbiddenHttpException('Nao tens permissao para editar esta observacao.');
+            throw new ForbiddenHttpException('Nao tens permissao para editar esta observação.');
         }
     }
 
@@ -241,7 +241,7 @@ class ObservationController extends Controller
     {
         $apiObservation = Yii::$app->observationApi->getObservationById($id);
         if ($apiObservation === null) {
-            throw new NotFoundHttpException('Observacao nao encontrada.');
+            throw new NotFoundHttpException('Observação nao encontrada.');
         }
 
         $model = new Observation();
@@ -273,7 +273,7 @@ class ObservationController extends Controller
             'userId' => (int) $model->user_id,
             'plantSpeciesId' => $model->plant_species_id ? (int) $model->plant_species_id : null,
             'capturedAt' => time(),
-            'predictedScientificName' => $species['scientificName'] ?? 'Observacao botanica',
+            'predictedScientificName' => $species['scientificName'] ?? 'Observação botanica',
             'enrichedScientificName' => $species['scientificName'] ?? null,
             'enrichedCommonName' => $species['commonName'] ?? null,
             'enrichedFamily' => $species['family'] ?? null,
@@ -292,7 +292,7 @@ class ObservationController extends Controller
     {
         $species = $this->speciesData((int) $model->plant_species_id);
         if ($species === []) {
-            throw new RuntimeException('Seleciona uma especie valida para concluir a identificacao manual.');
+            throw new RuntimeException('Seleciona uma especie valida para concluir a identificação manual.');
         }
 
         return [

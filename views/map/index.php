@@ -92,7 +92,7 @@ $this->registerJs($js, View::POS_END);
                 Mapa Interativo
             </span>
             <h1 class="hero-title hero-title-tight">Observações no Território</h1>
-            <p class="hero-text">Explora todas as observacoes botanicas num mapa interativo e usa os percursos para desenhar o teu futuro roteiro de campo.</p>
+            <p class="hero-text">Explora todas as observações botânicas num mapa interativo e usa os percursos para desenhar o teu futuro roteiro de campo.</p>
         </div>
         <div class="detail-stat-grid">
             <?= StatCard::widget([

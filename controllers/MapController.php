@@ -88,8 +88,8 @@ class MapController extends Controller
         $markers = array_map(static function (ApiObservation $observation) use ($targetSpeciesIds, $targetObservationIds): array {
             return [
                 'id' => $observation->observation_id,
-                'title' => $observation->getResolvedCommonName() ?: 'Observacao botanica',
-                'scientificName' => $observation->getResolvedScientificName() ?: 'Sem classificacao enriquecida',
+                'title' => $observation->getResolvedCommonName() ?: 'Observação botanica',
+                'scientificName' => $observation->getResolvedScientificName() ?: 'Sem classificação enriquecida',
                 'status' => $observation->is_published ? 'Publicada' : $observation->sync_status,
                 'latitude' => (float) $observation->latitude,
                 'longitude' => (float) $observation->longitude,

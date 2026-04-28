@@ -75,7 +75,7 @@ $publishedCount = (int) ($stats['publishedCount'] ?? 0);
             </div>
 
             <p class="species-stage-copy">
-                <?= Html::encode($species->description ?: 'Esta ficha resume a especie, as imagens recolhidas e as observacoes recentes sincronizadas entre mobile e web.') ?>
+                <?= Html::encode($species->description ?: 'Esta ficha resume a espécie, as imagens recolhidas e as observações recentes sincronizadas entre mobile e web.') ?>
             </p>
 
             <?php if (!empty($galleryImages)): ?>
@@ -128,7 +128,7 @@ $publishedCount = (int) ($stats['publishedCount'] ?? 0);
                     <i class="fas fa-location-dot" aria-hidden="true"></i>
                 </div>
                 <div class="species-location-copy">
-                    <span class="species-kicker">Localizacao</span>
+                    <span class="species-kicker">Localização</span>
                     <p><?= Html::encode($locationSummary) ?></p>
                 </div>
             </article>
@@ -138,7 +138,7 @@ $publishedCount = (int) ($stats['publishedCount'] ?? 0);
     <section class="species-section" id="species-recent-observations">
         <div class="species-section-heading">
             <div>
-                <span class="species-kicker">Observacoes Recentes</span>
+                <span class="species-kicker">Observações Recentes</span>
                 <h2>Registos mais recentes desta especie</h2>
             </div>
             <span class="species-section-count"><?= $observationCount ?> total</span>
@@ -146,7 +146,7 @@ $publishedCount = (int) ($stats['publishedCount'] ?? 0);
 
         <?php if (empty($observations)): ?>
             <div class="empty-state-card">
-                <h3>Sem observacoes associadas</h3>
+                <h3>Sem observações associadas</h3>
                 <p>Quando a app mobile sincronizar registos desta especie, eles vao aparecer aqui automaticamente.</p>
             </div>
         <?php else: ?>
@@ -155,7 +155,7 @@ $publishedCount = (int) ($stats['publishedCount'] ?? 0);
                     <?php
                     $statusLabel = $observation->is_published
                         ? 'Publicada'
-                        : ($observation->sync_status === Observation::SYNC_SYNCED ? 'Sincronizada' : ($observation->sync_status === Observation::SYNC_FAILED ? 'Falha de sincronizacao' : 'Pendente'));
+                        : ($observation->sync_status === Observation::SYNC_SYNCED ? 'Sincronizada' : ($observation->sync_status === Observation::SYNC_FAILED ? 'Falha de sincronização' : 'Pendente'));
                     $confidence = $observation->confidence !== null ? (int) round($observation->confidence * 100) : null;
                     $thumbPath = $observation->getImageGalleryPaths();
                     $thumbUrl = !empty($thumbPath)
@@ -172,7 +172,7 @@ $publishedCount = (int) ($stats['publishedCount'] ?? 0);
                             <?php if ($thumbUrl !== null): ?>
                                 <img
                                     src="<?= $thumbUrl ?>"
-                                    alt="Imagem da observacao <?= (int) $observation->observation_id ?>"
+                                    alt="Imagem da observação <?= (int) $observation->observation_id ?>"
                                     loading="lazy"
                                 >
                             <?php else: ?>
@@ -184,7 +184,7 @@ $publishedCount = (int) ($stats['publishedCount'] ?? 0);
 
                         <div class="species-observation-body">
                             <strong class="species-observation-title">
-                                <?= Html::encode($observation->getResolvedCommonName() ?: 'Observacao botanica') ?>
+                                <?= Html::encode($observation->getResolvedCommonName() ?: 'Observação botânica') ?>
                             </strong>
                             <p class="species-observation-date">
                                 <?= Html::encode(Yii::$app->formatter->asDatetime($observation->observed_at, 'php:d/m/Y · H:i')) ?>

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use app\components\StatCard;
 use yii\helpers\Url;
@@ -20,7 +20,7 @@ $this->title = 'Dashboard';
                 Dashboard
             </span>
             <h1 class="hero-title hero-title-tight">Bem-vindo ao GeoFlora</h1>
-            <p class="hero-text">Portal de administracao, planeamento e monitorizacao botanica</p>
+            <p class="hero-text">Portal de administração, planeamento e monitorização botânica</p>
 
             <?php if (Yii::$app->user->isGuest): ?>
                 <div class="hero-cta-row mt-4">
@@ -42,17 +42,17 @@ $this->title = 'Dashboard';
                 'icon' => 'fas fa-leaf',
             ]) ?>
             <?= StatCard::widget([
-                'label' => 'Observacoes',
+                'label' => 'Observações',
                 'value' => (int) $observationCount,
                 'icon' => 'fas fa-binoculars',
             ]) ?>
             <?= StatCard::widget([
-                'label' => 'Revisao Manual',
+                'label' => 'Revisão Manual',
                 'value' => (int) $manualReviewCount,
                 'icon' => 'fas fa-user-check',
             ]) ?>
             <?= StatCard::widget([
-                'label' => 'Publicacoes',
+                'label' => 'Publicações',
                 'value' => (int) $publicationCount,
                 'icon' => 'fas fa-newspaper',
             ]) ?>
@@ -75,9 +75,9 @@ $this->title = 'Dashboard';
         <div class="section-header mb-4">
             <h2 class="section-title">
                 <i class="fas fa-cube" aria-hidden="true"></i>
-                Modulos Disponiveis
+                Módulos Disponíveis
             </h2>
-            <p class="section-description">Acede aos diferentes modulos da plataforma</p>
+            <p class="section-description">Acede aos diferentes módulos da plataforma</p>
         </div>
 
         <div class="modules-grid">
@@ -87,10 +87,10 @@ $this->title = 'Dashboard';
                 </div>
                 <div class="module-content">
                     <h3>Especies</h3>
-                    <p>Pesquisa por especie, familia e genero com hierarquia de leitura.</p>
+                    <p>Pesquisa por espécie, família e género com hierarquia de leitura.</p>
                 </div>
                 <a href="<?= Url::to(['species/index']) ?>" class="module-link">
-                    Explorar catalogo
+                    Explorar catálogo
                     <i class="fas fa-arrow-right" aria-hidden="true"></i>
                 </a>
             </div>
@@ -100,11 +100,11 @@ $this->title = 'Dashboard';
                     <i class="fas fa-binoculars" aria-hidden="true"></i>
                 </div>
                 <div class="module-content">
-                    <h3>Observacoes</h3>
-                    <p>Segue estados de sincronizacao, confianca, autoria e publicacoes.</p>
+                    <h3>Observações</h3>
+                    <p>Segue estados de sincronização, confiança, autoria e publicações.</p>
                 </div>
                 <a href="<?= Url::to(['observation/index']) ?>" class="module-link">
-                    Ver observacoes
+                    Ver observações
                     <i class="fas fa-arrow-right" aria-hidden="true"></i>
                 </a>
             </div>
@@ -115,11 +115,11 @@ $this->title = 'Dashboard';
                         <i class="fas fa-user-check" aria-hidden="true"></i>
                     </div>
                     <div class="module-content">
-                        <h3>Revisao manual</h3>
-                        <p>Completa as observacoes onde a planta foi detetada mas nao reconhecida automaticamente.</p>
+                        <h3>Revisão manual</h3>
+                        <p>Completa as observações onde a planta foi detetada mas não reconhecida automaticamente.</p>
                     </div>
                     <a href="<?= Url::to(['observation/index', 'status' => 'MANUAL_REVIEW']) ?>" class="module-link">
-                        Abrir fila de revisao
+                        Abrir fila de revisão
                         <i class="fas fa-arrow-right" aria-hidden="true"></i>
                     </a>
                 </div>
@@ -130,11 +130,11 @@ $this->title = 'Dashboard';
                     <i class="fas fa-newspaper" aria-hidden="true"></i>
                 </div>
                 <div class="module-content">
-                    <h3>Publicacoes</h3>
-                    <p>Cria, edita e publica conteudo editorial a partir das observacoes.</p>
+                    <h3>Publicações</h3>
+                    <p>Cria, edita e publica conteudo editorial a partir das observações.</p>
                 </div>
                 <a href="<?= Url::to(['publication/index']) ?>" class="module-link">
-                    Ver publicacoes
+                    Ver publicações
                     <i class="fas fa-arrow-right" aria-hidden="true"></i>
                 </a>
             </div>
@@ -145,7 +145,7 @@ $this->title = 'Dashboard';
                 </div>
                 <div class="module-content">
                     <h3>Mapa Interativo</h3>
-                    <p>Visualiza todas as observacoes e especies num mapa interativo.</p>
+                    <p>Visualiza todas as observações e espécies num mapa interativo.</p>
                 </div>
                 <a href="<?= Url::to(['map/index']) ?>" class="module-link">
                     Abrir mapa

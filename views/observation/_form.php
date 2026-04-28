@@ -10,7 +10,7 @@ use yii\bootstrap5\Html;
 /** @var array $speciesOptions */
 
 $isNewRecord = $model->isNewRecord;
-$submitLabel = $isNewRecord ? 'Criar observacao' : 'Guardar alteracoes';
+$submitLabel = $isNewRecord ? 'Criar Observação' : 'Guardar alterações';
 $cancelUrl = $isNewRecord ? ['map/index'] : ['observation/view', 'id' => $model->observation_id];
 ?>
 <div class="content-card publication-form-card">
@@ -19,7 +19,7 @@ $cancelUrl = $isNewRecord ? ['map/index'] : ['observation/view', 'id' => $model-
     <fieldset class="form-section mb-4">
         <legend class="form-section-title">
             <i class="fas fa-info-circle" aria-hidden="true"></i>
-            Informacoes Basicas
+            Informações Básicas
         </legend>
 
         <div class="auth-grid-two">
@@ -35,14 +35,14 @@ $cancelUrl = $isNewRecord ? ['map/index'] : ['observation/view', 'id' => $model-
             <?= $form->field($model, 'observed_at')
                 ->label($model->getAttributeLabel('observed_at') . ' <span class="is-required">*</span>', ['encode' => false])
                 ->input('datetime-local', ['class' => 'form-control']) ?>
-            <small class="form-text">Data e hora em que a observacao foi feita</small>
+            <small class="form-text">Data e hora em que a observação foi feita</small>
         </div>
     </fieldset>
 
     <fieldset class="form-section mb-4">
         <legend class="form-section-title">
             <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
-            Localizacao Geografica
+            Localização Geografica
         </legend>
 
         <div class="auth-grid-two mb-3">
@@ -59,18 +59,18 @@ $cancelUrl = $isNewRecord ? ['map/index'] : ['observation/view', 'id' => $model-
     <fieldset class="form-section mb-4">
         <legend class="form-section-title">
             <i class="fas fa-align-left" aria-hidden="true"></i>
-            Descricao
+            Descrição
         </legend>
 
         <div>
             <?= $form->field($model, 'notes')
-                ->label('Descricao')
+                ->label('Descrição')
                 ->textarea([
                     'rows' => 5,
                     'class' => 'form-control observation-description-textarea',
-                    'placeholder' => 'Descreva a observacao, contexto e detalhes relevantes',
+                    'placeholder' => 'Descreva a observação, contexto e detalhes relevantes',
                 ])
-                ->hint('Descricao e contexto da observacao') ?>
+                ->hint('Descrição e contexto da observação') ?>
         </div>
     </fieldset>
 

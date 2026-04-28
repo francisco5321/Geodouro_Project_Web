@@ -39,7 +39,7 @@ class MediaController extends Controller
         }
 
         if ($observation === null) {
-            throw new NotFoundHttpException('Observacao nao encontrada.');
+            throw new NotFoundHttpException('Observação nao encontrada.');
         }
 
         return $this->sendRelativeUpload($observation->getImageGalleryPaths()[$index] ?? null);
@@ -55,7 +55,7 @@ class MediaController extends Controller
         }
 
         if ($publication === null) {
-            throw new NotFoundHttpException('Publicacao nao encontrada.');
+            throw new NotFoundHttpException('Publicação nao encontrada.');
         }
 
         return $this->sendRelativeUpload($publication->getImageGalleryPaths()[$index] ?? null);

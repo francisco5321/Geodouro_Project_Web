@@ -80,7 +80,7 @@ $this->title = 'Utilizadores';
                         <th>Email</th>
                         <th>Papel</th>
                         <th>Criado</th>
-                        <th>Acoes</th>
+                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
