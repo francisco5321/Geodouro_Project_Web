@@ -57,6 +57,11 @@ class ObservationApiService extends Component
         return Yii::$app->backendApi->postJson('/api/observations', $payload, $this->headers());
     }
 
+    public function reviewObservation(string $deviceObservationId, array $payload): array
+    {
+        return Yii::$app->backendApi->patchJson('/api/observations/' . rawurlencode($deviceObservationId), $payload, $this->headers());
+    }
+
     public function deleteObservation(int $observationId): void
     {
         Yii::$app->backendApi->deleteJson('/api/observations/' . $observationId, $this->headers());
@@ -120,10 +125,13 @@ class ObservationApiService extends Component
         $queryText = mb_strtolower(trim($queryText));
 
         return array_values(array_filter($observations, static function (ApiObservation $observation) use ($queryText, $status): bool {
+            if ($status === 'MANUAL_REVIEW' && !$observation->needsManualReview()) {
+                return false;
+            }
             if ($status === 'PUBLISHED' && !$observation->is_published) {
                 return false;
             }
-            if ($status !== 'all' && $status !== 'PUBLISHED' && $observation->sync_status !== $status) {
+            if ($status !== 'all' && $status !== 'PUBLISHED' && $status !== 'MANUAL_REVIEW' && $observation->sync_status !== $status) {
                 return false;
             }
             if ($queryText === '') {
@@ -146,10 +154,13 @@ class ObservationApiService extends Component
      */
     private function buildSummary(array $observations): array
     {
-        $summary = ['total' => count($observations), 'published' => 0, 'pending' => 0, 'failed' => 0];
+        $summary = ['total' => count($observations), 'published' => 0, 'pending' => 0, 'failed' => 0, 'manualReview' => 0];
         foreach ($observations as $observation) {
             if ($observation->is_published) {
                 $summary['published']++;
+            }
+            if ($observation->needsManualReview()) {
+                $summary['manualReview']++;
             }
             if ($observation->sync_status === 'PENDING') {
                 $summary['pending']++;

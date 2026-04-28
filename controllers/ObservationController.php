@@ -59,7 +59,7 @@ class ObservationController extends Controller
         $status = trim((string) Yii::$app->request->get('status', 'all'));
         $queryText = trim((string) Yii::$app->request->get('q', ''));
         $myObservationsOnly = (bool) Yii::$app->request->get('my', false);
-        $allowedStatuses = ['all', Observation::SYNC_PENDING, Observation::SYNC_SYNCED, Observation::SYNC_FAILED, 'PUBLISHED'];
+        $allowedStatuses = ['all', Observation::SYNC_PENDING, Observation::SYNC_SYNCED, Observation::SYNC_FAILED, 'PUBLISHED', Observation::STATUS_MANUAL_REVIEW];
         if (!in_array($status, $allowedStatuses, true)) {
             $status = 'all';
         }
@@ -145,8 +145,16 @@ class ObservationController extends Controller
 
         if ($model->load(Yii::$app->request->post())) {
             try {
-                Yii::$app->observationApi->saveObservation($this->observationPayload($model));
-                Yii::$app->session->setFlash('success', 'Observacao atualizada com sucesso.');
+                if ($model->needsManualReview() && (Yii::$app->user->identity?->isAdmin() ?? false)) {
+                    Yii::$app->observationApi->reviewObservation(
+                        (string) $model->device_observation_id,
+                        $this->manualReviewPayload($model)
+                    );
+                    Yii::$app->session->setFlash('success', 'Observacao identificada manualmente com sucesso.');
+                } else {
+                    Yii::$app->observationApi->saveObservation($this->observationPayload($model));
+                    Yii::$app->session->setFlash('success', 'Observacao atualizada com sucesso.');
+                }
                 return $this->redirect(['observation/view', 'id' => $model->observation_id]);
             } catch (RuntimeException $exception) {
                 $model->addError('notes', 'Nao foi possivel atualizar a observacao no backend: ' . $exception->getMessage());
@@ -248,6 +256,8 @@ class ObservationController extends Controller
         $model->confidence = $apiObservation->confidence;
         $model->sync_status = $apiObservation->sync_status;
         $model->is_published = $apiObservation->is_published;
+        $model->predicted_scientific_name = $apiObservation->predicted_scientific_name;
+        $model->requires_manual_identification = $apiObservation->requires_manual_identification;
         $model->setIsNewRecord(false);
         return $model;
     }
@@ -273,6 +283,22 @@ class ObservationController extends Controller
             'observedAt' => date('c', $timestamp ?: time()),
             'isPublished' => (bool) $model->is_published,
             'syncStatus' => $model->sync_status ?: Observation::SYNC_PENDING,
+            'requiresManualIdentification' => $model->needsManualReview(),
+            'notes' => trim((string) $model->notes) !== '' ? $model->notes : null,
+        ];
+    }
+
+    private function manualReviewPayload(Observation $model): array
+    {
+        $species = $this->speciesData((int) $model->plant_species_id);
+        if ($species === []) {
+            throw new RuntimeException('Seleciona uma especie valida para concluir a identificacao manual.');
+        }
+
+        return [
+            'scientificName' => $species['scientificName'] ?? null,
+            'commonName' => $species['commonName'] ?? null,
+            'family' => $species['family'] ?? null,
             'notes' => trim((string) $model->notes) !== '' ? $model->notes : null,
         ];
     }

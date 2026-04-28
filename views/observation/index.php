@@ -1,8 +1,7 @@
 <?php
 
-use app\components\StatCard;
 use app\components\EmptyState;
-use app\components\TimelineCard;
+use app\components\StatCard;
 use app\models\Observation;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -15,18 +14,17 @@ use yii\widgets\LinkPager;
 /** @var string $status */
 /** @var array $summary */
 
-$this->title = 'Observações';
+$this->title = 'Observacoes';
 ?>
 <div class="module-shell">
-    <!-- Hero Section -->
     <section class="species-hero observation-hero mb-4">
         <div>
             <span class="eyebrow">
                 <i class="fas fa-binoculars" aria-hidden="true"></i>
-                Módulo de observações
+                Modulo de observacoes
             </span>
             <h1 class="hero-title hero-title-tight">Registos captados e sincronizados a partir da app mobile</h1>
-            <p class="hero-text">Visualiza, filtra e gerencia todas as observações botânicas recolhidas pelo projeto GeoFlora.</p>
+            <p class="hero-text">Visualiza, filtra e gere todas as observacoes botanicas recolhidas pelo projeto GeoFlora.</p>
         </div>
         <div class="detail-stat-grid">
             <?= StatCard::widget([
@@ -39,15 +37,19 @@ $this->title = 'Observações';
                 'value' => (int) $summary['published'],
                 'icon' => 'fas fa-check-circle',
             ]) ?>
+            <?= StatCard::widget([
+                'label' => 'Revisao manual',
+                'value' => (int) ($summary['manualReview'] ?? 0),
+                'icon' => 'fas fa-user-check',
+            ]) ?>
         </div>
     </section>
 
-    <!-- Toolbar com Filtros -->
     <section class="catalog-toolbar mb-4">
         <div class="toolbar-header">
             <h2 class="section-title">
                 <i class="fas fa-filter" aria-hidden="true"></i>
-                Pesquisar e Filtrar
+                Pesquisar e filtrar
             </h2>
         </div>
         <form class="catalog-search mb-3" method="get" action="<?= Url::to(['observation/index']) ?>" role="search">
@@ -59,8 +61,8 @@ $this->title = 'Observações';
                     type="search"
                     name="q"
                     value="<?= Html::encode($queryText) ?>"
-                    placeholder="Pesquisar por espécie"
-                    aria-label="Pesquisar observações por espécie"
+                    placeholder="Pesquisar por especie"
+                    aria-label="Pesquisar observacoes por especie"
                 >
             </label>
             <?php if ($status !== 'all'): ?>
@@ -79,6 +81,7 @@ $this->title = 'Observações';
                 'all' => ['label' => 'Todas', 'icon' => 'fas fa-list'],
                 Observation::SYNC_SYNCED => ['label' => 'Sincronizadas', 'icon' => 'fas fa-sync'],
                 'PUBLISHED' => ['label' => 'Publicadas', 'icon' => 'fas fa-star'],
+                Observation::STATUS_MANUAL_REVIEW => ['label' => 'Revisao manual', 'icon' => 'fas fa-user-check'],
             ] as $value => $config): ?>
                 <a class="btn <?= $status === $value ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'status' => $value === 'all' ? null : $value, 'q' => $queryText ?: null, 'my' => Yii::$app->request->get('my') ? 1 : null]) ?>">
                     <i class="<?= Html::encode($config['icon']) ?>" aria-hidden="true"></i>
@@ -88,7 +91,6 @@ $this->title = 'Observações';
         </div>
     </section>
 
-    <!-- Secção de Admin: Criar Observação Manual -->
     <?php if (Yii::$app->user->identity?->isAdmin()): ?>
         <section class="toolbar-card admin-action-card mb-4">
             <div class="toolbar-row">
@@ -97,50 +99,56 @@ $this->title = 'Observações';
                         <i class="fas fa-plus-circle" aria-hidden="true"></i>
                     </div>
                     <div>
-                        <strong>Criar Observação Manual</strong>
-                        <p class="table-subtext mb-0">Como administrador, podes criar uma observação manual a partir do mapa ou abrir diretamente o formulário.</p>
+                        <strong>Criar observacao manual</strong>
+                        <p class="table-subtext mb-0">Tambem podes abrir a fila das observacoes onde o MobileNet nao reconheceu a planta para completar a identificacao manualmente.</p>
                     </div>
                 </div>
                 <div class="toolbar-actions">
+                    <a class="btn btn-outline-brand" href="<?= Url::to(['observation/index', 'status' => Observation::STATUS_MANUAL_REVIEW]) ?>" title="Abrir fila de revisao manual">
+                        <i class="fas fa-user-check" aria-hidden="true"></i>
+                        Fila de revisao
+                    </a>
                     <a class="btn btn-outline-brand" href="<?= Url::to(['map/index']) ?>" title="Abrir mapa interativo">
                         <i class="fas fa-map" aria-hidden="true"></i>
                         Abrir mapa
                     </a>
-                    <a class="btn btn-brand" href="<?= Url::to(['observation/create']) ?>" title="Criar nova observação">
+                    <a class="btn btn-brand" href="<?= Url::to(['observation/create']) ?>" title="Criar nova observacao">
                         <i class="fas fa-plus" aria-hidden="true"></i>
-                        Nova observação
+                        Nova observacao
                     </a>
                 </div>
             </div>
         </section>
     <?php endif; ?>
 
-    <!-- Lista de Observações -->
     <?php if (empty($observations)): ?>
         <?= EmptyState::widget([
             'icon' => 'fas fa-inbox',
-            'title' => 'Nenhuma observação encontrada',
-            'message' => 'Nenhuma observação corresponde aos filtros selecionados. Tenta mudar os filtros ou cria uma nova observação.',
+            'title' => 'Nenhuma observacao encontrada',
+            'message' => 'Nenhuma observacao corresponde aos filtros selecionados.',
             'actions' => [
-                ['label' => 'Volta aos filtros', 'url' => ['observation/index'], 'icon' => 'fas fa-redo', 'class' => 'btn-outline-brand'],
-                ['label' => 'Nova observação', 'url' => ['observation/create'], 'icon' => 'fas fa-plus', 'class' => 'btn-brand'],
+                ['label' => 'Voltar', 'url' => ['observation/index'], 'icon' => 'fas fa-redo', 'class' => 'btn-outline-brand'],
+                ['label' => 'Nova observacao', 'url' => ['observation/create'], 'icon' => 'fas fa-plus', 'class' => 'btn-brand'],
             ],
         ]) ?>
     <?php else: ?>
-        <section class="observations-list" role="region" aria-label="Lista de observações">
+        <section class="observations-list" role="region" aria-label="Lista de observacoes">
             <?php foreach ($observations as $observation): ?>
-                <?php 
-                // Determinar status e classe CSS
+                <?php
                 if ($observation->is_published) {
                     $statusLabel = 'Publicada';
                     $statusClass = 'badge-success';
                     $statusIcon = 'fas fa-check-circle';
+                } elseif ($observation->needsManualReview()) {
+                    $statusLabel = 'Revisao manual';
+                    $statusClass = 'badge-warning';
+                    $statusIcon = 'fas fa-user-check';
                 } elseif ($observation->sync_status === Observation::SYNC_SYNCED) {
                     $statusLabel = 'Sincronizada';
                     $statusClass = '';
                     $statusIcon = 'fas fa-sync';
                 } elseif ($observation->sync_status === Observation::SYNC_FAILED) {
-                    $statusLabel = 'Falha de sincronização';
+                    $statusLabel = 'Falha de sincronizacao';
                     $statusClass = 'badge-danger';
                     $statusIcon = 'fas fa-exclamation-triangle';
                 } else {
@@ -148,23 +156,26 @@ $this->title = 'Observações';
                     $statusClass = 'badge-warning';
                     $statusIcon = 'fas fa-hourglass-half';
                 }
-                
-                // Calcular confiança com classe visual
+
                 $confidence = $observation->confidence !== null ? (int) round($observation->confidence * 100) : null;
-                $confidenceClass = $confidence !== null ? 
-                    ($confidence >= 80 ? 'confidence-high' : ($confidence >= 50 ? 'confidence-medium' : 'confidence-low')) : 
-                    'confidence-unknown';
+                $confidenceClass = $confidence !== null
+                    ? ($confidence >= 80 ? 'confidence-high' : ($confidence >= 50 ? 'confidence-medium' : 'confidence-low'))
+                    : 'confidence-unknown';
+                $title = $observation->needsManualReview()
+                    ? 'Observacao por identificar'
+                    : ($observation->getResolvedCommonName() ?: 'Observacao botanica');
+                $subtitle = $observation->getResolvedScientificName() ?: 'Sem classificacao';
                 ?>
                 <article class="timeline-item observation-item">
                     <div class="timeline-item-header">
                         <div>
                             <h3 class="timeline-item-title">
                                 <i class="fas fa-leaf" aria-hidden="true"></i>
-                                <?= Html::encode($observation->getResolvedCommonName() ?: 'Observação botânica') ?>
+                                <?= Html::encode($title) ?>
                             </h3>
                             <p class="timeline-item-subtitle" lang="la">
                                 <i class="fas fa-tag" aria-hidden="true"></i>
-                                <?= Html::encode($observation->getResolvedScientificName() ?: 'Sem classificação') ?>
+                                <?= Html::encode($subtitle) ?>
                             </p>
                         </div>
                         <span class="timeline-item-badge <?= $statusClass ?>">
@@ -186,7 +197,7 @@ $this->title = 'Observações';
                         <div class="timeline-item-meta-item">
                             <span class="timeline-item-meta-label">
                                 <i class="fas fa-chart-pie" aria-hidden="true"></i>
-                                Confiança
+                                Confianca
                             </span>
                             <strong class="timeline-item-meta-value <?= $confidenceClass ?>">
                                 <?= $confidence !== null ? $confidence . '%' : 'N/D' ?>
@@ -195,46 +206,29 @@ $this->title = 'Observações';
                         <div class="timeline-item-meta-item">
                             <span class="timeline-item-meta-label">
                                 <i class="fas fa-dna" aria-hidden="true"></i>
-                                Espécie
+                                Especie
                             </span>
-                            <strong class="timeline-item-meta-value" title="<?= Html::encode($observation->getResolvedScientificName() ?? 'Não associada') ?>">
-                                <?= Html::encode($observation->getResolvedCommonName() ?? $observation->getResolvedScientificName() ?? 'Não associada') ?>
+                            <strong class="timeline-item-meta-value" title="<?= Html::encode($subtitle) ?>">
+                                <?= Html::encode($observation->needsManualReview() ? 'A aguardar identificacao manual' : ($observation->getResolvedCommonName() ?? $subtitle ?? 'Nao associada')) ?>
                             </strong>
                         </div>
-                        <?php if ($observation->publication !== null): ?>
-                            <div class="timeline-item-meta-item">
-                                <span class="timeline-item-meta-label">
-                                    <i class="fas fa-newspaper" aria-hidden="true"></i>
-                                    Publicado por
-                                </span>
-                                <strong class="timeline-item-meta-value">
-                                    <?= Html::encode($observation->publication->user?->getFullName() ?? 'Sistema') ?>
-                                </strong>
-                            </div>
-                        <?php endif; ?>
                     </div>
 
                     <div class="timeline-item-actions">
                         <?php if (!empty($observation->plant_species_id)): ?>
-                            <a href="<?= Url::to(['species/view', 'id' => $observation->plant_species_id]) ?>" 
-                               class="timeline-item-action-link" 
-                               title="Ver detalhes da espécie">
+                            <a href="<?= Url::to(['species/view', 'id' => $observation->plant_species_id]) ?>" class="timeline-item-action-link" title="Ver detalhes da especie">
                                 <i class="fas fa-leaf" aria-hidden="true"></i>
-                                Ver espécie
+                                Ver especie
                             </a>
                         <?php endif; ?>
-                        <a href="<?= Url::to(['observation/view', 'id' => $observation->observation_id]) ?>" 
-                           class="timeline-item-action-link" 
-                           title="Ver detalhes da observação">
+                        <a href="<?= Url::to(['observation/view', 'id' => $observation->observation_id]) ?>" class="timeline-item-action-link" title="Ver detalhes da observacao">
                             <i class="fas fa-eye" aria-hidden="true"></i>
-                            Ver observação
+                            Ver observacao
                         </a>
                         <?php if ($observation->observation_id !== null && (Yii::$app->user->identity?->isAdmin() || Yii::$app->user->id === $observation->user_id)): ?>
-                            <a href="<?= Url::to(['observation/update', 'id' => $observation->observation_id]) ?>" 
-                               class="timeline-item-action-link" 
-                               title="Editar observação">
-                                <i class="fas fa-edit" aria-hidden="true"></i>
-                                Editar
+                            <a href="<?= Url::to(['observation/update', 'id' => $observation->observation_id]) ?>" class="timeline-item-action-link" title="<?= $observation->needsManualReview() ? 'Completar identificacao manual' : 'Editar observacao' ?>">
+                                <i class="<?= $observation->needsManualReview() ? 'fas fa-user-check' : 'fas fa-edit' ?>" aria-hidden="true"></i>
+                                <?= $observation->needsManualReview() ? 'Identificar' : 'Editar' ?>
                             </a>
                         <?php endif; ?>
                     </div>
@@ -242,7 +236,6 @@ $this->title = 'Observações';
             <?php endforeach; ?>
         </section>
 
-        <!-- Paginação -->
         <div class="catalog-pagination">
             <?= LinkPager::widget([
                 'pagination' => $pagination,
@@ -263,7 +256,6 @@ $this->title = 'Observações';
 </div>
 
 <style>
-/* Estilos específicos para observações */
 .observations-list {
     display: grid;
     gap: 1rem;
@@ -317,90 +309,5 @@ $this->title = 'Observações';
     color: var(--gf-text);
     font-weight: 600;
     font-size: 0.95rem;
-}
-
-/* Confiança visual */
-.confidence-high {
-    color: #28a745;
-    font-weight: 700;
-}
-
-.confidence-medium {
-    color: #ffc107;
-    font-weight: 700;
-}
-
-.confidence-low {
-    color: #dc3545;
-    font-weight: 700;
-}
-
-.confidence-unknown {
-    color: var(--gf-muted);
-}
-
-/* Badges de status melhorados */
-.timeline-item-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.4rem 0.8rem;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    background: var(--gf-surface-soft);
-    color: var(--gf-muted);
-    white-space: nowrap;
-}
-
-.timeline-item-badge.badge-success {
-    background: #d4edda;
-    color: #155724;
-}
-
-.timeline-item-badge.badge-warning {
-    background: #fff3cd;
-    color: #856404;
-}
-
-.timeline-item-badge.badge-danger {
-    background: #f8d7da;
-    color: #721c24;
-}
-
-/* Responsive */
-@media (max-width: 767.98px) {
-    .admin-action-content {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .toolbar-row {
-        flex-direction: column !important;
-        align-items: stretch !important;
-    }
-
-    .toolbar-actions {
-        flex-direction: column !important;
-        width: 100%;
-    }
-
-    .toolbar-actions .btn {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .observation-item .timeline-item-header {
-        flex-direction: column !important;
-        align-items: flex-start !important;
-    }
-
-    .timeline-item-badge {
-        align-self: flex-start;
-    }
-
-    .timeline-item-meta {
-        grid-template-columns: 1fr !important;
-    }
 }
 </style>

@@ -7,6 +7,7 @@ class ApiObservation extends ApiDataObject
     public ?int $observation_id = null;
     public ?string $device_observation_id = null;
     public ?int $plant_species_id = null;
+    public bool $requires_manual_identification = false;
     public ?string $image_uri = null;
     public ?string $predicted_scientific_name = null;
     public ?float $confidence = null;
@@ -36,6 +37,7 @@ class ApiObservation extends ApiDataObject
             'device_observation_id' => self::stringOrNull(self::first($data, ['device_observation_id', 'deviceObservationId'])),
             'user_id' => self::first($data, ['user_id', 'userId']) !== null ? (int) self::first($data, ['user_id', 'userId']) : null,
             'plant_species_id' => self::first($data, ['plant_species_id', 'plantSpeciesId', 'speciesId']) !== null ? (int) self::first($data, ['plant_species_id', 'plantSpeciesId', 'speciesId']) : null,
+            'requires_manual_identification' => (bool) self::first($data, ['requires_manual_identification', 'requiresManualIdentification'], false),
             'image_uri' => self::stringOrNull(self::first($data, ['image_uri', 'imageUri', 'image'])),
             'predicted_scientific_name' => self::stringOrNull(self::first($data, ['predicted_scientific_name', 'predictedScientificName'])),
             'confidence' => self::first($data, ['confidence']) !== null ? (float) self::first($data, ['confidence']) : null,
@@ -73,6 +75,11 @@ class ApiObservation extends ApiDataObject
     public function hasCoordinates(): bool
     {
         return $this->latitude !== null && $this->longitude !== null;
+    }
+
+    public function needsManualReview(): bool
+    {
+        return $this->requires_manual_identification;
     }
 
     public function getImageGalleryPaths(): array

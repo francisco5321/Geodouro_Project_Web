@@ -42,6 +42,9 @@ class Observation extends ActiveRecord
     public const SYNC_PENDING = 'PENDING';
     public const SYNC_SYNCED = 'SYNCED';
     public const SYNC_FAILED = 'FAILED';
+    public const STATUS_MANUAL_REVIEW = 'MANUAL_REVIEW';
+
+    public bool $requires_manual_identification = false;
 
     public static function tableName(): string
     {
@@ -160,6 +163,11 @@ class Observation extends ActiveRecord
     public function hasCoordinates(): bool
     {
         return $this->latitude !== null && $this->longitude !== null;
+    }
+
+    public function needsManualReview(): bool
+    {
+        return $this->requires_manual_identification;
     }
 
     public function getImageGalleryPaths(): array

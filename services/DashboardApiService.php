@@ -14,6 +14,7 @@ class DashboardApiService extends Component
         return [
             'speciesCount' => (int) ($response['speciesCount'] ?? $response['species_count'] ?? 0),
             'observationCount' => (int) ($response['observationCount'] ?? $response['observation_count'] ?? 0),
+            'manualReviewCount' => (int) ($response['manualReviewCount'] ?? $response['manual_review_count'] ?? 0),
             'publicationCount' => (int) ($response['publicationCount'] ?? $response['publication_count'] ?? 0),
             'userCount' => (int) ($response['userCount'] ?? $response['user_count'] ?? 0),
         ];

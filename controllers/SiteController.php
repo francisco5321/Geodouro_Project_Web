@@ -56,6 +56,7 @@ class SiteController extends Controller
             $counts = [
                 'speciesCount' => 0,
                 'observationCount' => 0,
+                'manualReviewCount' => 0,
                 'publicationCount' => 0,
                 'userCount' => 0,
             ];
@@ -64,6 +65,7 @@ class SiteController extends Controller
         return $this->render('index', [
             'speciesCount' => $counts['speciesCount'],
             'observationCount' => $counts['observationCount'],
+            'manualReviewCount' => $counts['manualReviewCount'],
             'publicationCount' => $counts['publicationCount'],
             'userCount' => $counts['userCount'],
         ]);
