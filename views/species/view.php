@@ -17,7 +17,9 @@ use yii\widgets\LinkPager;
 $this->title = $species->scientific_name;
 $heroImage = $galleryImages[0] ?? null;
 $heroImageUrl = $heroImage !== null
-    ? Url::to(['media/observation-image', 'id' => $heroImage['observationId'], 'index' => $heroImage['imageIndex']])
+    ? (isset($heroImage['path'])
+        ? Url::to(['media/upload-path', 'path' => $heroImage['path']])
+        : Url::to(['media/observation-image', 'id' => $heroImage['observationId'], 'index' => $heroImage['imageIndex']]))
     : null;
 $commonName = $species->common_name ?: 'Sem nome comum registado';
 $imageCount = (int) $species->image_count;
@@ -79,7 +81,9 @@ $publishedCount = (int) ($stats['publishedCount'] ?? 0);
             <?php if (!empty($galleryImages)): ?>
                 <div class="species-filmstrip" aria-label="Galeria da especie">
                     <?php foreach ($galleryImages as $image): ?>
-                        <?php $imageUrl = Url::to(['media/observation-image', 'id' => $image['observationId'], 'index' => $image['imageIndex']]); ?>
+                        <?php $imageUrl = isset($image['path'])
+                            ? Url::to(['media/upload-path', 'path' => $image['path']])
+                            : Url::to(['media/observation-image', 'id' => $image['observationId'], 'index' => $image['imageIndex']]); ?>
                         <a
                             href="<?= $imageUrl ?>"
                             target="_blank"
@@ -155,10 +159,15 @@ $publishedCount = (int) ($stats['publishedCount'] ?? 0);
                     $confidence = $observation->confidence !== null ? (int) round($observation->confidence * 100) : null;
                     $thumbPath = $observation->getImageGalleryPaths();
                     $thumbUrl = !empty($thumbPath)
-                        ? Url::to(['media/observation-image', 'id' => $observation->observation_id, 'index' => 0])
+                        ? ($observation->observation_id !== null
+                            ? Url::to(['media/observation-image', 'id' => $observation->observation_id, 'index' => 0])
+                            : Url::to(['media/upload-path', 'path' => $thumbPath[0]]))
+                        : null;
+                    $observationUrl = $observation->observation_id !== null
+                        ? Url::to(['observation/view', 'id' => $observation->observation_id])
                         : null;
                     ?>
-                    <a class="species-observation-row" href="<?= Url::to(['observation/view', 'id' => $observation->observation_id]) ?>">
+                    <<?= $observationUrl !== null ? 'a' : 'div' ?> class="species-observation-row"<?= $observationUrl !== null ? ' href="' . $observationUrl . '"' : '' ?>>
                         <div class="species-observation-media">
                             <?php if ($thumbUrl !== null): ?>
                                 <img
@@ -200,7 +209,7 @@ $publishedCount = (int) ($stats['publishedCount'] ?? 0);
                         <div class="species-observation-arrow">
                             <i class="fas fa-chevron-right" aria-hidden="true"></i>
                         </div>
-                    </a>
+                    </<?= $observationUrl !== null ? 'a' : 'div' ?>>
                 <?php endforeach; ?>
             </div>
 

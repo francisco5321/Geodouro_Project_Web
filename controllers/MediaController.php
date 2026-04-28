@@ -22,7 +22,7 @@ class MediaController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['observation-image', 'publication-image'],
+                        'actions' => ['observation-image', 'publication-image', 'upload-path'],
                         'roles' => ['?', '@'],
                     ],
                 ],
@@ -56,6 +56,11 @@ class MediaController extends Controller
         }
 
         return $this->sendRelativeUpload($publication->getImageGalleryPaths()[$index] ?? null);
+    }
+
+    public function actionUploadPath(string $path): Response
+    {
+        return $this->sendRelativeUpload($path);
     }
 
     private function sendRelativeUpload(?string $relativePath): Response

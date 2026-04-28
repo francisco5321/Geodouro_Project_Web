@@ -6,6 +6,7 @@ use app\models\ChangePasswordForm;
 use app\models\LoginForm;
 use app\models\ProfileForm;
 use app\models\SignupForm;
+use RuntimeException;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
@@ -48,14 +49,17 @@ class SiteController extends Controller
 
     public function actionIndex(): string
     {
-        $counts = Yii::$app->cache->getOrSet('dashboard.stats.v1', static function (): array {
-            return [
-                'speciesCount' => \app\models\PlantSpecies::find()->count(),
-                'observationCount' => \app\models\Observation::find()->count(),
-                'publicationCount' => \app\models\Publication::find()->count(),
-                'userCount' => \app\models\AppUser::find()->where(['is_authenticated' => true])->count(),
+        try {
+            $counts = Yii::$app->cache->getOrSet('dashboard.stats.api.v1', static fn (): array => Yii::$app->dashboardApi->getStats(), 60);
+        } catch (RuntimeException $exception) {
+            Yii::error($exception->getMessage(), __METHOD__);
+            $counts = [
+                'speciesCount' => 0,
+                'observationCount' => 0,
+                'publicationCount' => 0,
+                'userCount' => 0,
             ];
-        }, 60);
+        }
 
         return $this->render('index', [
             'speciesCount' => $counts['speciesCount'],

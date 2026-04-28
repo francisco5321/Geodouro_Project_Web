@@ -43,6 +43,12 @@ return [
         'visitTargetApi' => [
             'class' => app\services\VisitTargetApiService::class,
         ],
+        'speciesApi' => [
+            'class' => app\services\SpeciesApiService::class,
+        ],
+        'dashboardApi' => [
+            'class' => app\services\DashboardApiService::class,
+        ],
         'assetManager' => [
             'basePath' => dirname(__DIR__) . '/web/assets',
             'baseUrl' => '/assets',

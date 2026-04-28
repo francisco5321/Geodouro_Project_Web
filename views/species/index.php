@@ -88,13 +88,16 @@ $this->title = 'Espécies';
         <section class="species-grid">
             <?php foreach ($species as $item): ?>
                 <?php $cardImage = $speciesImageMap[(int) $item->plant_species_id] ?? null; ?>
+                <?php $cardImageUrl = isset($cardImage['path'])
+                    ? Url::to(['media/upload-path', 'path' => $cardImage['path']])
+                    : ($cardImage !== null ? Url::to(['media/observation-image', 'id' => $cardImage['observationId'], 'index' => $cardImage['imageIndex']]) : null); ?>
                 <article class="species-card-web">
                     <a class="species-card-link" href="<?= Url::to(['species/view', 'id' => $item->plant_species_id]) ?>" title="Ver detalhes de <?= Html::encode($item->common_name ?: $item->scientific_name) ?>">
                         <div class="species-card-media<?= $cardImage !== null ? ' has-photo' : '' ?>">
                             <?php if ($cardImage !== null): ?>
                                 <img
                                     class="species-card-photo"
-                                    src="<?= Url::to(['media/observation-image', 'id' => $cardImage['observationId'], 'index' => $cardImage['imageIndex']]) ?>"
+                                    src="<?= $cardImageUrl ?>"
                                     alt="Fotografia de <?= Html::encode($item->common_name ?: $item->scientific_name) ?>"
                                     loading="lazy"
                                 >
