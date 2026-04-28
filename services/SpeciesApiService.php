@@ -9,7 +9,7 @@ class SpeciesApiService extends Component
 {
     public function listSpecies(string $queryText, string $sort, int $page, int $pageSize): array
     {
-        $response = Yii::$app->backendApi->getJson('/api/species');
+        $response = Yii::$app->backendApi->getJson('/api/species', $this->headers());
 
         $items = $this->extractList($response, ['items', 'species', 'data']);
         $allSpecies = array_map(
@@ -31,7 +31,7 @@ class SpeciesApiService extends Component
     public function getSpecies(int $speciesId, int $page, int $pageSize): array
     {
         $speciesSlug = $this->findSpeciesSlug($speciesId);
-        $response = Yii::$app->backendApi->getJson('/api/species/' . rawurlencode($speciesSlug));
+        $response = Yii::$app->backendApi->getJson('/api/species/' . rawurlencode($speciesSlug), $this->headers());
 
         $species = $response['species'] ?? $response;
         $observations = $this->extractList($response, ['observations', 'items', 'data']);
@@ -59,7 +59,7 @@ class SpeciesApiService extends Component
 
     private function findSpeciesSlug(int $speciesId): string
     {
-        $response = Yii::$app->backendApi->getJson('/api/species');
+        $response = Yii::$app->backendApi->getJson('/api/species', $this->headers());
         foreach ($this->extractList($response, ['items', 'species', 'data']) as $item) {
             if (!is_array($item)) {
                 continue;
@@ -80,6 +80,11 @@ class SpeciesApiService extends Component
         }
 
         return (string) $speciesId;
+    }
+
+    private function headers(): array
+    {
+        return Yii::$app->backendAuthSession->getAuthorizationHeaders();
     }
 
     private function extractList(array $response, array $keys): array
