@@ -46,7 +46,7 @@ JS);
     <section class="publication-hero mb-4">
         <div class="publication-hero-media">
             <?php if (!empty($imagePaths)): ?>
-                <img src="<?= Url::to(['media/publication-image', 'id' => $publication->publication_id, 'index' => 0]) ?>" alt="Capa da publicação <?= (int) $publication->publication_id ?>">
+                <img src="<?= Url::to(['media/upload-path', 'path' => $imagePaths[0]]) ?>" alt="Capa da publicação <?= (int) $publication->publication_id ?>">
             <?php else: ?>
                 <div class="publication-hero-placeholder">
                     <span class="eyebrow">Sem capa</span>
@@ -150,8 +150,9 @@ JS);
         <?php else: ?>
             <div class="observation-gallery-grid">
                 <?php foreach ($imagePaths as $index => $path): ?>
-                    <a class="observation-gallery-card" href="<?= Url::to(['media/publication-image', 'id' => $publication->publication_id, 'index' => $index]) ?>" target="_blank" rel="noopener">
-                        <img src="<?= Url::to(['media/publication-image', 'id' => $publication->publication_id, 'index' => $index]) ?>" alt="Imagem da publicação <?= (int) $publication->publication_id ?>">
+                    <?php $imageUrl = Url::to(['media/upload-path', 'path' => $path]); ?>
+                    <a class="observation-gallery-card" href="<?= $imageUrl ?>" target="_blank" rel="noopener">
+                        <img src="<?= $imageUrl ?>" alt="Imagem da publicação <?= (int) $publication->publication_id ?>">
                         <span>Abrir imagem <?= $index + 1 ?></span>
                     </a>
                 <?php endforeach; ?>

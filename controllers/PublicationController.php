@@ -6,6 +6,7 @@ use app\models\AppUser;
 use app\models\Observation;
 use app\models\PlantSpecies;
 use app\models\Publication;
+use RuntimeException;
 use Yii;
 use yii\data\Pagination;
 use yii\db\Expression;
@@ -53,46 +54,45 @@ class PublicationController extends Controller
             $scope = 'all';
         }
 
-        $query = Publication::find()
-            ->with(['user', 'plantSpecies', 'observation', 'publicationImages'])
-            ->orderBy(['published_at' => SORT_DESC, 'publication_id' => SORT_DESC]);
-
-        if ($scope === 'mine' && $identity !== null) {
-            $query->andWhere(['user_id' => $identity->user_id]);
-        }
-
         $pagination = new Pagination([
-            'totalCount' => (clone $query)->count(),
+            'totalCount' => 0,
             'pageSize' => 8,
         ]);
 
-        $publications = $query
-            ->offset($pagination->offset)
-            ->limit($pagination->limit)
-            ->all();
+        try {
+            $result = Yii::$app->publicationApi->listPublications(
+                $scope,
+                $pagination->getPage(),
+                $pagination->getPageSize()
+            );
+        } catch (RuntimeException $exception) {
+            Yii::error($exception->getMessage(), __METHOD__);
+            Yii::$app->session->setFlash('error', 'Nao foi possivel carregar as publicacoes a partir da API.');
+            $result = [
+                'items' => [],
+                'totalCount' => 0,
+                'summary' => ['total' => 0],
+            ];
+        }
 
-        $summaryRow = Publication::find()->select([
-            'total' => new Expression('COUNT(*)'),
-        ])->asArray()->one() ?: [];
-
-        $summary = [
-            'total' => (int) ($summaryRow['total'] ?? 0),
-        ];
+        $pagination->totalCount = (int) $result['totalCount'];
 
         return $this->render('index', [
-            'publications' => $publications,
+            'publications' => $result['items'],
             'pagination' => $pagination,
-            'summary' => $summary,
+            'summary' => $result['summary'],
             'scope' => $scope,
         ]);
     }
 
     public function actionView(int $id): string
     {
-        $publication = Publication::find()
-            ->with(['user', 'plantSpecies', 'observation', 'publicationImages'])
-            ->where(['publication_id' => $id])
-            ->one();
+        try {
+            $publication = Yii::$app->publicationApi->getPublicationById($id);
+        } catch (RuntimeException $exception) {
+            Yii::error($exception->getMessage(), __METHOD__);
+            $publication = null;
+        }
 
         if ($publication === null) {
             throw new NotFoundHttpException('Publicação não encontrada.');

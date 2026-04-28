@@ -197,8 +197,8 @@ $this->title = 'Observações';
                                 <i class="fas fa-dna" aria-hidden="true"></i>
                                 Espécie
                             </span>
-                            <strong class="timeline-item-meta-value" title="<?= Html::encode($observation->plantSpecies?->scientific_name ?? 'Não associada') ?>">
-                                <?= Html::encode($observation->plantSpecies?->common_name ?? $observation->plantSpecies?->scientific_name ?? 'Não associada') ?>
+                            <strong class="timeline-item-meta-value" title="<?= Html::encode($observation->getResolvedScientificName() ?? 'Não associada') ?>">
+                                <?= Html::encode($observation->getResolvedCommonName() ?? $observation->getResolvedScientificName() ?? 'Não associada') ?>
                             </strong>
                         </div>
                         <?php if ($observation->publication !== null): ?>
@@ -215,7 +215,7 @@ $this->title = 'Observações';
                     </div>
 
                     <div class="timeline-item-actions">
-                        <?php if ($observation->plant_species_id): ?>
+                        <?php if (!empty($observation->plant_species_id)): ?>
                             <a href="<?= Url::to(['species/view', 'id' => $observation->plant_species_id]) ?>" 
                                class="timeline-item-action-link" 
                                title="Ver detalhes da espécie">
@@ -229,7 +229,7 @@ $this->title = 'Observações';
                             <i class="fas fa-eye" aria-hidden="true"></i>
                             Ver observação
                         </a>
-                        <?php if (Yii::$app->user->identity?->isAdmin() || Yii::$app->user->id === $observation->user_id): ?>
+                        <?php if ($observation->observation_id !== null && (Yii::$app->user->identity?->isAdmin() || Yii::$app->user->id === $observation->user_id)): ?>
                             <a href="<?= Url::to(['observation/update', 'id' => $observation->observation_id]) ?>" 
                                class="timeline-item-action-link" 
                                title="Editar observação">

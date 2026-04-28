@@ -76,7 +76,7 @@ $this->title = 'Publicações';
                         <?php if ($hasCover): ?>
                             <img
                                 class="publication-cover-photo"
-                                src="<?= Url::to(['media/publication-image', 'id' => $publication->publication_id, 'index' => 0]) ?>"
+                                src="<?= Url::to(['media/upload-path', 'path' => $publication->getCoverImagePath()]) ?>"
                                 alt="Capa da publicação <?= (int) $publication->publication_id ?>"
                                 loading="lazy"
                             >

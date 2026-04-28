@@ -54,11 +54,11 @@ JS, View::POS_END);
             <div class="species-meta-row">
                 <span class="species-meta-chip"><?= Html::encode($statusLabel) ?></span>
                 <span class="species-meta-chip"><?= Html::encode($observation->getResolvedFamily() ?: 'Família desconhecida') ?></span>
-                <?php if ($observation->publication !== null): ?><span class="species-meta-chip chip-highlight">Já publicada</span><?php endif; ?>
+                <?php if ($observation->publication?->publication_id !== null): ?><span class="species-meta-chip chip-highlight">Já publicada</span><?php endif; ?>
             </div>
             <p class="hero-text"><?= Html::encode($observation->notes ?: 'Sem notas de campo registadas para esta observação.') ?></p>
             <div class="hero-cta-row mt-4">
-                <?php if ($canDeleteObservation): ?>
+                <?php if ($canDeleteObservation && $observation->observation_id !== null): ?>
                     <?= Html::a(
                         '<i class="fas fa-trash" aria-hidden="true"></i> Remover observação',
                         ['observation/delete', 'id' => $observation->observation_id],
@@ -69,12 +69,12 @@ JS, View::POS_END);
                         ]
                     ) ?>
                 <?php endif; ?>
-                <?php if ($observation->publication !== null): ?>
+                <?php if ($observation->publication?->publication_id !== null): ?>
                     <a class="btn btn-outline-brand" href="<?= Url::to(['publication/view', 'id' => $observation->publication->publication_id]) ?>">
                         <i class="fas fa-newspaper" aria-hidden="true"></i>
                         Abrir publicação
                     </a>
-                <?php elseif ($canCreatePublication): ?>
+                <?php elseif ($canCreatePublication && $observation->observation_id !== null): ?>
                     <a class="btn btn-outline-brand" href="<?= Url::to(['publication/create', 'observationId' => $observation->observation_id]) ?>">
                         <i class="fas fa-plus" aria-hidden="true"></i>
                         Criar publicação
@@ -86,7 +86,7 @@ JS, View::POS_END);
             <article class="detail-stat-card"><span>Confiança</span><strong><?= $observation->confidence !== null ? (int) round($observation->confidence * 100) . '%' : 'N/D' ?></strong></article>
             <article class="detail-stat-card"><span>Data</span><strong><?= Html::encode(Yii::$app->formatter->asDate($observation->observed_at, 'php:d/m/Y')) ?></strong></article>
             <article class="detail-stat-card"><span>Imagens</span><strong><?= count($imagePaths) ?></strong></article>
-            <?php if ($observation->publication !== null): ?>
+            <?php if ($observation->publication?->publication_id !== null): ?>
                 <article class="detail-stat-card"><span>Publicado por</span><strong><?= Html::encode($observation->publication->user?->getFullName() ?? 'Sistema') ?></strong></article>
             <?php endif; ?>
         </div>
@@ -125,9 +125,9 @@ JS, View::POS_END);
                     <h2>Ligações</h2>
                 </div>
                 <div class="module-link-list detail-action-list">
-                    <?php if ($observation->plant_species_id): ?><a href="<?= Url::to(['species/view', 'id' => $observation->plant_species_id]) ?>"><i class="fas fa-leaf" aria-hidden="true"></i><span>Abrir ficha da espécie</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
-                    <?php if ($observation->publication !== null): ?><a href="<?= Url::to(['publication/view', 'id' => $observation->publication->publication_id]) ?>"><i class="fas fa-newspaper" aria-hidden="true"></i><span>Abrir publicação associada</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
-                    <?php if ($observation->hasCoordinates()): ?><a href="<?= Url::to(['map/index', 'observationId' => $observation->observation_id]) ?>"><i class="fas fa-map-location-dot" aria-hidden="true"></i><span>Ver no mapa</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
+                    <?php if (!empty($observation->plant_species_id)): ?><a href="<?= Url::to(['species/view', 'id' => $observation->plant_species_id]) ?>"><i class="fas fa-leaf" aria-hidden="true"></i><span>Abrir ficha da espécie</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
+                    <?php if ($observation->publication?->publication_id !== null): ?><a href="<?= Url::to(['publication/view', 'id' => $observation->publication->publication_id]) ?>"><i class="fas fa-newspaper" aria-hidden="true"></i><span>Abrir publicação associada</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
+                    <?php if ($observation->hasCoordinates() && $observation->observation_id !== null): ?><a href="<?= Url::to(['map/index', 'observationId' => $observation->observation_id]) ?>"><i class="fas fa-map-location-dot" aria-hidden="true"></i><span>Ver no mapa</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
                 </div>
             </article>
         </div>
@@ -151,8 +151,9 @@ JS, View::POS_END);
         <?php else: ?>
             <div class="observation-gallery-grid">
                 <?php foreach ($imagePaths as $index => $path): ?>
-                    <a class="observation-gallery-card" href="<?= Url::to(['media/observation-image', 'id' => $observation->observation_id, 'index' => $index]) ?>" target="_blank" rel="noopener">
-                        <img src="<?= Url::to(['media/observation-image', 'id' => $observation->observation_id, 'index' => $index]) ?>" alt="Imagem da observação <?= (int) $observation->observation_id ?>">
+                    <?php $imageUrl = Url::to(['media/upload-path', 'path' => $path]); ?>
+                    <a class="observation-gallery-card" href="<?= $imageUrl ?>" target="_blank" rel="noopener">
+                        <img src="<?= $imageUrl ?>" alt="Imagem da observação <?= (int) $observation->observation_id ?>">
                         <span>Abrir imagem <?= $index + 1 ?></span>
                     </a>
                 <?php endforeach; ?>

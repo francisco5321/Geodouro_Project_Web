@@ -49,6 +49,12 @@ return [
         'dashboardApi' => [
             'class' => app\services\DashboardApiService::class,
         ],
+        'observationApi' => [
+            'class' => app\services\ObservationApiService::class,
+        ],
+        'publicationApi' => [
+            'class' => app\services\PublicationApiService::class,
+        ],
         'assetManager' => [
             'basePath' => dirname(__DIR__) . '/web/assets',
             'baseUrl' => '/assets',

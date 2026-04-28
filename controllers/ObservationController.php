@@ -6,6 +6,7 @@ use app\models\AppUser;
 use app\models\Observation;
 use app\models\ObservationImage;
 use app\models\PlantSpecies;
+use RuntimeException;
 use Yii;
 use yii\data\Pagination;
 use yii\db\Expression;
@@ -74,85 +75,48 @@ class ObservationController extends Controller
             $status = 'all';
         }
 
-        $query = Observation::find()
-            ->with(['user', 'plantSpecies', 'publication.user'])
-            ->joinWith([
-                'plantSpecies' => static function ($query) {
-                    $query->alias('species');
-                },
-            ])
-            ->orderBy(['observed_at' => SORT_DESC, 'observation_id' => SORT_DESC]);
-
-        if ($queryText !== '') {
-            $query->andWhere([
-                'or',
-                ['ilike', 'species.common_name', $queryText],
-                ['ilike', 'species.scientific_name', $queryText],
-                ['ilike', 'enriched_common_name', $queryText],
-                ['ilike', 'enriched_scientific_name', $queryText],
-                ['ilike', 'predicted_scientific_name', $queryText],
-            ]);
-        }
-
-        // Filtrar por utilizador actual se my=1
-        if ($myObservationsOnly) {
-            $query->andWhere(['user_id' => Yii::$app->user->id]);
-        }
-
-        if ($status === 'PUBLISHED') {
-            $query->andWhere(['is_published' => true]);
-        } elseif ($status !== 'all') {
-            $query->andWhere(['sync_status' => $status]);
-        }
-
         $pagination = new Pagination([
-            'totalCount' => (clone $query)->count(),
+            'totalCount' => 0,
             'pageSize' => 5,
         ]);
 
-        $observations = $query
-            ->offset($pagination->offset)
-            ->limit($pagination->limit)
-            ->all();
-
-        $summaryQuery = Observation::find()->select([
-            'total' => new Expression('COUNT(*)'),
-            'published' => new Expression('SUM(CASE WHEN is_published THEN 1 ELSE 0 END)'),
-            'pending' => new Expression('SUM(CASE WHEN sync_status = :pending THEN 1 ELSE 0 END)', [
-                ':pending' => Observation::SYNC_PENDING,
-            ]),
-            'failed' => new Expression('SUM(CASE WHEN sync_status = :failed THEN 1 ELSE 0 END)', [
-                ':failed' => Observation::SYNC_FAILED,
-            ]),
-        ])->asArray();
-
-        if ($myObservationsOnly) {
-            $summaryQuery->andWhere(['user_id' => Yii::$app->user->id]);
+        try {
+            $result = Yii::$app->observationApi->listObservations(
+                $queryText,
+                $status,
+                $myObservationsOnly,
+                $pagination->getPage(),
+                $pagination->getPageSize()
+            );
+        } catch (RuntimeException $exception) {
+            Yii::error($exception->getMessage(), __METHOD__);
+            Yii::$app->session->setFlash('error', 'Nao foi possivel carregar as observacoes a partir da API.');
+            $result = [
+                'items' => [],
+                'totalCount' => 0,
+                'summary' => ['total' => 0, 'published' => 0, 'pending' => 0, 'failed' => 0],
+            ];
         }
 
-        $summaryRow = $summaryQuery->one() ?: [];
-        $summary = [
-            'total' => (int) ($summaryRow['total'] ?? 0),
-            'published' => (int) ($summaryRow['published'] ?? 0),
-            'pending' => (int) ($summaryRow['pending'] ?? 0),
-            'failed' => (int) ($summaryRow['failed'] ?? 0),
-        ];
+        $pagination->totalCount = (int) $result['totalCount'];
 
         return $this->render('index', [
-            'observations' => $observations,
+            'observations' => $result['items'],
             'pagination' => $pagination,
             'queryText' => $queryText,
             'status' => $status,
-            'summary' => $summary,
+            'summary' => $result['summary'],
         ]);
     }
 
     public function actionView(int $id): string
     {
-        $observation = Observation::find()
-            ->with(['user', 'plantSpecies', 'observationImages', 'publication.user'])
-            ->where(['observation_id' => $id])
-            ->one();
+        try {
+            $observation = Yii::$app->observationApi->getObservationById($id);
+        } catch (RuntimeException $exception) {
+            Yii::error($exception->getMessage(), __METHOD__);
+            $observation = null;
+        }
 
         if ($observation === null) {
             throw new NotFoundHttpException('Observação não encontrada.');
