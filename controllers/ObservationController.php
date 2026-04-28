@@ -64,7 +64,7 @@ class ObservationController extends Controller
             $status = 'all';
         }
 
-        $pagination = new Pagination(['totalCount' => 0, 'pageSize' => 5]);
+        $pagination = new Pagination(['totalCount' => 0, 'pageSize' => 5, 'validatePage' => false]);
         try {
             $result = Yii::$app->observationApi->listObservations($queryText, $status, $myObservationsOnly, $pagination->getPage(), $pagination->getPageSize());
         } catch (RuntimeException $exception) {

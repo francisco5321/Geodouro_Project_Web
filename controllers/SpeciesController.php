@@ -40,6 +40,7 @@ class SpeciesController extends Controller
         $pagination = new Pagination([
             'totalCount' => 0,
             'pageSize' => 10,
+            'validatePage' => false,
         ]);
 
         try {
@@ -84,6 +85,7 @@ class SpeciesController extends Controller
         $pagination = new Pagination([
             'totalCount' => 0,
             'pageSize' => 5,
+            'validatePage' => false,
         ]);
 
         try {

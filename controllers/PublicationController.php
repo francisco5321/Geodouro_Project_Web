@@ -49,7 +49,7 @@ class PublicationController extends Controller
             $scope = 'all';
         }
 
-        $pagination = new Pagination(['totalCount' => 0, 'pageSize' => 8]);
+        $pagination = new Pagination(['totalCount' => 0, 'pageSize' => 8, 'validatePage' => false]);
         try {
             $result = Yii::$app->publicationApi->listPublications($scope, $pagination->getPage(), $pagination->getPageSize());
         } catch (RuntimeException $exception) {
