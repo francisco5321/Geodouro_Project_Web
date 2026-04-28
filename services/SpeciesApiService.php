@@ -94,7 +94,7 @@ class SpeciesApiService extends Component
             return [];
         }
 
-        $response = Yii::$app->backendApi->getJson('/api/observations', $this->headers());
+        $response = Yii::$app->backendApi->getJson('/api/observations');
         $items = $this->extractList($response, ['items', 'observations', 'data']);
         $observations = array_map(
             fn (array $item): ApiObservation => $this->observationFromObservationList($item),
@@ -132,10 +132,20 @@ class SpeciesApiService extends Component
     {
         return ApiObservation::fromArray([
             ...$item,
+            'observation_id' => $item['observationId'] ?? $item['observation_id'] ?? $item['id'] ?? null,
+            'device_observation_id' => $item['deviceObservationId'] ?? $item['device_observation_id'] ?? null,
+            'user_id' => $item['userId'] ?? $item['user_id'] ?? null,
+            'plant_species_id' => $item['plantSpeciesId'] ?? $item['plant_species_id'] ?? null,
             'image_uri' => $item['imagePath'] ?? $item['image_path'] ?? null,
-            'observed_at' => $this->formatInstant($item['capturedAt'] ?? $item['captured_at'] ?? null),
+            'observationImages' => $item['imagePaths'] ?? $item['image_paths'] ?? [],
+            'observed_at' => $this->formatInstant($item['observedAt'] ?? $item['observed_at'] ?? $item['capturedAt'] ?? $item['captured_at'] ?? null),
             'enriched_common_name' => $item['commonName'] ?? $item['common_name'] ?? null,
             'enriched_scientific_name' => $item['scientificName'] ?? $item['scientific_name'] ?? null,
+            'enriched_family' => $item['family'] ?? null,
+            'predicted_scientific_name' => $item['predictedScientificName'] ?? $item['predicted_scientific_name'] ?? null,
+            'confidence' => $item['confidence'] ?? null,
+            'is_published' => $item['isPublished'] ?? $item['is_published'] ?? false,
+            'sync_status' => $item['syncStatus'] ?? $item['sync_status'] ?? 'PENDING',
         ]);
     }
 
@@ -147,7 +157,11 @@ class SpeciesApiService extends Component
         }
 
         if (ctype_digit($value)) {
-            return date('Y-m-d H:i:s', (int) $value);
+            $timestamp = (int) $value;
+            if ($timestamp > 9999999999) {
+                $timestamp = (int) floor($timestamp / 1000);
+            }
+            return date('Y-m-d H:i:s', $timestamp);
         }
 
         $timestamp = strtotime($value);
