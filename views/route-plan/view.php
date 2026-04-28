@@ -208,7 +208,7 @@ $this->registerJs($js, View::POS_END);
         <?php if (empty($plannableSpecies)): ?>
             <div class="empty-state-card">
                 <h3>Sem plantas disponiveis</h3>
-                <p>Nao encontramos plantas para esta pesquisa.</p>
+                <p>Não encontramos plantas para esta pesquisa.</p>
             </div>
         <?php else: ?>
             <div class="observation-list">

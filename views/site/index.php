@@ -37,7 +37,7 @@ $this->title = 'Dashboard';
         </div>
         <div class="detail-stat-grid">
             <?= StatCard::widget([
-                'label' => 'Especies',
+                'label' => 'Espécies',
                 'value' => (int) $speciesCount,
                 'icon' => 'fas fa-leaf',
             ]) ?>
@@ -86,7 +86,7 @@ $this->title = 'Dashboard';
                     <i class="fas fa-leaf" aria-hidden="true"></i>
                 </div>
                 <div class="module-content">
-                    <h3>Especies</h3>
+                    <h3>Espécies</h3>
                     <p>Pesquisa por espécie, família e género com hierarquia de leitura.</p>
                 </div>
                 <a href="<?= Url::to(['species/index']) ?>" class="module-link">

@@ -72,7 +72,7 @@ $this->title = 'Percursos';
                     <?= Html::activeTextarea($newPlan, 'description', [
                         'class' => 'form-control route-plan-description-input',
                         'rows' => 1,
-                        'placeholder' => 'Objetivo do percurso, especies a validar e notas para a visita de campo.',
+                        'placeholder' => 'Objetivo do percurso, espécies a validar e notas para a visita de campo.',
                     ]) ?>
                 </div>
             </div>
@@ -138,7 +138,7 @@ $this->title = 'Percursos';
                     </p>
                     <?php if ($stopCount === 0): ?>
                         <p class="route-card-description route-empty-stops">
-                            Ainda nao tem paragens. Adiciona pontos no mapa para comecares a montar o percurso.
+                            Ainda não tem paragens. Adiciona pontos no mapa para comecares a montar o percurso.
                         </p>
                     <?php endif; ?>
                 </div>

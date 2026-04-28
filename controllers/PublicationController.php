@@ -77,7 +77,7 @@ class PublicationController extends Controller
         }
 
         if ($publication === null) {
-            throw new NotFoundHttpException('Publicação nao encontrada.');
+            throw new NotFoundHttpException('Publicação não encontrada.');
         }
 
         return $this->render('view', ['publication' => $publication]);
@@ -102,13 +102,13 @@ class PublicationController extends Controller
             try {
                 $observation = Yii::$app->observationApi->getObservationById((int) $publication->observation_id);
                 if ($observation === null || $observation->device_observation_id === null) {
-                    throw new RuntimeException('Observação nao encontrada.');
+                    throw new RuntimeException('Observação não encontrada.');
                 }
                 $created = Yii::$app->publicationApi->publishObservation($observation->device_observation_id, $publication->title, $publication->description);
                 Yii::$app->session->setFlash('success', 'Publicação criada com sucesso.');
                 return $this->redirect(['publication/view', 'id' => $created->publication_id]);
             } catch (RuntimeException $exception) {
-                $publication->addError('observation_id', 'Nao foi possivel criar a publicação no backend: ' . $exception->getMessage());
+                $publication->addError('observation_id', 'Não foi possível criar a publicação no backend: ' . $exception->getMessage());
             }
         }
 
@@ -134,7 +134,7 @@ class PublicationController extends Controller
                 Yii::$app->session->setFlash('success', 'Publicação atualizada com sucesso.');
                 return $this->redirect(['publication/view', 'id' => $id]);
             } catch (RuntimeException $exception) {
-                $publication->addError('description', 'Nao foi possivel atualizar a publicação no backend: ' . $exception->getMessage());
+                $publication->addError('description', 'Não foi possível atualizar a publicação no backend: ' . $exception->getMessage());
             }
         }
 
@@ -158,7 +158,7 @@ class PublicationController extends Controller
             ]);
             Yii::$app->session->setFlash('success', 'Publicação publicada com sucesso.');
         } catch (RuntimeException $exception) {
-            Yii::$app->session->setFlash('error', 'Nao foi possivel publicar no backend: ' . $exception->getMessage());
+            Yii::$app->session->setFlash('error', 'Não foi possível publicar no backend: ' . $exception->getMessage());
         }
 
         return $this->redirect(['publication/view', 'id' => $id]);
@@ -173,7 +173,7 @@ class PublicationController extends Controller
             Yii::$app->publicationApi->deletePublication($id);
             Yii::$app->session->setFlash('success', 'Publicação removida com sucesso.');
         } catch (RuntimeException $exception) {
-            Yii::$app->session->setFlash('error', 'Nao foi possivel remover no backend: ' . $exception->getMessage());
+            Yii::$app->session->setFlash('error', 'Não foi possível remover no backend: ' . $exception->getMessage());
         }
         return $this->redirect(['publication/index']);
     }
@@ -222,7 +222,7 @@ class PublicationController extends Controller
     private function ensureManageAccess(Publication $publication): void
     {
         if (!$publication->canBeManagedBy(Yii::$app->user->identity)) {
-            throw new ForbiddenHttpException('Nao tens permissao para gerir esta publicação.');
+            throw new ForbiddenHttpException('Não tens permissao para gerir esta publicação.');
         }
     }
 
@@ -230,7 +230,7 @@ class PublicationController extends Controller
     {
         $apiPublication = Yii::$app->publicationApi->getPublicationById($id);
         if ($apiPublication === null) {
-            throw new NotFoundHttpException('Publicação nao encontrada.');
+            throw new NotFoundHttpException('Publicação não encontrada.');
         }
 
         $publication = new Publication();

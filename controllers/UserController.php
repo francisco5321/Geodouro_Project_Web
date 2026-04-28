@@ -55,7 +55,7 @@ class UserController extends Controller
             );
         } catch (RuntimeException $exception) {
             Yii::error($exception->getMessage(), __METHOD__);
-            Yii::$app->session->setFlash('error', 'Nao foi possivel carregar utilizadores a partir da API.');
+            Yii::$app->session->setFlash('error', 'Não foi possível carregar utilizadores a partir da API.');
             $users = [];
         }
 
@@ -90,7 +90,7 @@ class UserController extends Controller
         }
 
         if ((int) $id === (int) Yii::$app->user->id) {
-            Yii::$app->session->setFlash('success', 'Por seguranca, nao podes alterar o teu proprio papel por aqui.');
+            Yii::$app->session->setFlash('success', 'Por seguranca, não podes alterar o teu proprio papel por aqui.');
             return $this->redirect(['user/index', 'q' => Yii::$app->request->post('q', '')]);
         }
 
@@ -98,7 +98,7 @@ class UserController extends Controller
             Yii::$app->accountApi->updateUserRole($id, $role);
             Yii::$app->session->setFlash('success', 'Papel do utilizador atualizado com sucesso.');
         } catch (RuntimeException $exception) {
-            Yii::$app->session->setFlash('error', 'Nao foi possivel atualizar o papel no backend: ' . $exception->getMessage());
+            Yii::$app->session->setFlash('error', 'Não foi possível atualizar o papel no backend: ' . $exception->getMessage());
         }
 
         return $this->redirect(['user/index', 'q' => Yii::$app->request->post('q', '')]);

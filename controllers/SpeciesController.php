@@ -51,7 +51,7 @@ class SpeciesController extends Controller
             );
         } catch (RuntimeException $exception) {
             Yii::error($exception->getMessage(), __METHOD__);
-            Yii::$app->session->setFlash('error', 'Nao foi possivel carregar as especies a partir da API.');
+            Yii::$app->session->setFlash('error', 'Não foi possível carregar as espécies a partir da API.');
             $result = [
                 'items' => [],
                 'totalCount' => 0,
@@ -87,11 +87,11 @@ class SpeciesController extends Controller
             );
         } catch (RuntimeException $exception) {
             Yii::error($exception->getMessage(), __METHOD__);
-            throw new NotFoundHttpException('Especie nao encontrada na API.');
+            throw new NotFoundHttpException('Espécie não encontrada na API.');
         }
 
         if ($result['species'] === null) {
-            throw new NotFoundHttpException('Especie nao encontrada.');
+            throw new NotFoundHttpException('Espécie não encontrada.');
         }
 
         $pagination->totalCount = (int) $result['totalCount'];

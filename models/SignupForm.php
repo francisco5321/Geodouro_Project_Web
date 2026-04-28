@@ -23,7 +23,7 @@ class SignupForm extends Model
             [['email', 'username'], 'string', 'max' => 255],
             [['email'], 'email'],
             [['password', 'passwordRepeat'], 'string', 'min' => 8, 'max' => 255],
-            ['passwordRepeat', 'compare', 'compareAttribute' => 'password', 'message' => 'As passwords nao coincidem.'],
+            ['passwordRepeat', 'compare', 'compareAttribute' => 'password', 'message' => 'As passwords não coincidem.'],
         ];
     }
 

@@ -42,7 +42,7 @@ class ObservationController extends Controller
                     if (Yii::$app->user->isGuest) {
                         return Yii::$app->user->loginRequired();
                     }
-                    throw new ForbiddenHttpException('Nao tens permissao para criar observações manualmente.');
+                    throw new ForbiddenHttpException('Não tens permissao para criar observações manualmente.');
                 },
             ],
             'verbs' => [
@@ -93,7 +93,7 @@ class ObservationController extends Controller
         }
 
         if ($observation === null) {
-            throw new NotFoundHttpException('Observação nao encontrada.');
+            throw new NotFoundHttpException('Observação não encontrada.');
         }
 
         return $this->render('view', ['observation' => $observation]);
@@ -171,14 +171,14 @@ class ObservationController extends Controller
     public function actionDelete(int $id)
     {
         if (!(Yii::$app->user->identity?->isAdmin() ?? false)) {
-            throw new ForbiddenHttpException('Nao tens permissao para remover esta observação.');
+            throw new ForbiddenHttpException('Não tens permissao para remover esta observação.');
         }
 
         try {
             Yii::$app->observationApi->deleteObservation($id);
             Yii::$app->session->setFlash('success', 'Observação removida com sucesso.');
         } catch (RuntimeException $exception) {
-            Yii::$app->session->setFlash('error', 'Nao foi possivel remover a observação no backend: ' . $exception->getMessage());
+            Yii::$app->session->setFlash('error', 'Não foi possível remover a observação no backend: ' . $exception->getMessage());
         }
 
         return $this->redirect(['observation/index']);
@@ -233,7 +233,7 @@ class ObservationController extends Controller
             throw new ForbiddenHttpException('Precisas de iniciar sessao para editar observações.');
         }
         if (!$identity->isAdmin() && (int) $identity->user_id !== (int) $observation->user_id) {
-            throw new ForbiddenHttpException('Nao tens permissao para editar esta observação.');
+            throw new ForbiddenHttpException('Não tens permissao para editar esta observação.');
         }
     }
 
@@ -241,7 +241,7 @@ class ObservationController extends Controller
     {
         $apiObservation = Yii::$app->observationApi->getObservationById($id);
         if ($apiObservation === null) {
-            throw new NotFoundHttpException('Observação nao encontrada.');
+            throw new NotFoundHttpException('Observação não encontrada.');
         }
 
         $model = new Observation();

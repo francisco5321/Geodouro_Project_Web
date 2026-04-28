@@ -61,7 +61,7 @@ class VisitController extends Controller
         } catch (RuntimeException $exception) {
             Yii::warning('Visit target backend toggle observation failed: ' . $exception->getMessage(), __METHOD__);
             $saved = false;
-            $message = 'Nao foi possivel atualizar Quero visitar no backend comum: ' . $exception->getMessage();
+            $message = 'Não foi possível atualizar Quero visitar no backend comum: ' . $exception->getMessage();
             if (Yii::$app->request->isAjax) {
                 Yii::$app->response->format = Response::FORMAT_JSON;
                 return ['success' => false, 'saved' => false, 'message' => $message];
@@ -114,7 +114,7 @@ class VisitController extends Controller
 
             $routePlanId = (int) ($response['routePlanId'] ?? 0);
             if ($routePlanId <= 0) {
-                throw new RuntimeException('O backend nao devolveu o ID do percurso criado.');
+                throw new RuntimeException('O backend não devolveu o ID do percurso criado.');
             }
 
             foreach ($coordinateTargets as $target) {
@@ -124,7 +124,7 @@ class VisitController extends Controller
             Yii::$app->session->setFlash('success', 'Percurso criado com os pontos que escolheste no mapa.');
             return $this->redirect(['route-plan/view', 'id' => $routePlanId]);
         } catch (RuntimeException $exception) {
-            Yii::$app->session->setFlash('error', 'Nao foi possivel criar o percurso no backend: ' . $exception->getMessage());
+            Yii::$app->session->setFlash('error', 'Não foi possível criar o percurso no backend: ' . $exception->getMessage());
             return $this->redirect(['route-plan/index']);
         }
     }
@@ -136,7 +136,7 @@ class VisitController extends Controller
             Yii::$app->session->setFlash('success', 'Alvo removido da tua lista de visita.');
         } catch (RuntimeException $exception) {
             Yii::warning('Visit target backend remove failed: ' . $exception->getMessage(), __METHOD__);
-            Yii::$app->session->setFlash('error', 'Nao foi possivel remover este alvo no backend comum: ' . $exception->getMessage());
+            Yii::$app->session->setFlash('error', 'Não foi possível remover este alvo no backend comum: ' . $exception->getMessage());
         }
 
         return $this->redirect(['route-plan/index']);
@@ -149,7 +149,7 @@ class VisitController extends Controller
             Yii::$app->session->setFlash('success', $response['message'] ?? 'Lista Quero visitar atualizada.');
         } catch (RuntimeException $exception) {
             Yii::warning("Visit target backend toggle {$targetType} failed: " . $exception->getMessage(), __METHOD__);
-            Yii::$app->session->setFlash('error', 'Nao foi possivel atualizar Quero visitar no backend comum: ' . $exception->getMessage());
+            Yii::$app->session->setFlash('error', 'Não foi possível atualizar Quero visitar no backend comum: ' . $exception->getMessage());
         }
 
         return $this->redirect(Yii::$app->request->referrer ?: ['route-plan/index']);

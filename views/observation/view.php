@@ -63,7 +63,7 @@ JS, View::POS_END);
                 <?php if ($observation->publication?->publication_id !== null): ?><span class="species-meta-chip chip-highlight">Ja publicada</span><?php endif; ?>
             </div>
             <?php if ($observation->needsManualReview()): ?>
-                <p class="hero-text">O YOLO detetou uma planta, mas o MobileNet nao conseguiu reconhecer a especie. Esta observação esta na fila de revisao manual.</p>
+                <p class="hero-text">O YOLO detetou uma planta, mas o MobileNet não conseguiu reconhecer a espécie. Esta observação está na fila de revisão manual.</p>
             <?php endif; ?>
             <p class="hero-text"><?= Html::encode($observation->notes ?: 'Sem notas de campo registadas para esta observação.') ?></p>
             <div class="hero-cta-row mt-4">
@@ -117,7 +117,7 @@ JS, View::POS_END);
                 <div class="info-list detail-info-list">
                     <div class="detail-info-item"><span>Especie</span><strong><?= Html::encode($observation->needsManualReview() ? 'A aguardar identificação manual' : ($observation->getResolvedCommonName() ?: 'Observação botânica')) ?></strong></div>
                     <?php if ($observation->needsManualReview()): ?>
-                        <div class="detail-info-item"><span>Predição original</span><strong><?= Html::encode($observation->predicted_scientific_name ?: 'Nao conhecemos essa planta') ?></strong></div>
+                        <div class="detail-info-item"><span>Predição original</span><strong><?= Html::encode($observation->predicted_scientific_name ?: 'Não conhecemos essa planta') ?></strong></div>
                     <?php endif; ?>
                     <div class="detail-info-item"><span>Familia</span><strong><?= Html::encode($observation->getResolvedFamily() ?: 'N/D') ?></strong></div>
                     <div class="detail-info-item">

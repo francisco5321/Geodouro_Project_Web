@@ -24,7 +24,7 @@ class ChangePasswordForm extends Model
         return [
             [['currentPassword', 'newPassword', 'newPasswordRepeat'], 'required'],
             [['currentPassword', 'newPassword', 'newPasswordRepeat'], 'string', 'min' => 8, 'max' => 255],
-            ['newPasswordRepeat', 'compare', 'compareAttribute' => 'newPassword', 'message' => 'As passwords novas nao coincidem.'],
+            ['newPasswordRepeat', 'compare', 'compareAttribute' => 'newPassword', 'message' => 'As passwords novas não coincidem.'],
         ];
     }
 
