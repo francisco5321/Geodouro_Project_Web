@@ -2320,6 +2320,10 @@ body.app-shell {
     text-decoration: none;
 }
 
+.publication-card-footer .species-card-cta {
+    margin-left: auto;
+}
+
 .publication-hero {
     display: grid;
     grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.05fr);
