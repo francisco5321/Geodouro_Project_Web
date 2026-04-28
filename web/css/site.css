@@ -1057,12 +1057,8 @@ body.app-shell {
 }
 
 .observation-hero .detail-stat-grid {
-    grid-template-columns: minmax(206px, 206px);
+    grid-template-columns: repeat(2, minmax(170px, 206px));
     justify-self: end;
-}
-
-.observation-hero .detail-stat-grid .manual-review-left {
-    order: -1;
 }
 
 .map-hero .detail-stat-grid {
@@ -1084,7 +1080,7 @@ body.app-shell {
     }
 
     .observation-hero .detail-stat-grid {
-        grid-template-columns: minmax(206px, 206px);
+        grid-template-columns: repeat(2, minmax(170px, 206px));
     }
 
     .map-hero .detail-stat-grid {
