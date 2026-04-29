@@ -264,8 +264,8 @@ $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
                 'nextPageCssClass' => 'page-item',
                 'disabledPageCssClass' => 'page-item disabled',
                 'activePageCssClass' => 'page-item active',
-                'prevPageLabel' => 'â€¹',
-                'nextPageLabel' => 'â€º',
+                'prevPageLabel' => '&lsaquo;',
+                'nextPageLabel' => '&rsaquo;',
                 'hideOnSinglePage' => true,
                 'disabledListItemSubTagOptions' => ['class' => 'd-none'],
             ]) ?>
