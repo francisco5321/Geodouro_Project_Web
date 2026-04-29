@@ -20,6 +20,11 @@ $planDescription = $plan['description'] ?? null;
 $this->title = $planName;
 $this->registerCssFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
 $this->registerJsFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', ['position' => View::POS_END]);
+$this->registerCss(<<<'CSS'
+.route-plan-marker-gray {
+    filter: grayscale(1) brightness(0.9);
+}
+CSS);
 $toggleUrl = Url::to(['route-plan/toggle-observation-point', 'id' => $planId]);
 
 $js = <<<'JS'
@@ -35,6 +40,11 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; OpenStreetMap contributors'
 }).addTo(routeMap);
+
+const defaultMarkerIcon = new L.Icon.Default();
+const grayMarkerIcon = new L.Icon.Default({
+    className: 'route-plan-marker-gray',
+});
 
 const bounds = [];
 function popup(marker) {
@@ -53,13 +63,17 @@ backgroundMarkers.forEach((marker) => {
     if (marker.latitude == null || marker.longitude == null) return;
     const point = [marker.latitude, marker.longitude];
     bounds.push(point);
-    L.marker(point).addTo(routeMap).bindPopup(popup(marker));
+    L.marker(point, {
+        icon: marker.isInRoute ? defaultMarkerIcon : grayMarkerIcon,
+    }).addTo(routeMap).bindPopup(popup(marker));
 });
 
 routeMarkers.forEach((marker) => {
     const point = [marker.latitude, marker.longitude];
     bounds.push(point);
-    L.marker(point).addTo(routeMap).bindPopup(`<strong>${marker.order}. ${marker.title}</strong><p>${marker.subtitle || ''}</p>`);
+    L.marker(point, {
+        icon: defaultMarkerIcon,
+    }).addTo(routeMap).bindPopup(`<strong>${marker.order}. ${marker.title}</strong><p>${marker.subtitle || ''}</p>`);
 });
 
 function drawFallbackRoute() {
