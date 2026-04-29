@@ -17,6 +17,41 @@ $this->title = 'Mapa';
 $this->registerCssFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
 $this->registerJsFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', ['position' => View::POS_END]);
 $this->registerCss(<<<'CSS'
+.map-popup-observation {
+    min-width: 180px;
+}
+
+.map-popup-observation-title {
+    display: block;
+    margin: 0;
+    color: #2f312f;
+    font-size: 0.98rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.map-popup-observation-scientific {
+    margin: 0.35rem 0 0;
+    color: #4f534f;
+    font-size: 0.94rem;
+    line-height: 1.35;
+}
+
+.map-popup-observation-link {
+    display: inline-block;
+    margin-top: 0.55rem;
+    color: #0b75b8;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.map-popup-observation-link:hover,
+.map-popup-observation-link:focus {
+    color: #085f94;
+}
+
 .map-popup-create {
     min-width: 220px;
 }
@@ -85,11 +120,10 @@ markers.forEach((marker) => {
     const point = [marker.latitude, marker.longitude];
     bounds.push(point);
     const popup = `
-        <div class="map-popup">
-            <strong>${marker.title}</strong>
-            <p>${marker.scientificName}</p>
-            <p>${marker.status}</p>
-            <a href="${marker.detailUrl}">Abrir observação</a>
+        <div class="map-popup map-popup-observation">
+            <strong class="map-popup-observation-title">${marker.title}</strong>
+            <p class="map-popup-observation-scientific">${marker.scientificName}</p>
+            <a class="map-popup-observation-link" href="${marker.detailUrl}">Abrir observação</a>
         </div>
     `;
     const layer = L.marker(point).addTo(map).bindPopup(popup);
