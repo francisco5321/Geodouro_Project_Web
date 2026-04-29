@@ -16,6 +16,49 @@ use yii\web\View;
 $this->title = 'Mapa';
 $this->registerCssFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
 $this->registerJsFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', ['position' => View::POS_END]);
+$this->registerCss(<<<'CSS'
+.map-popup-create {
+    min-width: 220px;
+}
+
+.map-popup-create-title {
+    display: block;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e2b24;
+    letter-spacing: -0.01em;
+}
+
+.map-popup-create-coordinates {
+    margin: 0.45rem 0 0;
+    font-size: 0.86rem;
+    line-height: 1.45;
+    color: #66756d;
+    font-variant-numeric: tabular-nums;
+}
+
+.map-popup-create-link {
+    width: 100%;
+    min-height: 42px;
+    padding: 0.7rem 1rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #20593f 0%, #2e7a57 100%);
+    box-shadow: 0 10px 22px rgba(32, 89, 63, 0.18);
+    color: #fff;
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.map-popup-create-link:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px rgba(32, 89, 63, 0.24);
+    background: linear-gradient(135deg, #1b4d37 0%, #276a4c 100%);
+    color: #fff;
+}
+CSS);
 $js = <<<'JS'
 const markers = __MARKERS__ || [];
 const canCreateObservation = __CAN_CREATE__;
@@ -54,9 +97,9 @@ if (canCreateObservation) {
         L.popup()
             .setLatLng(event.latlng)
             .setContent(`
-                <div class="map-popup map-popup-rich">
-                    <strong>Novo ponto de observação</strong>
-                    <p>${lat}, ${lng}</p>
+                <div class="map-popup map-popup-rich map-popup-create">
+                    <strong class="map-popup-create-title">Novo ponto de observação</strong>
+                    <p class="map-popup-create-coordinates">${lat}, ${lng}</p>
                     <div class="map-popup-actions">
                         <a class="map-popup-create-link" href="${createUrl}">Criar observação aqui</a>
                     </div>
