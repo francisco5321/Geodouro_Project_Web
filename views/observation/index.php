@@ -12,6 +12,7 @@ use yii\widgets\LinkPager;
 /** @var yii\data\Pagination $pagination */
 /** @var string $queryText */
 /** @var string $status */
+/** @var bool $myObservationsOnly */
 /** @var array $summary */
 
 $this->title = 'Observações';
@@ -74,7 +75,7 @@ $this->title = 'Observações';
             <?php if ($status !== 'all'): ?>
                 <input type="hidden" name="status" value="<?= Html::encode($status) ?>">
             <?php endif; ?>
-            <?php if ((bool) Yii::$app->request->get('my', false)): ?>
+            <?php if ($myObservationsOnly): ?>
                 <input type="hidden" name="my" value="1">
             <?php endif; ?>
             <button type="submit" class="btn btn-brand">
@@ -82,6 +83,16 @@ $this->title = 'Observações';
                 Pesquisar
             </button>
         </form>
+        <div class="filter-row">
+            <a class="btn <?= $myObservationsOnly ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'my' => 1, 'status' => $status === 'all' ? null : $status, 'q' => $queryText ?: null]) ?>">
+                <i class="fas fa-user" aria-hidden="true"></i>
+                Minhas observaÃ§Ãµes
+            </a>
+            <a class="btn <?= !$myObservationsOnly ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'my' => 0, 'status' => $status === 'all' ? null : $status, 'q' => $queryText ?: null]) ?>">
+                <i class="fas fa-globe" aria-hidden="true"></i>
+                Todas as observaÃ§Ãµes
+            </a>
+        </div>
         <div class="filter-row">
             <?php
             $statusFilters = [
@@ -93,7 +104,7 @@ $this->title = 'Observações';
             }
             foreach ($statusFilters as $value => $config):
             ?>
-                <a class="btn <?= $status === $value ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'status' => $value === 'all' ? null : $value, 'q' => $queryText ?: null, 'my' => Yii::$app->request->get('my') ? 1 : null]) ?>">
+                <a class="btn <?= $status === $value ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'status' => $value === 'all' ? null : $value, 'q' => $queryText ?: null, 'my' => $myObservationsOnly ? 1 : 0]) ?>">
                     <i class="<?= Html::encode($config['icon']) ?>" aria-hidden="true"></i>
                     <?= Html::encode($config['label']) ?>
                 </a>
@@ -129,7 +140,7 @@ $this->title = 'Observações';
             'title' => 'Nenhuma observação encontrada',
             'message' => 'Nenhuma observação corresponde aos filtros selecionados.',
             'actions' => [
-                ['label' => 'Voltar', 'url' => ['observation/index'], 'icon' => 'fas fa-redo', 'class' => 'btn-outline-brand'],
+                ['label' => 'Voltar', 'url' => ['observation/index', 'my' => $myObservationsOnly ? 1 : 0], 'icon' => 'fas fa-redo', 'class' => 'btn-outline-brand'],
                 ['label' => 'Nova observação', 'url' => ['observation/create'], 'icon' => 'fas fa-plus', 'class' => 'btn-brand'],
             ],
         ]) ?>
