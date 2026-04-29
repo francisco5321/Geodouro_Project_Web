@@ -28,7 +28,7 @@ $this->title = 'Espécies';
             <h1 class="hero-title hero-title-tight">Espécies observadas no ecossistema GeoDouro</h1>
             <p class="hero-text">Explora o catálogo completo de espécies, organizadas por família e género, com informações detalhadas e imagens.</p>
         </div>
-        <div class="detail-stat-grid">
+        <div class="detail-stat-grid species-stat-stack">
             <?= StatCard::widget([
                 'label' => 'Espécies',
                 'value' => (int) $summary['speciesCount'],

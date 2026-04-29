@@ -1056,6 +1056,11 @@ body.app-shell {
     justify-self: end;
 }
 
+.species-stat-stack {
+    grid-template-columns: minmax(206px, 206px);
+    justify-self: end;
+}
+
 .observation-hero .detail-stat-grid {
     grid-template-columns: repeat(2, minmax(170px, 206px));
     grid-template-areas:
@@ -1095,6 +1100,10 @@ body.app-shell {
         grid-template-columns: minmax(206px, 206px);
     }
 
+    .species-stat-stack {
+        grid-template-columns: minmax(206px, 206px);
+    }
+
     .observation-hero .detail-stat-grid {
         grid-template-columns: repeat(2, minmax(170px, 206px));
         grid-template-areas:
@@ -1119,6 +1128,11 @@ body.app-shell {
     }
 
     .publication-hero .detail-stat-grid {
+        grid-template-columns: 1fr;
+        justify-self: stretch;
+    }
+
+    .species-stat-stack {
         grid-template-columns: 1fr;
         justify-self: stretch;
     }
