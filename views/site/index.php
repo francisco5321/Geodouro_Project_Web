@@ -13,6 +13,7 @@ use yii\helpers\Url;
 $this->title = 'Dashboard';
 ?>
 <div class="module-shell">
+    <?php $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false; ?>
     <section class="species-hero mb-4">
         <div>
             <span class="eyebrow">
@@ -46,11 +47,13 @@ $this->title = 'Dashboard';
                 'value' => (int) $observationCount,
                 'icon' => 'fas fa-binoculars',
             ]) ?>
-            <?= StatCard::widget([
-                'label' => 'Revisão Manual',
-                'value' => (int) $manualReviewCount,
-                'icon' => 'fas fa-user-check',
-            ]) ?>
+            <?php if ($isAdmin): ?>
+                <?= StatCard::widget([
+                    'label' => 'Revisão Manual',
+                    'value' => (int) $manualReviewCount,
+                    'icon' => 'fas fa-user-check',
+                ]) ?>
+            <?php endif; ?>
             <?= StatCard::widget([
                 'label' => 'Publicações',
                 'value' => (int) $publicationCount,
@@ -109,7 +112,7 @@ $this->title = 'Dashboard';
                 </a>
             </div>
 
-            <?php if (Yii::$app->user->identity?->isAdmin()): ?>
+            <?php if ($isAdmin): ?>
                 <div class="module-card">
                     <div class="module-icon publication">
                         <i class="fas fa-user-check" aria-hidden="true"></i>
