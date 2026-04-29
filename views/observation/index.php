@@ -16,6 +16,7 @@ use yii\widgets\LinkPager;
 
 $this->title = 'Observações';
 ?>
+<?php $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false; ?>
 <div class="module-shell">
     <section class="species-hero observation-hero mb-4">
         <div>
@@ -27,12 +28,14 @@ $this->title = 'Observações';
             <p class="hero-text">Visualiza, filtra e gere todas as observações botânicas recolhidas pelo projeto GeoFlora.</p>
         </div>
         <div class="detail-stat-grid">
-            <?= StatCard::widget([
-                'label' => 'Revisão manual',
-                'value' => (int) ($summary['manualReview'] ?? 0),
-                'icon' => 'fas fa-user-check',
-                'cssClass' => 'obs-stat-manual',
-            ]) ?>
+            <?php if ($isAdmin): ?>
+                <?= StatCard::widget([
+                    'label' => 'Revisão manual',
+                    'value' => (int) ($summary['manualReview'] ?? 0),
+                    'icon' => 'fas fa-user-check',
+                    'cssClass' => 'obs-stat-manual',
+                ]) ?>
+            <?php endif; ?>
             <?= StatCard::widget([
                 'label' => 'Publicadas',
                 'value' => (int) $summary['published'],
@@ -80,11 +83,16 @@ $this->title = 'Observações';
             </button>
         </form>
         <div class="filter-row">
-            <?php foreach ([
+            <?php
+            $statusFilters = [
                 'all' => ['label' => 'Todas', 'icon' => 'fas fa-list'],
                 'PUBLISHED' => ['label' => 'Publicadas', 'icon' => 'fas fa-star'],
-                Observation::STATUS_MANUAL_REVIEW => ['label' => 'Revisão manual', 'icon' => 'fas fa-user-check'],
-            ] as $value => $config): ?>
+            ];
+            if ($isAdmin) {
+                $statusFilters[Observation::STATUS_MANUAL_REVIEW] = ['label' => 'Revisão manual', 'icon' => 'fas fa-user-check'];
+            }
+            foreach ($statusFilters as $value => $config):
+            ?>
                 <a class="btn <?= $status === $value ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'status' => $value === 'all' ? null : $value, 'q' => $queryText ?: null, 'my' => Yii::$app->request->get('my') ? 1 : null]) ?>">
                     <i class="<?= Html::encode($config['icon']) ?>" aria-hidden="true"></i>
                     <?= Html::encode($config['label']) ?>
@@ -93,7 +101,7 @@ $this->title = 'Observações';
         </div>
     </section>
 
-    <?php if (Yii::$app->user->identity?->isAdmin()): ?>
+    <?php if ($isAdmin): ?>
         <section class="toolbar-card admin-action-card mb-4">
             <div class="toolbar-row">
                 <div class="admin-action-content">

@@ -60,8 +60,12 @@ class ObservationController extends Controller
         $status = trim((string) Yii::$app->request->get('status', 'all'));
         $queryText = trim((string) Yii::$app->request->get('q', ''));
         $myObservationsOnly = (bool) Yii::$app->request->get('my', false);
+        $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
         $allowedStatuses = ['all', Observation::SYNC_PENDING, Observation::SYNC_SYNCED, Observation::SYNC_FAILED, 'PUBLISHED', Observation::STATUS_MANUAL_REVIEW];
         if (!in_array($status, $allowedStatuses, true)) {
+            $status = 'all';
+        }
+        if (!$isAdmin && $status === Observation::STATUS_MANUAL_REVIEW) {
             $status = 'all';
         }
 
