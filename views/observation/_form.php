@@ -131,50 +131,48 @@ if ($showLocationMap) {
 
 <?php
 $js = <<<'JS'
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('.stacked-form');
-    const submitBtn = document.getElementById('submit-btn');
-    if (form && submitBtn) {
-        form.addEventListener('submit', () => {
-            if (form.querySelectorAll('.is-invalid').length === 0) {
-                UIHelpers.setButtonLoading(submitBtn);
-            }
-        });
-    }
-
-    document.querySelectorAll('textarea[data-auto-resize]').forEach(ta => {
-        if (UIHelpers && UIHelpers.autoResizeTextarea) {
-            UIHelpers.autoResizeTextarea(ta);
+const form = document.querySelector('.stacked-form');
+const submitBtn = document.getElementById('submit-btn');
+if (form && submitBtn) {
+    form.addEventListener('submit', () => {
+        if (form.querySelectorAll('.is-invalid').length === 0 && typeof UIHelpers !== 'undefined') {
+            UIHelpers.setButtonLoading(submitBtn);
         }
     });
+}
 
-    const mapEl = document.getElementById('observation-location-map');
-    if (mapEl && typeof L !== 'undefined') {
-        const latitude = Number(mapEl.dataset.latitude);
-        const longitude = Number(mapEl.dataset.longitude);
-
-        if (!Number.isNaN(latitude) && !Number.isNaN(longitude)) {
-            const map = L.map(mapEl, {
-                zoomControl: true,
-                scrollWheelZoom: false,
-            }).setView([latitude, longitude], 16);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(map);
-
-            L.marker([latitude, longitude]).addTo(map)
-                .bindPopup('Localizacao exata da observacao')
-                .openPopup();
-
-            setTimeout(() => map.invalidateSize(), 0);
-        }
+document.querySelectorAll('textarea[data-auto-resize]').forEach((ta) => {
+    if (typeof UIHelpers !== 'undefined' && UIHelpers.autoResizeTextarea) {
+        UIHelpers.autoResizeTextarea(ta);
     }
 });
+
+const mapEl = document.getElementById('observation-location-map');
+if (mapEl && typeof L !== 'undefined') {
+    const latitude = Number(mapEl.dataset.latitude);
+    const longitude = Number(mapEl.dataset.longitude);
+
+    if (!Number.isNaN(latitude) && !Number.isNaN(longitude)) {
+        const map = L.map(mapEl, {
+            zoomControl: true,
+            scrollWheelZoom: false,
+        }).setView([latitude, longitude], 16);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        L.marker([latitude, longitude]).addTo(map)
+            .bindPopup('Localizacao exata da observacao')
+            .openPopup();
+
+        setTimeout(() => map.invalidateSize(), 0);
+    }
+}
 JS;
 
-$this->registerJs($js);
+$this->registerJs($js, View::POS_END);
 ?>
 
 <style>
