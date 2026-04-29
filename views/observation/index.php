@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use app\components\EmptyState;
 use app\components\StatCard;
@@ -113,14 +113,14 @@ $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
                         <i class="fas fa-plus-circle" aria-hidden="true"></i>
                     </div>
                     <div>
-                        <strong>Criar observaÃ§Ã£o manual</strong>
-                        <p class="table-subtext mb-0">TambÃ©m podes abrir a fila das observaÃ§Ãµes onde o MobileNet nÃ£o reconheceu a planta para completar a identificaÃ§Ã£o manualmente.</p>
+                        <strong>Criar observação manual</strong>
+                        <p class="table-subtext mb-0">Também podes abrir a fila das observações onde o MobileNet não reconheceu a planta para completar a identificação manualmente.</p>
                     </div>
                 </div>
                 <div class="toolbar-actions">
-                    <a class="btn btn-brand" href="<?= Url::to(['observation/create']) ?>" title="Criar nova observaÃ§Ã£o">
+                    <a class="btn btn-brand" href="<?= Url::to(['observation/create']) ?>" title="Criar nova observação">
                         <i class="fas fa-plus" aria-hidden="true"></i>
-                        Nova observaÃ§Ã£o
+                        Nova observação
                     </a>
                 </div>
             </div>
@@ -130,14 +130,14 @@ $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
     <?php if (empty($observations)): ?>
         <?= EmptyState::widget([
             'icon' => 'fas fa-inbox',
-            'title' => 'Nenhuma observaÃ§Ã£o encontrada',
-            'message' => 'Nenhuma observaÃ§Ã£o corresponde aos filtros selecionados.',
+            'title' => 'Nenhuma observação encontrada',
+            'message' => 'Nenhuma observação corresponde aos filtros selecionados.',
             'actions' => [
                 ['label' => 'Voltar', 'url' => ['observation/index', 'my' => $myObservationsOnly ? 1 : 0], 'icon' => 'fas fa-redo', 'class' => 'btn-outline-brand'],
             ],
         ]) ?>
     <?php else: ?>
-        <section class="observations-list" role="region" aria-label="Lista de observaÃ§Ãµes">
+        <section class="observations-list" role="region" aria-label="Lista de observações">
             <?php foreach ($observations as $observation): ?>
                 <?php
                 if ($observation->is_published) {
@@ -145,7 +145,7 @@ $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
                     $statusClass = 'badge-success';
                     $statusIcon = 'fas fa-check-circle';
                 } elseif ($observation->needsManualReview()) {
-                    $statusLabel = 'RevisÃ£o manual';
+                    $statusLabel = 'Revisão manual';
                     $statusClass = 'badge-warning';
                     $statusIcon = 'fas fa-user-check';
                 } elseif ($observation->sync_status === Observation::SYNC_SYNCED) {
@@ -153,7 +153,7 @@ $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
                     $statusClass = '';
                     $statusIcon = 'fas fa-sync';
                 } elseif ($observation->sync_status === Observation::SYNC_FAILED) {
-                    $statusLabel = 'Falha de sincronizaÃ§Ã£o';
+                    $statusLabel = 'Falha de sincronização';
                     $statusClass = 'badge-danger';
                     $statusIcon = 'fas fa-exclamation-triangle';
                 } else {
@@ -167,9 +167,9 @@ $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
                     ? ($confidence >= 80 ? 'confidence-high' : ($confidence >= 50 ? 'confidence-medium' : 'confidence-low'))
                     : 'confidence-unknown';
                 $title = $observation->needsManualReview()
-                    ? 'ObservaÃ§Ã£o por identificar'
-                    : ($observation->getResolvedCommonName() ?: 'ObservaÃ§Ã£o botÃ¢nica');
-                $subtitle = $observation->getResolvedScientificName() ?: 'Sem classificaÃ§Ã£o';
+                    ? 'Observação por identificar'
+                    : ($observation->getResolvedCommonName() ?: 'Observação botânica');
+                $subtitle = $observation->getResolvedScientificName() ?: 'Sem classificação';
                 ?>
                 <article class="timeline-item observation-item">
                     <div class="timeline-item-header">
@@ -221,7 +221,7 @@ $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
                                 Especie
                             </span>
                             <strong class="timeline-item-meta-value" title="<?= Html::encode($subtitle) ?>">
-                                <?= Html::encode($observation->needsManualReview() ? 'A aguardar identificaÃ§Ã£o manual' : ($observation->getResolvedCommonName() ?? $subtitle ?? 'NÃ£o associada')) ?>
+                                <?= Html::encode($observation->needsManualReview() ? 'A aguardar identificação manual' : ($observation->getResolvedCommonName() ?? $subtitle ?? 'Não associada')) ?>
                             </strong>
                         </div>
                     </div>
@@ -233,9 +233,9 @@ $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
                                 Ver especie
                             </a>
                         <?php endif; ?>
-                        <a href="<?= Url::to(['observation/view', 'id' => $observation->observation_id]) ?>" class="timeline-item-action-link" title="Ver detalhes da observaÃ§Ã£o">
+                        <a href="<?= Url::to(['observation/view', 'id' => $observation->observation_id]) ?>" class="timeline-item-action-link" title="Ver detalhes da observação">
                             <i class="fas fa-eye" aria-hidden="true"></i>
-                            Ver observaÃ§Ã£o
+                            Ver observação
                         </a>
                         <?php if (
                             $observation->observation_id !== null
@@ -244,7 +244,7 @@ $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
                                 || (!$observation->needsManualReview() && ((Yii::$app->user->identity?->isAdmin() ?? false) || Yii::$app->user->id === $observation->user_id))
                             )
                         ): ?>
-                            <a href="<?= Url::to(['observation/update', 'id' => $observation->observation_id]) ?>" class="timeline-item-action-link" title="<?= $observation->needsManualReview() ? 'Completar identificaÃ§Ã£o manual' : 'Editar observaÃ§Ã£o' ?>">
+                            <a href="<?= Url::to(['observation/update', 'id' => $observation->observation_id]) ?>" class="timeline-item-action-link" title="<?= $observation->needsManualReview() ? 'Completar identificação manual' : 'Editar observação' ?>">
                                 <i class="<?= $observation->needsManualReview() ? 'fas fa-user-check' : 'fas fa-edit' ?>" aria-hidden="true"></i>
                                 <?= $observation->needsManualReview() ? 'Identificar' : 'Editar' ?>
                             </a>
