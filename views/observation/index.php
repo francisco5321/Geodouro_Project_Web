@@ -15,7 +15,7 @@ use yii\widgets\LinkPager;
 /** @var bool $myObservationsOnly */
 /** @var array $summary */
 
-$this->title = 'ObservaÃ§Ãµes';
+$this->title = 'Observações';
 $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
 ?>
 <div class="module-shell">
@@ -23,15 +23,15 @@ $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
         <div>
             <span class="eyebrow">
                 <i class="fas fa-binoculars" aria-hidden="true"></i>
-                Ã³dulo de observaÃ§Ãµes
+                Módulo de observações
             </span>
             <h1 class="hero-title hero-title-tight">Registos captados e sincronizados a partir da app mobile</h1>
-            <p class="hero-text">Visualiza, filtra e gere todas as observaÃ§Ãµes botÃ¢nicas recolhidas pelo projeto GeoFlora.</p>
+            <p class="hero-text">Visualiza, filtra e gere todas as observações botânicas recolhidas pelo projeto GeoFlora.</p>
         </div>
         <div class="detail-stat-grid">
             <?php if ($isAdmin): ?>
                 <?= StatCard::widget([
-                    'label' => 'RevisÃ£o manual',
+                    'label' => 'Revisão manual',
                     'value' => (int) ($summary['manualReview'] ?? 0),
                     'icon' => 'fas fa-user-check',
                     'cssClass' => 'obs-stat-manual',
@@ -68,8 +68,8 @@ $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
                     type="search"
                     name="q"
                     value="<?= Html::encode($queryText) ?>"
-                    placeholder="Pesquisar por espÃ©cie"
-                    aria-label="Pesquisar observaÃ§Ãµes por espÃ©cie"
+                    placeholder="Pesquisar por espécie"
+                    aria-label="Pesquisar observações por espécie"
                 >
             </label>
             <?php if ($status !== 'all'): ?>
@@ -90,7 +90,7 @@ $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
             </a>
             <a class="btn <?= $myObservationsOnly && $status === 'all' ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'my' => 1, 'status' => null, 'q' => $queryText ?: null]) ?>">
                 <i class="fas fa-user" aria-hidden="true"></i>
-                Minhas observaÃ§Ãµes
+                Minhas observações
             </a>
             <a class="btn <?= $status === 'PUBLISHED' ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'status' => 'PUBLISHED', 'q' => $queryText ?: null, 'my' => 0]) ?>">
                 <i class="fas fa-star" aria-hidden="true"></i>
@@ -99,7 +99,7 @@ $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
             <?php if ($isAdmin): ?>
                 <a class="btn <?= $status === Observation::STATUS_MANUAL_REVIEW ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'status' => Observation::STATUS_MANUAL_REVIEW, 'q' => $queryText ?: null, 'my' => $myObservationsOnly ? 1 : 0]) ?>">
                     <i class="fas fa-user-check" aria-hidden="true"></i>
-                    RevisÃ£o manual
+                    Revisão manual
                 </a>
             <?php endif; ?>
         </div>
