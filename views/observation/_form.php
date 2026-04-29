@@ -10,6 +10,9 @@ use yii\bootstrap5\Html;
 /** @var array $speciesOptions */
 
 $isNewRecord = $model->isNewRecord;
+$isAdminManualReview = !$isNewRecord
+    && $model->needsManualReview()
+    && (Yii::$app->user->identity?->isAdmin() ?? false);
 $submitLabel = $isNewRecord ? 'Criar Observação' : 'Guardar alterações';
 $cancelUrl = $isNewRecord ? ['map/index'] : ['observation/view', 'id' => $model->observation_id];
 ?>
@@ -48,11 +51,24 @@ $cancelUrl = $isNewRecord ? ['map/index'] : ['observation/view', 'id' => $model-
         <div class="auth-grid-two mb-3">
             <?= $form->field($model, 'latitude')
                 ->label('Latitude' . ' <span class="is-required">*</span>', ['encode' => false])
-                ->textInput(['type' => 'number', 'step' => '0.0000001', 'class' => 'form-control']) ?>
+                ->textInput([
+                    'type' => 'number',
+                    'step' => '0.0000001',
+                    'class' => 'form-control',
+                    'readonly' => $isAdminManualReview,
+                ]) ?>
             <?= $form->field($model, 'longitude')
                 ->label('Longitude' . ' <span class="is-required">*</span>', ['encode' => false])
-                ->textInput(['type' => 'number', 'step' => '0.0000001', 'class' => 'form-control']) ?>
+                ->textInput([
+                    'type' => 'number',
+                    'step' => '0.0000001',
+                    'class' => 'form-control',
+                    'readonly' => $isAdminManualReview,
+                ]) ?>
         </div>
+        <?php if ($isAdminManualReview): ?>
+            <small class="form-text">Durante a revisÃ£o manual, a localizaÃ§Ã£o original da observaÃ§Ã£o nÃ£o pode ser alterada.</small>
+        <?php endif; ?>
 
     </fieldset>
 
