@@ -22,8 +22,13 @@ class ObservationController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'view'],
+                        'actions' => ['view'],
                         'roles' => ['?', '@'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['@'],
                     ],
                     [
                         'allow' => true,
