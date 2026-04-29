@@ -88,11 +88,11 @@ $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
                 <i class="fas fa-list" aria-hidden="true"></i>
                 Todas
             </a>
-            <a class="btn <?= $myObservationsOnly ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'my' => 1, 'status' => $status === 'all' ? null : $status, 'q' => $queryText ?: null]) ?>">
+            <a class="btn <?= $myObservationsOnly && $status === 'all' ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'my' => 1, 'status' => null, 'q' => $queryText ?: null]) ?>">
                 <i class="fas fa-user" aria-hidden="true"></i>
                 Minhas observaÃ§Ãµes
             </a>
-            <a class="btn <?= $status === 'PUBLISHED' ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'status' => 'PUBLISHED', 'q' => $queryText ?: null, 'my' => $myObservationsOnly ? 1 : 0]) ?>">
+            <a class="btn <?= $status === 'PUBLISHED' ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'status' => 'PUBLISHED', 'q' => $queryText ?: null, 'my' => 0]) ?>">
                 <i class="fas fa-star" aria-hidden="true"></i>
                 Publicadas
             </a>
