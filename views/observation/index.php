@@ -15,23 +15,23 @@ use yii\widgets\LinkPager;
 /** @var bool $myObservationsOnly */
 /** @var array $summary */
 
-$this->title = 'Observações';
+$this->title = 'ObservaÃ§Ãµes';
+$isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
 ?>
-<?php $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false; ?>
 <div class="module-shell">
     <section class="species-hero observation-hero mb-4">
         <div>
             <span class="eyebrow">
                 <i class="fas fa-binoculars" aria-hidden="true"></i>
-                ódulo de observações
+                Ã³dulo de observaÃ§Ãµes
             </span>
             <h1 class="hero-title hero-title-tight">Registos captados e sincronizados a partir da app mobile</h1>
-            <p class="hero-text">Visualiza, filtra e gere todas as observações botânicas recolhidas pelo projeto GeoFlora.</p>
+            <p class="hero-text">Visualiza, filtra e gere todas as observaÃ§Ãµes botÃ¢nicas recolhidas pelo projeto GeoFlora.</p>
         </div>
         <div class="detail-stat-grid">
             <?php if ($isAdmin): ?>
                 <?= StatCard::widget([
-                    'label' => 'Revisão manual',
+                    'label' => 'RevisÃ£o manual',
                     'value' => (int) ($summary['manualReview'] ?? 0),
                     'icon' => 'fas fa-user-check',
                     'cssClass' => 'obs-stat-manual',
@@ -68,8 +68,8 @@ $this->title = 'Observações';
                     type="search"
                     name="q"
                     value="<?= Html::encode($queryText) ?>"
-                    placeholder="Pesquisar por espécie"
-                    aria-label="Pesquisar observações por espécie"
+                    placeholder="Pesquisar por espÃ©cie"
+                    aria-label="Pesquisar observaÃ§Ãµes por espÃ©cie"
                 >
             </label>
             <?php if ($status !== 'all'): ?>
@@ -84,31 +84,24 @@ $this->title = 'Observações';
             </button>
         </form>
         <div class="filter-row">
+            <a class="btn <?= $status === 'all' ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'status' => null, 'q' => $queryText ?: null, 'my' => $myObservationsOnly ? 1 : 0]) ?>">
+                <i class="fas fa-list" aria-hidden="true"></i>
+                Todas
+            </a>
             <a class="btn <?= $myObservationsOnly ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'my' => 1, 'status' => $status === 'all' ? null : $status, 'q' => $queryText ?: null]) ?>">
                 <i class="fas fa-user" aria-hidden="true"></i>
                 Minhas observaÃ§Ãµes
             </a>
-            <a class="btn <?= !$myObservationsOnly ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'my' => 0, 'status' => $status === 'all' ? null : $status, 'q' => $queryText ?: null]) ?>">
-                <i class="fas fa-globe" aria-hidden="true"></i>
-                Todas as observaÃ§Ãµes
+            <a class="btn <?= $status === 'PUBLISHED' ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'status' => 'PUBLISHED', 'q' => $queryText ?: null, 'my' => $myObservationsOnly ? 1 : 0]) ?>">
+                <i class="fas fa-star" aria-hidden="true"></i>
+                Publicadas
             </a>
-        </div>
-        <div class="filter-row">
-            <?php
-            $statusFilters = [
-                'all' => ['label' => 'Todas', 'icon' => 'fas fa-list'],
-                'PUBLISHED' => ['label' => 'Publicadas', 'icon' => 'fas fa-star'],
-            ];
-            if ($isAdmin) {
-                $statusFilters[Observation::STATUS_MANUAL_REVIEW] = ['label' => 'Revisão manual', 'icon' => 'fas fa-user-check'];
-            }
-            foreach ($statusFilters as $value => $config):
-            ?>
-                <a class="btn <?= $status === $value ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'status' => $value === 'all' ? null : $value, 'q' => $queryText ?: null, 'my' => $myObservationsOnly ? 1 : 0]) ?>">
-                    <i class="<?= Html::encode($config['icon']) ?>" aria-hidden="true"></i>
-                    <?= Html::encode($config['label']) ?>
+            <?php if ($isAdmin): ?>
+                <a class="btn <?= $status === Observation::STATUS_MANUAL_REVIEW ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'status' => Observation::STATUS_MANUAL_REVIEW, 'q' => $queryText ?: null, 'my' => $myObservationsOnly ? 1 : 0]) ?>">
+                    <i class="fas fa-user-check" aria-hidden="true"></i>
+                    RevisÃ£o manual
                 </a>
-            <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </section>
 
@@ -120,14 +113,14 @@ $this->title = 'Observações';
                         <i class="fas fa-plus-circle" aria-hidden="true"></i>
                     </div>
                     <div>
-                        <strong>Criar observação manual</strong>
-                        <p class="table-subtext mb-0">Também podes abrir a fila das observações onde o MobileNet não reconheceu a planta para completar a identificação manualmente.</p>
+                        <strong>Criar observaÃ§Ã£o manual</strong>
+                        <p class="table-subtext mb-0">TambÃ©m podes abrir a fila das observaÃ§Ãµes onde o MobileNet nÃ£o reconheceu a planta para completar a identificaÃ§Ã£o manualmente.</p>
                     </div>
                 </div>
                 <div class="toolbar-actions">
-                    <a class="btn btn-brand" href="<?= Url::to(['observation/create']) ?>" title="Criar nova observação">
+                    <a class="btn btn-brand" href="<?= Url::to(['observation/create']) ?>" title="Criar nova observaÃ§Ã£o">
                         <i class="fas fa-plus" aria-hidden="true"></i>
-                        Nova observação
+                        Nova observaÃ§Ã£o
                     </a>
                 </div>
             </div>
@@ -137,15 +130,15 @@ $this->title = 'Observações';
     <?php if (empty($observations)): ?>
         <?= EmptyState::widget([
             'icon' => 'fas fa-inbox',
-            'title' => 'Nenhuma observação encontrada',
-            'message' => 'Nenhuma observação corresponde aos filtros selecionados.',
+            'title' => 'Nenhuma observaÃ§Ã£o encontrada',
+            'message' => 'Nenhuma observaÃ§Ã£o corresponde aos filtros selecionados.',
             'actions' => [
                 ['label' => 'Voltar', 'url' => ['observation/index', 'my' => $myObservationsOnly ? 1 : 0], 'icon' => 'fas fa-redo', 'class' => 'btn-outline-brand'],
-                ['label' => 'Nova observação', 'url' => ['observation/create'], 'icon' => 'fas fa-plus', 'class' => 'btn-brand'],
+                ['label' => 'Nova observaÃ§Ã£o', 'url' => ['observation/create'], 'icon' => 'fas fa-plus', 'class' => 'btn-brand'],
             ],
         ]) ?>
     <?php else: ?>
-        <section class="observations-list" role="region" aria-label="Lista de observações">
+        <section class="observations-list" role="region" aria-label="Lista de observaÃ§Ãµes">
             <?php foreach ($observations as $observation): ?>
                 <?php
                 if ($observation->is_published) {
@@ -153,7 +146,7 @@ $this->title = 'Observações';
                     $statusClass = 'badge-success';
                     $statusIcon = 'fas fa-check-circle';
                 } elseif ($observation->needsManualReview()) {
-                    $statusLabel = 'Revisão manual';
+                    $statusLabel = 'RevisÃ£o manual';
                     $statusClass = 'badge-warning';
                     $statusIcon = 'fas fa-user-check';
                 } elseif ($observation->sync_status === Observation::SYNC_SYNCED) {
@@ -161,7 +154,7 @@ $this->title = 'Observações';
                     $statusClass = '';
                     $statusIcon = 'fas fa-sync';
                 } elseif ($observation->sync_status === Observation::SYNC_FAILED) {
-                    $statusLabel = 'Falha de sincronização';
+                    $statusLabel = 'Falha de sincronizaÃ§Ã£o';
                     $statusClass = 'badge-danger';
                     $statusIcon = 'fas fa-exclamation-triangle';
                 } else {
@@ -175,9 +168,9 @@ $this->title = 'Observações';
                     ? ($confidence >= 80 ? 'confidence-high' : ($confidence >= 50 ? 'confidence-medium' : 'confidence-low'))
                     : 'confidence-unknown';
                 $title = $observation->needsManualReview()
-                    ? 'Observação por identificar'
-                    : ($observation->getResolvedCommonName() ?: 'Observação botânica');
-                $subtitle = $observation->getResolvedScientificName() ?: 'Sem classificação';
+                    ? 'ObservaÃ§Ã£o por identificar'
+                    : ($observation->getResolvedCommonName() ?: 'ObservaÃ§Ã£o botÃ¢nica');
+                $subtitle = $observation->getResolvedScientificName() ?: 'Sem classificaÃ§Ã£o';
                 ?>
                 <article class="timeline-item observation-item">
                     <div class="timeline-item-header">
@@ -229,7 +222,7 @@ $this->title = 'Observações';
                                 Especie
                             </span>
                             <strong class="timeline-item-meta-value" title="<?= Html::encode($subtitle) ?>">
-                                <?= Html::encode($observation->needsManualReview() ? 'A aguardar identificação manual' : ($observation->getResolvedCommonName() ?? $subtitle ?? 'Não associada')) ?>
+                                <?= Html::encode($observation->needsManualReview() ? 'A aguardar identificaÃ§Ã£o manual' : ($observation->getResolvedCommonName() ?? $subtitle ?? 'NÃ£o associada')) ?>
                             </strong>
                         </div>
                     </div>
@@ -241,12 +234,12 @@ $this->title = 'Observações';
                                 Ver especie
                             </a>
                         <?php endif; ?>
-                        <a href="<?= Url::to(['observation/view', 'id' => $observation->observation_id]) ?>" class="timeline-item-action-link" title="Ver detalhes da observação">
+                        <a href="<?= Url::to(['observation/view', 'id' => $observation->observation_id]) ?>" class="timeline-item-action-link" title="Ver detalhes da observaÃ§Ã£o">
                             <i class="fas fa-eye" aria-hidden="true"></i>
-                            Ver observação
+                            Ver observaÃ§Ã£o
                         </a>
                         <?php if ($observation->observation_id !== null && (Yii::$app->user->identity?->isAdmin() || Yii::$app->user->id === $observation->user_id)): ?>
-                            <a href="<?= Url::to(['observation/update', 'id' => $observation->observation_id]) ?>" class="timeline-item-action-link" title="<?= $observation->needsManualReview() ? 'Completar identificação manual' : 'Editar observação' ?>">
+                            <a href="<?= Url::to(['observation/update', 'id' => $observation->observation_id]) ?>" class="timeline-item-action-link" title="<?= $observation->needsManualReview() ? 'Completar identificaÃ§Ã£o manual' : 'Editar observaÃ§Ã£o' ?>">
                                 <i class="<?= $observation->needsManualReview() ? 'fas fa-user-check' : 'fas fa-edit' ?>" aria-hidden="true"></i>
                                 <?= $observation->needsManualReview() ? 'Identificar' : 'Editar' ?>
                             </a>
@@ -266,8 +259,8 @@ $this->title = 'Observações';
                 'nextPageCssClass' => 'page-item',
                 'disabledPageCssClass' => 'page-item disabled',
                 'activePageCssClass' => 'page-item active',
-                'prevPageLabel' => '‹',
-                'nextPageLabel' => '›',
+                'prevPageLabel' => 'â€¹',
+                'nextPageLabel' => 'â€º',
                 'hideOnSinglePage' => true,
                 'disabledListItemSubTagOptions' => ['class' => 'd-none'],
             ]) ?>
