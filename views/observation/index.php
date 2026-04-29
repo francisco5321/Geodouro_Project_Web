@@ -238,7 +238,13 @@ $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
                             <i class="fas fa-eye" aria-hidden="true"></i>
                             Ver observaÃ§Ã£o
                         </a>
-                        <?php if ($observation->observation_id !== null && (Yii::$app->user->identity?->isAdmin() || Yii::$app->user->id === $observation->user_id)): ?>
+                        <?php if (
+                            $observation->observation_id !== null
+                            && (
+                                ($observation->needsManualReview() && (Yii::$app->user->identity?->isAdmin() ?? false))
+                                || (!$observation->needsManualReview() && ((Yii::$app->user->identity?->isAdmin() ?? false) || Yii::$app->user->id === $observation->user_id))
+                            )
+                        ): ?>
                             <a href="<?= Url::to(['observation/update', 'id' => $observation->observation_id]) ?>" class="timeline-item-action-link" title="<?= $observation->needsManualReview() ? 'Completar identificaÃ§Ã£o manual' : 'Editar observaÃ§Ã£o' ?>">
                                 <i class="<?= $observation->needsManualReview() ? 'fas fa-user-check' : 'fas fa-edit' ?>" aria-hidden="true"></i>
                                 <?= $observation->needsManualReview() ? 'Identificar' : 'Editar' ?>
