@@ -11,6 +11,8 @@ use yii\bootstrap5\Html;
 /** @var AppUser $user */
 /** @var ProfileForm $profileForm */
 /** @var ChangePasswordForm $passwordForm */
+/** @var int $observationCount */
+/** @var int $publicationCount */
 
 $this->title = 'A minha conta';
 ?>
@@ -32,12 +34,12 @@ $this->title = 'A minha conta';
         <div class="detail-stat-grid">
             <?= StatCard::widget([
                 'label' => 'Observações',
-                'value' => count($user->observations),
+                'value' => $observationCount,
                 'icon' => 'fas fa-eye',
             ]) ?>
             <?= StatCard::widget([
                 'label' => 'Publicações',
-                'value' => count($user->publications),
+                'value' => $publicationCount,
                 'icon' => 'fas fa-file-alt',
             ]) ?>
         </div>

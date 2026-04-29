@@ -133,6 +133,15 @@ class SiteController extends Controller
         $user = Yii::$app->user->identity;
         $profileForm = new ProfileForm($user);
         $passwordForm = new ChangePasswordForm($user);
+        $observationCount = 0;
+        $publicationCount = 0;
+
+        try {
+            $observationCount = (int) (Yii::$app->observationApi->listObservations('', 'all', true, 0, 1)['totalCount'] ?? 0);
+            $publicationCount = (int) (Yii::$app->publicationApi->listPublications('mine', 0, 1)['totalCount'] ?? 0);
+        } catch (RuntimeException $exception) {
+            Yii::error($exception->getMessage(), __METHOD__);
+        }
 
         $request = Yii::$app->request;
         if ($request->isPost) {
@@ -152,6 +161,8 @@ class SiteController extends Controller
         return $this->render('account', [
             'profileForm' => $profileForm,
             'passwordForm' => $passwordForm,
+            'observationCount' => $observationCount,
+            'publicationCount' => $publicationCount,
             'user' => $user,
         ]);
     }
