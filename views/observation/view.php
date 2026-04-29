@@ -23,6 +23,16 @@ $canRequestManualReview = !Yii::$app->user->isGuest
     && !$observation->needsManualReview()
     && !$observation->is_published
     && ((Yii::$app->user->identity?->isAdmin() ?? false) || (int) $observation->user_id === (int) Yii::$app->user->id);
+$manualReviewTriggeredByUser = $observation->needsManualReview()
+    && trim((string) $observation->predicted_scientific_name) !== ''
+    && !in_array(
+        trim((string) $observation->predicted_scientific_name),
+        ['Nao conhecemos essa planta', 'Não conhecemos essa planta'],
+        true
+    );
+$manualReviewMessage = $manualReviewTriggeredByUser
+    ? 'O MobileNet identificou a planta, mas o utilizador decidiu enviar para a administracao.'
+    : 'O YOLO detetou uma planta, mas o MobileNet nao conseguiu reconhecer a especie. Esta observacao esta na fila de revisao manual.';
 $coordinateLabel = $observation->hasCoordinates()
     ? number_format((float) $observation->latitude, 5) . ', ' . number_format((float) $observation->longitude, 5)
     : 'Sem localização';
@@ -49,6 +59,17 @@ if (locationEl) {
         .catch(() => {
             locationEl.textContent = fallback;
         });
+}
+JS, View::POS_END);
+}
+
+if ($observation->needsManualReview()) {
+    $manualReviewMessageJson = json_encode($manualReviewMessage, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    $this->registerJs(<<<JS
+const manualReviewMessage = $manualReviewMessageJson;
+const manualReviewTextEl = document.querySelector('.species-detail-copy .hero-text');
+if (manualReviewTextEl) {
+    manualReviewTextEl.textContent = manualReviewMessage;
 }
 JS, View::POS_END);
 }
