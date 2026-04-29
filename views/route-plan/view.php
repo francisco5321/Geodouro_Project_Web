@@ -78,11 +78,7 @@ routeMarkers.forEach((marker) => {
 
 function drawFallbackRoute() {
     if (routeCoordinates.length <= 1) return;
-    const fallbackCoordinates = routeCoordinates.length > 2
-        ? [...routeCoordinates, routeCoordinates[0]]
-        : routeCoordinates;
-
-    routePathLayer = L.polyline(fallbackCoordinates, {
+    routePathLayer = L.polyline(routeCoordinates, {
         color: '#1f5f43',
         weight: 5,
         opacity: 0.85,
@@ -163,7 +159,7 @@ $this->registerJs($js, View::POS_END);
         </div>
         <div class="detail-stat-grid">
             <article class="detail-stat-card"><span>Paragens</span><strong><?= count($stops) ?></strong></article>
-            <article class="detail-stat-card"><span>Trajeto</span><strong>Circuito</strong></article>
+            <article class="detail-stat-card"><span>Trajeto</span><strong>Ida</strong></article>
         </div>
     </section>
 
