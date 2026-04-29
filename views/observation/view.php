@@ -19,6 +19,10 @@ $imagePaths = $observation->getImageGalleryPaths();
 $canCreatePublication = Yii::$app->user->identity?->isAdmin() || (int) $observation->user_id === (int) Yii::$app->user->id;
 $canDeleteObservation = Yii::$app->user->identity?->isAdmin() ?? false;
 $canReviewObservation = $observation->needsManualReview() && (Yii::$app->user->identity?->isAdmin() ?? false);
+$canRequestManualReview = !Yii::$app->user->isGuest
+    && !$observation->needsManualReview()
+    && !$observation->is_published
+    && ((Yii::$app->user->identity?->isAdmin() ?? false) || (int) $observation->user_id === (int) Yii::$app->user->id);
 $coordinateLabel = $observation->hasCoordinates()
     ? number_format((float) $observation->latitude, 5) . ', ' . number_format((float) $observation->longitude, 5)
     : 'Sem localização';
@@ -64,6 +68,8 @@ JS, View::POS_END);
             </div>
             <?php if ($observation->needsManualReview()): ?>
                 <p class="hero-text">O YOLO detetou uma planta, mas o MobileNet não conseguiu reconhecer a espécie. Esta observação está na fila de revisão manual.</p>
+            <?php elseif ($canRequestManualReview): ?>
+                <p class="hero-text">A previsÃ£o estÃ¡ incorreta? Podes enviar esta observaÃ§Ã£o para a administraÃ§Ã£o rever manualmente, tal como acontece quando o MobileNet nÃ£o consegue identificar a planta.</p>
             <?php endif; ?>
             <p class="hero-text"><?= Html::encode($observation->notes ?: 'Sem notas de campo registadas para esta observação.') ?></p>
             <div class="hero-cta-row mt-4">
@@ -72,6 +78,17 @@ JS, View::POS_END);
                         <i class="fas fa-user-check" aria-hidden="true"></i>
                         Completar identificação
                     </a>
+                <?php endif; ?>
+                <?php if ($canRequestManualReview && $observation->observation_id !== null): ?>
+                    <?= Html::a(
+                        '<i class="fas fa-flag" aria-hidden="true"></i> Enviar para a administraÃ§Ã£o',
+                        ['observation/request-review', 'id' => $observation->observation_id],
+                        [
+                            'class' => 'btn btn-outline-brand',
+                            'data-method' => 'post',
+                            'data-confirm' => 'Queres enviar esta observaÃ§Ã£o para revisÃ£o manual da administraÃ§Ã£o?',
+                        ]
+                    ) ?>
                 <?php endif; ?>
                 <?php if ($canDeleteObservation && $observation->observation_id !== null): ?>
                     <?= Html::a(

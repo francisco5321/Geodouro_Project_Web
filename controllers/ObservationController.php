@@ -27,14 +27,14 @@ class ObservationController extends Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['create', 'update', 'delete'],
+                        'actions' => ['create', 'update', 'delete', 'request-review'],
                         'roles' => ['@'],
                         'matchCallback' => static function () {
                             $identity = Yii::$app->user->identity;
                             if ($identity === null) {
                                 return false;
                             }
-                            return in_array(Yii::$app->requestedAction?->id, ['update', 'delete'], true) || $identity->isAdmin();
+                            return in_array(Yii::$app->requestedAction?->id, ['update', 'delete', 'request-review'], true) || $identity->isAdmin();
                         },
                     ],
                 ],
@@ -49,6 +49,7 @@ class ObservationController extends Controller
                 'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['post'],
+                    'request-review' => ['post'],
                 ],
             ],
         ];
@@ -184,6 +185,31 @@ class ObservationController extends Controller
         return $this->redirect(['observation/index']);
     }
 
+    public function actionRequestReview(int $id)
+    {
+        $model = $this->findApiModel($id);
+        $this->ensureManageAccess($model);
+
+        if ($model->needsManualReview()) {
+            Yii::$app->session->setFlash('info', 'Esta observaÃ§Ã£o jÃ¡ estÃ¡ na fila de revisÃ£o manual.');
+            return $this->redirect(['observation/view', 'id' => $model->observation_id]);
+        }
+
+        if ($model->is_published) {
+            Yii::$app->session->setFlash('error', 'NÃ£o Ã© possÃ­vel reenviar uma observaÃ§Ã£o jÃ¡ publicada para revisÃ£o manual.');
+            return $this->redirect(['observation/view', 'id' => $model->observation_id]);
+        }
+
+        try {
+            Yii::$app->observationApi->saveObservation($this->manualReviewRequestPayload($model));
+            Yii::$app->session->setFlash('success', 'ObservaÃ§Ã£o enviada para a administraÃ§Ã£o rever manualmente.');
+        } catch (RuntimeException $exception) {
+            Yii::$app->session->setFlash('error', 'NÃ£o foi possÃ­vel enviar a observaÃ§Ã£o para revisÃ£o manual: ' . $exception->getMessage());
+        }
+
+        return $this->redirect(['observation/view', 'id' => $model->observation_id]);
+    }
+
     private function getUserOptions(): array
     {
         try {
@@ -299,6 +325,35 @@ class ObservationController extends Controller
             'scientificName' => $species['scientificName'] ?? null,
             'commonName' => $species['commonName'] ?? null,
             'family' => $species['family'] ?? null,
+            'notes' => trim((string) $model->notes) !== '' ? $model->notes : null,
+        ];
+    }
+
+    private function manualReviewRequestPayload(Observation $model): array
+    {
+        $observedAt = trim((string) $model->observed_at);
+        $timestamp = $observedAt !== '' ? strtotime(str_replace('T', ' ', $observedAt)) : time();
+        $predictedScientificName = trim((string) $model->predicted_scientific_name);
+        if ($predictedScientificName === '') {
+            $predictedScientificName = trim((string) $model->getResolvedScientificName());
+        }
+
+        return [
+            'deviceObservationId' => trim((string) $model->device_observation_id) !== '' ? $model->device_observation_id : null,
+            'userId' => (int) $model->user_id,
+            'plantSpeciesId' => null,
+            'capturedAt' => $model->captured_at ?: time(),
+            'predictedScientificName' => $predictedScientificName !== '' ? $predictedScientificName : 'ObservaÃ§Ã£o botanica',
+            'enrichedScientificName' => null,
+            'enrichedCommonName' => null,
+            'enrichedFamily' => null,
+            'confidence' => $model->confidence !== null ? (float) $model->confidence : 0,
+            'latitude' => $model->latitude !== null ? (float) $model->latitude : null,
+            'longitude' => $model->longitude !== null ? (float) $model->longitude : null,
+            'observedAt' => date('c', $timestamp ?: time()),
+            'isPublished' => false,
+            'syncStatus' => $model->sync_status ?: Observation::SYNC_PENDING,
+            'requiresManualIdentification' => true,
             'notes' => trim((string) $model->notes) !== '' ? $model->notes : null,
         ];
     }
