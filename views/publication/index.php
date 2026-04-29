@@ -61,6 +61,12 @@ $this->title = 'Publicações';
         </div>
     </section>
 
+    <?php if (empty($publications) && $scope === 'mine'): ?>
+        <section class="empty-state-card">
+            <h2>Sem publicações tuas</h2>
+            <p>Cria uma publicação para a poderes ver aqui.</p>
+        </section>
+    <?php else: ?>
     <section class="publication-grid">
         <?php foreach ($publications as $publication): ?>
             <?php
@@ -117,6 +123,7 @@ $this->title = 'Publicações';
             </article>
         <?php endforeach; ?>
     </section>
+    <?php endif; ?>
 
     <div class="catalog-pagination">
         <?= LinkPager::widget([
