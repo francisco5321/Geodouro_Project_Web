@@ -50,7 +50,24 @@ class SiteController extends Controller
     public function actionIndex(): string
     {
         try {
-            $counts = Yii::$app->cache->getOrSet('dashboard.stats.api.v1', static fn (): array => Yii::$app->dashboardApi->getStats(), 60);
+            $identity = Yii::$app->user->identity;
+            $cacheScope = Yii::$app->user->isGuest
+                ? 'guest'
+                : (($identity?->isAdmin() ?? false) ? 'admin' : 'user-' . (string) Yii::$app->user->id);
+
+            $counts = Yii::$app->cache->getOrSet('dashboard.stats.api.v2.' . $cacheScope, static function (): array {
+                $dashboardStats = Yii::$app->dashboardApi->getStats();
+                $speciesSummary = Yii::$app->speciesApi->listSpecies('', 'species', 0, 1)['summary'] ?? [];
+                $observationSummary = Yii::$app->observationApi->listObservations('', 'all', false, 0, 1)['summary'] ?? [];
+
+                return [
+                    'speciesCount' => (int) ($speciesSummary['speciesCount'] ?? 0),
+                    'observationCount' => (int) ($observationSummary['total'] ?? 0),
+                    'manualReviewCount' => (int) ($observationSummary['manualReview'] ?? 0),
+                    'publicationCount' => (int) ($dashboardStats['publicationCount'] ?? 0),
+                    'userCount' => (int) ($dashboardStats['userCount'] ?? 0),
+                ];
+            }, 60);
         } catch (RuntimeException $exception) {
             Yii::error($exception->getMessage(), __METHOD__);
             $counts = [
