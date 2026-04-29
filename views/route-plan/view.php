@@ -24,6 +24,66 @@ $this->registerCss(<<<'CSS'
 .route-plan-marker-gray {
     filter: grayscale(1) brightness(0.9);
 }
+
+.route-plan-popup {
+    min-width: 190px;
+}
+
+.route-plan-popup-title {
+    display: block;
+    margin: 0;
+    color: #2f312f;
+    font-size: 0.98rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.route-plan-popup-scientific {
+    margin: 0.35rem 0 0;
+    color: #4f534f;
+    font-size: 0.94rem;
+    line-height: 1.35;
+}
+
+.route-plan-popup-link,
+.route-plan-popup-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 42px;
+    margin-top: 0.75rem;
+    padding: 0.7rem 1rem;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #20593f 0%, #2e7a57 100%);
+    box-shadow: 0 10px 22px rgba(32, 89, 63, 0.18);
+    color: #fff;
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    -webkit-text-fill-color: #fff;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.route-plan-popup-link:hover,
+.route-plan-popup-link:focus,
+.route-plan-popup-button:hover,
+.route-plan-popup-button:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px rgba(32, 89, 63, 0.24);
+    background: linear-gradient(135deg, #1b4d37 0%, #276a4c 100%);
+    color: #fff;
+    -webkit-text-fill-color: #fff;
+}
+
+.route-plan-popup-link:visited,
+.route-plan-popup-link:active,
+.route-plan-popup-button:active {
+    color: #fff;
+    -webkit-text-fill-color: #fff;
+}
 CSS);
 $toggleUrl = Url::to(['route-plan/toggle-observation-point', 'id' => $planId]);
 
@@ -49,12 +109,12 @@ const grayMarkerIcon = new L.Icon.Default({
 const bounds = [];
 function popup(marker) {
     const label = marker.isInRoute ? 'Remover do percurso' : 'Adicionar ao percurso';
-    return `<div class="map-popup map-popup-rich">
-        <strong>${marker.title}</strong>
-        <p>${marker.scientificName || marker.subtitle || ''}</p>
+    return `<div class="map-popup map-popup-rich route-plan-popup">
+        <strong class="route-plan-popup-title">${marker.title}</strong>
+        <p class="route-plan-popup-scientific">${marker.scientificName || marker.subtitle || ''}</p>
         <div class="map-popup-actions">
-            ${marker.detailUrl ? `<a href="${marker.detailUrl}">Abrir observação</a>` : ''}
-            ${marker.id ? `<button type="button" class="map-popup-button js-route-observation-toggle" data-observation-id="${marker.id}">${label}</button>` : ''}
+            ${marker.detailUrl ? `<a class="route-plan-popup-link" href="${marker.detailUrl}">Abrir observação</a>` : ''}
+            ${marker.id ? `<button type="button" class="route-plan-popup-button js-route-observation-toggle" data-observation-id="${marker.id}">${label}</button>` : ''}
         </div>
     </div>`;
 }
