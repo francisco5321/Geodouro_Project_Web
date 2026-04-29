@@ -134,7 +134,6 @@ $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
             'message' => 'Nenhuma observaÃ§Ã£o corresponde aos filtros selecionados.',
             'actions' => [
                 ['label' => 'Voltar', 'url' => ['observation/index', 'my' => $myObservationsOnly ? 1 : 0], 'icon' => 'fas fa-redo', 'class' => 'btn-outline-brand'],
-                ['label' => 'Nova observaÃ§Ã£o', 'url' => ['observation/create'], 'icon' => 'fas fa-plus', 'class' => 'btn-brand'],
             ],
         ]) ?>
     <?php else: ?>
