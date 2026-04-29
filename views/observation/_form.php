@@ -155,7 +155,10 @@ if (mapEl && typeof L !== 'undefined') {
     if (!Number.isNaN(latitude) && !Number.isNaN(longitude)) {
         const map = L.map(mapEl, {
             zoomControl: true,
-            scrollWheelZoom: false,
+            scrollWheelZoom: true,
+            doubleClickZoom: true,
+            touchZoom: true,
+            boxZoom: true,
         }).setView([latitude, longitude], 16);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
