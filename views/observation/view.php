@@ -90,7 +90,7 @@ JS, View::POS_END);
             <?php if ($observation->needsManualReview()): ?>
                 <p class="hero-text">O YOLO detetou uma planta, mas o MobileNet não conseguiu reconhecer a espécie. Esta observação está na fila de revisão manual.</p>
             <?php elseif ($canRequestManualReview): ?>
-                <p class="hero-text">A previsÃ£o estÃ¡ incorreta? Podes enviar esta observaÃ§Ã£o para a administraÃ§Ã£o rever manualmente, tal como acontece quando o MobileNet nÃ£o consegue identificar a planta.</p>
+                <p class="hero-text">A previsão está incorreta? Podes enviar esta observação para a administração rever manualmente, tal como acontece quando o MobileNet não consegue identificar a planta.</p>
             <?php endif; ?>
             <p class="hero-text"><?= Html::encode($observation->notes ?: 'Sem notas de campo registadas para esta observação.') ?></p>
             <div class="hero-cta-row mt-4">
@@ -102,12 +102,12 @@ JS, View::POS_END);
                 <?php endif; ?>
                 <?php if ($canRequestManualReview && $observation->observation_id !== null): ?>
                     <?= Html::a(
-                        '<i class="fas fa-flag" aria-hidden="true"></i> Enviar para a administraÃ§Ã£o',
+                        '<i class="fas fa-flag" aria-hidden="true"></i> Enviar para a administração',
                         ['observation/request-review', 'id' => $observation->observation_id],
                         [
                             'class' => 'btn btn-outline-brand',
                             'data-method' => 'post',
-                            'data-confirm' => 'Queres enviar esta observaÃ§Ã£o para revisÃ£o manual da administraÃ§Ã£o?',
+                            'data-confirm' => 'Queres enviar esta observação para revisão manual da administração?',
                         ]
                     ) ?>
                 <?php endif; ?>

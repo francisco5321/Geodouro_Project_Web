@@ -195,20 +195,20 @@ class ObservationController extends Controller
         $this->ensureManageAccess($model);
 
         if ($model->needsManualReview()) {
-            Yii::$app->session->setFlash('info', 'Esta observaÃ§Ã£o jÃ¡ estÃ¡ na fila de revisÃ£o manual.');
+            Yii::$app->session->setFlash('info', 'Esta observação já està na fila de revisão manual.');
             return $this->redirect(['observation/view', 'id' => $model->observation_id]);
         }
 
         if ($model->is_published) {
-            Yii::$app->session->setFlash('error', 'NÃ£o Ã© possÃ­vel reenviar uma observaÃ§Ã£o jÃ¡ publicada para revisÃ£o manual.');
+            Yii::$app->session->setFlash('error', 'Não é possível reenviar uma observação já publicada para revisão manual.');
             return $this->redirect(['observation/view', 'id' => $model->observation_id]);
         }
 
         try {
             Yii::$app->observationApi->saveObservation($this->manualReviewRequestPayload($model));
-            Yii::$app->session->setFlash('success', 'ObservaÃ§Ã£o enviada para a administraÃ§Ã£o rever manualmente.');
+            Yii::$app->session->setFlash('success', 'Observação enviada para a administração rever manualmente.');
         } catch (RuntimeException $exception) {
-            Yii::$app->session->setFlash('error', 'NÃ£o foi possÃ­vel enviar a observaÃ§Ã£o para revisÃ£o manual: ' . $exception->getMessage());
+            Yii::$app->session->setFlash('error', 'Não foi possível enviar a observação para revisão manual: ' . $exception->getMessage());
         }
 
         return $this->redirect(['observation/view', 'id' => $model->observation_id]);
@@ -347,7 +347,7 @@ class ObservationController extends Controller
             'userId' => (int) $model->user_id,
             'plantSpeciesId' => null,
             'capturedAt' => $model->captured_at ?: time(),
-            'predictedScientificName' => $predictedScientificName !== '' ? $predictedScientificName : 'ObservaÃ§Ã£o botanica',
+            'predictedScientificName' => $predictedScientificName !== '' ? $predictedScientificName : 'Observação botânica',
             'enrichedScientificName' => null,
             'enrichedCommonName' => null,
             'enrichedFamily' => null,
