@@ -53,25 +53,13 @@ backgroundMarkers.forEach((marker) => {
     if (marker.latitude == null || marker.longitude == null) return;
     const point = [marker.latitude, marker.longitude];
     bounds.push(point);
-    L.circleMarker(point, {
-        radius: marker.isInRoute ? 9 : 5,
-        color: marker.isInRoute ? '#1f5f43' : '#8ca194',
-        fillColor: marker.isInRoute ? '#7bc47f' : '#d7e0d5',
-        fillOpacity: marker.isInRoute ? 0.9 : 0.35,
-        weight: marker.isInRoute ? 2 : 1,
-    }).addTo(routeMap).bindPopup(popup(marker));
+    L.marker(point).addTo(routeMap).bindPopup(popup(marker));
 });
 
 routeMarkers.forEach((marker) => {
     const point = [marker.latitude, marker.longitude];
     bounds.push(point);
-    L.circleMarker(point, {
-        radius: 10,
-        color: '#1f5f43',
-        fillColor: '#7bc47f',
-        fillOpacity: 0.95,
-        weight: 2.5,
-    }).addTo(routeMap).bindPopup(`<strong>${marker.order}. ${marker.title}</strong><p>${marker.subtitle || ''}</p>`);
+    L.marker(point).addTo(routeMap).bindPopup(`<strong>${marker.order}. ${marker.title}</strong><p>${marker.subtitle || ''}</p>`);
 });
 
 function drawFallbackRoute() {
