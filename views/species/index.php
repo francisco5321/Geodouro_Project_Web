@@ -35,11 +35,6 @@ $this->title = 'Espécies';
                 'icon' => 'fas fa-leaf',
             ]) ?>
             <?= StatCard::widget([
-                'label' => 'Observações',
-                'value' => (int) $summary['observationsCount'],
-                'icon' => 'fas fa-camera',
-            ]) ?>
-            <?= StatCard::widget([
                 'label' => 'Famílias',
                 'value' => (int) $summary['familiesCount'],
                 'icon' => 'fas fa-sitemap',
