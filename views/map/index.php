@@ -38,18 +38,38 @@ $this->registerCss(<<<'CSS'
 }
 
 .map-popup-observation-link {
-    display: inline-block;
-    margin-top: 0.55rem;
-    color: #0b75b8;
-    font-size: 0.95rem;
-    font-weight: 500;
-    text-decoration: underline;
-    text-underline-offset: 2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 42px;
+    margin-top: 0.75rem;
+    padding: 0.7rem 1rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #20593f 0%, #2e7a57 100%);
+    box-shadow: 0 10px 22px rgba(32, 89, 63, 0.18);
+    color: #fff;
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    -webkit-text-fill-color: #fff;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
 }
 
 .map-popup-observation-link:hover,
 .map-popup-observation-link:focus {
-    color: #085f94;
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px rgba(32, 89, 63, 0.24);
+    background: linear-gradient(135deg, #1b4d37 0%, #276a4c 100%);
+    color: #fff;
+    -webkit-text-fill-color: #fff;
+}
+
+.map-popup-observation-link:visited,
+.map-popup-observation-link:active {
+    color: #fff;
+    -webkit-text-fill-color: #fff;
 }
 
 .map-popup-create {
