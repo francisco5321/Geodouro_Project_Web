@@ -78,6 +78,15 @@ $publishedCount = (int) ($stats['publishedCount'] ?? 0);
                 <?= Html::encode($species->description ?: 'Esta ficha resume a espécie, as imagens recolhidas e as observações recentes sincronizadas entre mobile e web.') ?>
             </p>
 
+            <?php if (Yii::$app->user->identity?->isAdmin()): ?>
+                <div class="hero-cta-row mt-3">
+                    <a class="btn btn-outline-brand" href="<?= Url::to(['species/update', 'id' => $species->plant_species_id]) ?>">
+                        <i class="fas fa-pen" aria-hidden="true"></i>
+                        Editar espécie
+                    </a>
+                </div>
+            <?php endif; ?>
+
             <?php if (!empty($galleryImages)): ?>
                 <div class="species-filmstrip" aria-label="Galeria da especie">
                     <?php foreach ($galleryImages as $image): ?>
