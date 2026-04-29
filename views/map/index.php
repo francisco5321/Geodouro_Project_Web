@@ -49,6 +49,7 @@ $this->registerCss(<<<'CSS'
     font-size: 0.92rem;
     font-weight: 600;
     letter-spacing: 0.01em;
+    -webkit-text-fill-color: #fff;
     transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
 }
 
@@ -57,6 +58,14 @@ $this->registerCss(<<<'CSS'
     box-shadow: 0 12px 24px rgba(32, 89, 63, 0.24);
     background: linear-gradient(135deg, #1b4d37 0%, #276a4c 100%);
     color: #fff;
+    -webkit-text-fill-color: #fff;
+}
+
+.map-popup-create-link:visited,
+.map-popup-create-link:focus,
+.map-popup-create-link:active {
+    color: #fff;
+    -webkit-text-fill-color: #fff;
 }
 CSS);
 $js = <<<'JS'
