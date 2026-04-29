@@ -84,7 +84,7 @@ $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
             </button>
         </form>
         <div class="filter-row">
-            <a class="btn <?= $status === 'all' ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'status' => null, 'q' => $queryText ?: null, 'my' => $myObservationsOnly ? 1 : 0]) ?>">
+            <a class="btn <?= $status === 'all' && !$myObservationsOnly ? 'btn-brand' : 'btn-outline' ?>" href="<?= Url::to(['observation/index', 'status' => null, 'q' => $queryText ?: null, 'my' => 0]) ?>">
                 <i class="fas fa-list" aria-hidden="true"></i>
                 Todas
             </a>
