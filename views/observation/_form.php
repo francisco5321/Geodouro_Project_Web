@@ -64,7 +64,12 @@ if ($showLocationMap) {
             ></div>
             <div class="observation-location-summary">
                 <strong>Ponto registado:</strong>
-                <span><?= Html::encode(number_format((float) $model->latitude, 5) . ', ' . number_format((float) $model->longitude, 5)) ?></span>
+                <span
+                    id="observation-location-name"
+                    data-latitude="<?= Html::encode((string) $model->latitude) ?>"
+                    data-longitude="<?= Html::encode((string) $model->longitude) ?>"
+                    data-fallback="<?= Html::encode(number_format((float) $model->latitude, 5) . ', ' . number_format((float) $model->longitude, 5)) ?>"
+                >A carregar localizacao...</span>
             </div>
             <?= Html::activeHiddenInput($model, 'latitude') ?>
             <?= Html::activeHiddenInput($model, 'longitude') ?>
@@ -172,6 +177,28 @@ if (mapEl && typeof L !== 'undefined') {
 
         setTimeout(() => map.invalidateSize(), 0);
     }
+}
+
+const locationEl = document.getElementById('observation-location-name');
+if (locationEl) {
+    const latitude = locationEl.dataset.latitude;
+    const longitude = locationEl.dataset.longitude;
+    const fallback = locationEl.dataset.fallback || 'Localizacao registada';
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&zoom=16&addressdetails=1&accept-language=pt`;
+
+    fetch(url)
+        .then((response) => response.ok ? response.json() : null)
+        .then((data) => {
+            const address = data && data.address ? data.address : {};
+            const primary = address.road || address.neighbourhood || address.suburb || address.village || address.town || address.city || address.municipality || address.county;
+            const secondary = address.city || address.town || address.village || address.municipality || address.county || address.state;
+            const parts = [primary, secondary].filter((part, index, items) => part && items.indexOf(part) === index);
+            locationEl.textContent = parts.length ? parts.join(', ') : (data && data.display_name ? data.display_name.split(',').slice(0, 2).join(',') : fallback);
+            locationEl.title = fallback;
+        })
+        .catch(() => {
+            locationEl.textContent = fallback;
+        });
 }
 JS;
 
