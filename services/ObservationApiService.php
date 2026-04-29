@@ -11,8 +11,11 @@ class ObservationApiService extends Component
     {
         $path = '/api/observations';
         $headers = [];
+        $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
         if ($mineOnly && !Yii::$app->user->isGuest) {
             $path .= '?' . http_build_query(['userId' => Yii::$app->user->id]);
+            $headers = $this->headers();
+        } elseif ($isAdmin) {
             $headers = $this->headers();
         }
 
@@ -81,9 +84,14 @@ class ObservationApiService extends Component
      */
     private function candidateHeadersForDetail(): array
     {
-        $candidates = [[]];
         $authHeaders = $this->headers();
-        if ($authHeaders !== []) {
+        $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
+
+        $candidates = ($isAdmin && $authHeaders !== [])
+            ? [$authHeaders, []]
+            : [[]];
+
+        if (!$isAdmin && $authHeaders !== []) {
             $candidates[] = $authHeaders;
         }
 
