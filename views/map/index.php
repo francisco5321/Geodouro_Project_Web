@@ -16,39 +16,6 @@ use yii\web\View;
 $this->title = 'Mapa';
 $this->registerCssFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
 $this->registerJsFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', ['position' => View::POS_END]);
-$this->registerCss(<<<'CSS'
-.observation-map-pin {
-    position: relative;
-    width: 26px;
-    height: 26px;
-    border-radius: 50% 50% 50% 0;
-    background: linear-gradient(180deg, #59afe8 0%, #2f86c8 100%);
-    border: 2px solid #ffffff;
-    box-shadow: 0 8px 18px rgba(24, 84, 130, 0.28);
-    transform: rotate(-45deg);
-}
-
-.observation-map-pin::before {
-    content: '';
-    position: absolute;
-    top: 5px;
-    left: 5px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #ffffff 0%, #d6f0ff 45%, #8fc8ea 100%);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.85);
-}
-
-.observation-map-pin.is-visit-target {
-    background: linear-gradient(180deg, #6dcf8a 0%, #28975b 100%);
-    box-shadow: 0 10px 24px rgba(31, 95, 67, 0.3);
-}
-
-.observation-map-pin.is-focused {
-    transform: rotate(-45deg) scale(1.12);
-}
-CSS);
 $js = <<<'JS'
 const markers = __MARKERS__ || [];
 const canCreateObservation = __CAN_CREATE__;
@@ -62,26 +29,6 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 const bounds = [];
 let focusedLayer = null;
 
-function createObservationIcon(marker) {
-    const classes = ['observation-map-pin'];
-
-    if (marker.isVisitTarget) {
-        classes.push('is-visit-target');
-    }
-
-    if (Number(marker.id) === Number(focusObservationId)) {
-        classes.push('is-focused');
-    }
-
-    return L.divIcon({
-        className: 'observation-map-pin-wrapper',
-        html: `<span class="${classes.join(' ')}" aria-hidden="true"></span>`,
-        iconSize: [26, 26],
-        iconAnchor: [13, 26],
-        popupAnchor: [0, -24],
-    });
-}
-
 markers.forEach((marker) => {
     const point = [marker.latitude, marker.longitude];
     bounds.push(point);
@@ -93,9 +40,7 @@ markers.forEach((marker) => {
             <a href="${marker.detailUrl}">Abrir observação</a>
         </div>
     `;
-    const layer = L.marker(point, {
-        icon: createObservationIcon(marker),
-    }).addTo(map).bindPopup(popup);
+    const layer = L.marker(point).addTo(map).bindPopup(popup);
 
     if (Number(marker.id) === Number(focusObservationId)) {
         focusedLayer = layer;
