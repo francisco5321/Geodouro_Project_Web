@@ -9,6 +9,17 @@ AppAsset::register($this);
 $geodouroEmail = 'geodouro@geodouro.pt';
 $geodouroPhone = '+351 254 851 965';
 $supportHours = 'Segunda a Sexta, 09:00-18:00';
+$faviconHref = Url::to('@web/favicon.svg?v=2');
+$this->registerLinkTag([
+    'rel' => 'icon',
+    'type' => 'image/svg+xml',
+    'href' => $faviconHref,
+]);
+$this->registerLinkTag([
+    'rel' => 'shortcut icon',
+    'type' => 'image/svg+xml',
+    'href' => $faviconHref,
+]);
 
 $this->beginPage();
 ?>
