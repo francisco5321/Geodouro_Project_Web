@@ -101,8 +101,15 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
 }).addTo(routeMap);
 
-const defaultMarkerIcon = new L.Icon.Default();
+const defaultMarkerIcon = new L.Icon.Default({
+    shadowUrl: null,
+    shadowSize: null,
+    shadowAnchor: null,
+});
 const grayMarkerIcon = new L.Icon.Default({
+    shadowUrl: null,
+    shadowSize: null,
+    shadowAnchor: null,
     className: 'route-plan-marker-gray',
 });
 
