@@ -133,6 +133,11 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
+const observationMarkerIcon = new L.Icon.Default({
+    shadowUrl: null,
+    shadowSize: null,
+    shadowAnchor: null,
+});
 const bounds = [];
 let focusedLayer = null;
 
@@ -146,7 +151,9 @@ markers.forEach((marker) => {
             <a class="map-popup-observation-link" href="${marker.detailUrl}">Abrir observação</a>
         </div>
     `;
-    const layer = L.marker(point).addTo(map).bindPopup(popup);
+    const layer = L.marker(point, {
+        icon: observationMarkerIcon,
+    }).addTo(map).bindPopup(popup);
 
     if (Number(marker.id) === Number(focusObservationId)) {
         focusedLayer = layer;
