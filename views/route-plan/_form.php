@@ -9,7 +9,11 @@ use yii\bootstrap5\Html;
 <div class="content-card publication-form-card">
     <?php $form = ActiveForm::begin(['options' => ['class' => 'stacked-form']]); ?>
         <?= $form->field($model, 'name')->textInput(['maxlength' => true, 'placeholder' => 'Ex.: Primavera no Douro']) ?>
-        <?= $form->field($model, 'description')->textarea(['rows' => 5, 'placeholder' => 'Define o objetivo deste percurso e as plantas/publicações que queres priorizar.']) ?>
+        <?= $form->field($model, 'description')->textarea([
+            'rows' => 5,
+            'placeholder' => 'Define o objetivo deste percurso e as plantas/publicações que queres priorizar.',
+            'style' => $model->isNewRecord ? null : 'resize: none;',
+        ]) ?>
 
         <div class="form-action-row">
             <?php if ($model->isNewRecord): ?>
