@@ -36,7 +36,7 @@ $this->title = 'Dashboard';
                 </div>
             <?php endif; ?>
         </div>
-        <div class="detail-stat-grid">
+        <div class="detail-stat-grid dashboard-stat-grid">
             <?= StatCard::widget([
                 'label' => 'Espécies',
                 'value' => (int) $speciesCount,

@@ -1046,6 +1046,10 @@ body.app-shell {
     align-self: start;
 }
 
+.dashboard-stat-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .route-plan-hero .detail-stat-grid {
     grid-template-columns: minmax(206px, 206px);
     justify-self: end;
@@ -1092,6 +1096,10 @@ body.app-shell {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
+    .dashboard-stat-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .route-plan-hero .detail-stat-grid {
         grid-template-columns: minmax(206px, 206px);
     }
@@ -1120,6 +1128,10 @@ body.app-shell {
     .detail-stat-grid {
         grid-template-columns: 1fr;
         gap: 0.8rem;
+    }
+
+    .dashboard-stat-grid {
+        grid-template-columns: 1fr;
     }
 
     .route-plan-hero .detail-stat-grid {
