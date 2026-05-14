@@ -14,7 +14,7 @@ $this->title = 'Dashboard';
 ?>
 <div class="module-shell">
     <?php $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false; ?>
-    <section class="species-hero mb-4">
+    <section class="species-hero dashboard-hero mb-4">
         <div>
             <span class="eyebrow">
                 <i class="fas fa-home" aria-hidden="true"></i>
@@ -36,7 +36,7 @@ $this->title = 'Dashboard';
                 </div>
             <?php endif; ?>
         </div>
-        <div class="detail-stat-grid">
+        <div class="detail-stat-grid<?= $isAdmin ? ' is-admin-grid' : '' ?>">
             <?php if ($isAdmin): ?>
                 <?= StatCard::widget([
                     'label' => 'Revisão Manual',
