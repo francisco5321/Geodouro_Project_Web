@@ -37,6 +37,13 @@ $this->title = 'Dashboard';
             <?php endif; ?>
         </div>
         <div class="detail-stat-grid">
+            <?php if ($isAdmin): ?>
+                <?= StatCard::widget([
+                    'label' => 'Revisão Manual',
+                    'value' => (int) $manualReviewCount,
+                    'icon' => 'fas fa-user-check',
+                ]) ?>
+            <?php endif; ?>
             <?= StatCard::widget([
                 'label' => 'Espécies',
                 'value' => (int) $speciesCount,
@@ -47,13 +54,6 @@ $this->title = 'Dashboard';
                 'value' => (int) $observationCount,
                 'icon' => 'fas fa-binoculars',
             ]) ?>
-            <?php if ($isAdmin): ?>
-                <?= StatCard::widget([
-                    'label' => 'Revisão Manual',
-                    'value' => (int) $manualReviewCount,
-                    'icon' => 'fas fa-user-check',
-                ]) ?>
-            <?php endif; ?>
             <?= StatCard::widget([
                 'label' => 'Publicações',
                 'value' => (int) $publicationCount,
