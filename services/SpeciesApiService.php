@@ -200,30 +200,6 @@ class SpeciesApiService extends Component
         return array_is_list($response) ? $response : [];
     }
 
-    private function extractTotalCount(array $response, int $fallback): int
-    {
-        foreach (['totalCount', 'total', 'count'] as $key) {
-            if (isset($response[$key]) && is_numeric($response[$key])) {
-                return (int) $response[$key];
-            }
-        }
-
-        if (isset($response['pagination']) && is_array($response['pagination'])) {
-            return $this->extractTotalCount($response['pagination'], $fallback);
-        }
-
-        return $fallback;
-    }
-
-    private function normalizeSummary(array $summary): array
-    {
-        return [
-            'speciesCount' => (int) ($summary['speciesCount'] ?? $summary['species_count'] ?? 0),
-            'observationsCount' => (int) ($summary['observationsCount'] ?? $summary['observations_count'] ?? 0),
-            'familiesCount' => (int) ($summary['familiesCount'] ?? $summary['families_count'] ?? 0),
-        ];
-    }
-
     /**
      * @param ApiPlantSpecies[] $species
      */
@@ -322,39 +298,6 @@ class SpeciesApiService extends Component
             'publishedCount' => (int) ($stats['publishedCount'] ?? $stats['published_count'] ?? 0),
             'syncedCount' => (int) ($stats['syncedCount'] ?? $stats['synced_count'] ?? 0),
             'avgConfidence' => isset($stats['avgConfidence']) ? (float) $stats['avgConfidence'] : ($stats['avg_confidence'] ?? null),
-        ];
-    }
-
-    private function normalizeImageMap(array $imageMap): array
-    {
-        $normalized = [];
-        foreach ($imageMap as $speciesId => $image) {
-            if (!is_array($image)) {
-                continue;
-            }
-            $normalized[(int) $speciesId] = $this->normalizeImage($image);
-        }
-
-        return $normalized;
-    }
-
-    private function normalizeImageList(array $images): array
-    {
-        return array_values(array_map(
-            fn (array $image): array => $this->normalizeImage($image),
-            array_filter($images, 'is_array')
-        ));
-    }
-
-    private function normalizeImage(array $image): array
-    {
-        if (isset($image['path'])) {
-            return ['path' => (string) $image['path']];
-        }
-
-        return [
-            'observationId' => (int) ($image['observationId'] ?? $image['observation_id'] ?? 0),
-            'imageIndex' => (int) ($image['imageIndex'] ?? $image['image_index'] ?? $image['index'] ?? 0),
         ];
     }
 
