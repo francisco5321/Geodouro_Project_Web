@@ -47,7 +47,7 @@ class ObservationController extends Controller
                     if (Yii::$app->user->isGuest) {
                         return Yii::$app->user->loginRequired();
                     }
-                    throw new ForbiddenHttpException('Não tens permissao para criar observações manualmente.');
+                    throw new ForbiddenHttpException('Não tens permissão para criar observações manualmente.');
                 },
             ],
             'verbs' => [
@@ -185,7 +185,7 @@ class ObservationController extends Controller
     public function actionDelete(int $id)
     {
         if (!(Yii::$app->user->identity?->isAdmin() ?? false)) {
-            throw new ForbiddenHttpException('Não tens permissao para remover esta observação.');
+            throw new ForbiddenHttpException('Não tens permissão para remover esta observação.');
         }
 
         try {
@@ -204,7 +204,7 @@ class ObservationController extends Controller
         $this->ensureManageAccess($model);
 
         if ($model->needsManualReview()) {
-            Yii::$app->session->setFlash('info', 'Esta observação já està na fila de revisão manual.');
+            Yii::$app->session->setFlash('info', 'Esta observação já está na fila de revisão manual.');
             return $this->redirect(['observation/view', 'id' => $model->observation_id]);
         }
 
@@ -269,10 +269,10 @@ class ObservationController extends Controller
     {
         $identity = Yii::$app->user->identity;
         if ($identity === null) {
-            throw new ForbiddenHttpException('Precisas de iniciar sessao para editar observações.');
+            throw new ForbiddenHttpException('Precisas de iniciar sessão para editar observações.');
         }
         if (!$identity->isAdmin() && (int) $identity->user_id !== (int) $observation->user_id) {
-            throw new ForbiddenHttpException('Não tens permissao para editar esta observação.');
+            throw new ForbiddenHttpException('Não tens permissão para editar esta observação.');
         }
     }
 

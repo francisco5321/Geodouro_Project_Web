@@ -222,7 +222,7 @@ class PublicationController extends Controller
     private function ensureManageAccess(Publication $publication): void
     {
         if (!$publication->canBeManagedBy(Yii::$app->user->identity)) {
-            throw new ForbiddenHttpException('Não tens permissao para gerir esta publicação.');
+            throw new ForbiddenHttpException('Não tens permissão para gerir esta publicação.');
         }
     }
 

@@ -31,8 +31,8 @@ $manualReviewTriggeredByUser = $observation->needsManualReview()
         true
     );
 $manualReviewMessage = $manualReviewTriggeredByUser
-    ? 'O MobileNet identificou a planta, mas o utilizador decidiu enviar para a administracao.'
-    : 'O YOLO detetou uma planta, mas o MobileNet nao conseguiu reconhecer a especie. Esta observacao esta na fila de revisao manual.';
+    ? 'O MobileNet identificou a planta, mas o utilizador decidiu enviar para a administração.'
+    : 'O YOLO detetou uma planta, mas o MobileNet não conseguiu reconhecer a espécie. Esta observação está na fila de revisão manual.';
 $coordinateLabel = $observation->hasCoordinates()
     ? number_format((float) $observation->latitude, 5) . ', ' . number_format((float) $observation->longitude, 5)
     : 'Sem localização';
@@ -85,7 +85,7 @@ JS, View::POS_END);
             <div class="species-meta-row">
                 <span class="species-meta-chip"><?= Html::encode($statusLabel) ?></span>
                 <span class="species-meta-chip"><?= Html::encode($observation->getResolvedFamily() ?: 'Família desconhecida') ?></span>
-                <?php if ($observation->publication?->publication_id !== null): ?><span class="species-meta-chip chip-highlight">Ja publicada</span><?php endif; ?>
+                <?php if ($observation->publication?->publication_id !== null): ?><span class="species-meta-chip chip-highlight">Já publicada</span><?php endif; ?>
             </div>
             <?php if ($observation->needsManualReview()): ?>
                 <p class="hero-text">O YOLO detetou uma planta, mas o MobileNet não conseguiu reconhecer a espécie. Esta observação está na fila de revisão manual.</p>
@@ -135,8 +135,8 @@ JS, View::POS_END);
                 <?php endif; ?>
             </div>
         </div>
-        <div class="detail-stat-grid">
-            <article class="detail-stat-card"><span>Confianca</span><strong><?= $observation->confidence !== null ? (int) round($observation->confidence * 100) . '%' : 'N/D' ?></strong></article>
+            <div class="detail-stat-grid">
+            <article class="detail-stat-card"><span>Confiança</span><strong><?= $observation->confidence !== null ? (int) round($observation->confidence * 100) . '%' : 'N/D' ?></strong></article>
             <article class="detail-stat-card"><span>Data</span><strong><?= Html::encode(Yii::$app->formatter->asDate($observation->observed_at, 'php:d/m/Y')) ?></strong></article>
             <article class="detail-stat-card"><span>Imagens</span><strong><?= count($imagePaths) ?></strong></article>
             <?php if ($observation->publication?->publication_id !== null): ?>
@@ -153,11 +153,11 @@ JS, View::POS_END);
                     <h2>Contexto</h2>
                 </div>
                 <div class="info-list detail-info-list">
-                    <div class="detail-info-item"><span>Especie</span><strong><?= Html::encode($observation->needsManualReview() ? 'A aguardar identificação manual' : ($observation->getResolvedCommonName() ?: 'Observação botânica')) ?></strong></div>
+                    <div class="detail-info-item"><span>Espécie</span><strong><?= Html::encode($observation->needsManualReview() ? 'A aguardar identificação manual' : ($observation->getResolvedCommonName() ?: 'Observação botânica')) ?></strong></div>
                     <?php if ($observation->needsManualReview()): ?>
                         <div class="detail-info-item"><span>Predição original</span><strong><?= Html::encode($observation->predicted_scientific_name ?: 'Não conhecemos essa planta') ?></strong></div>
                     <?php endif; ?>
-                    <div class="detail-info-item"><span>Familia</span><strong><?= Html::encode($observation->getResolvedFamily() ?: 'N/D') ?></strong></div>
+                        <div class="detail-info-item"><span>Família</span><strong><?= Html::encode($observation->getResolvedFamily() ?: 'N/D') ?></strong></div>
                     <div class="detail-info-item">
                         <span>Localização</span>
                         <?php if ($observation->hasCoordinates()): ?>
@@ -172,7 +172,7 @@ JS, View::POS_END);
                             <strong>Sem localização</strong>
                         <?php endif; ?>
                     </div>
-                    <div class="detail-info-item"><span>Wikipedia</span><strong><?= $observation->enriched_wikipedia_url ? Html::a('Abrir referencia', $observation->enriched_wikipedia_url, ['target' => '_blank', 'rel' => 'noopener']) : 'Sem referencia' ?></strong></div>
+                        <div class="detail-info-item"><span>Wikipedia</span><strong><?= $observation->enriched_wikipedia_url ? Html::a('Abrir referência', $observation->enriched_wikipedia_url, ['target' => '_blank', 'rel' => 'noopener']) : 'Sem referência' ?></strong></div>
                 </div>
             </article>
             <article class="content-card content-card-soft detail-actions-card">
@@ -181,7 +181,7 @@ JS, View::POS_END);
                     <h2>Ligações</h2>
                 </div>
                 <div class="module-link-list detail-action-list">
-                    <?php if (!empty($observation->plant_species_id)): ?><a href="<?= Url::to(['species/view', 'id' => $observation->plant_species_id]) ?>"><i class="fas fa-leaf" aria-hidden="true"></i><span>Abrir ficha da especie</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
+                    <?php if (!empty($observation->plant_species_id)): ?><a href="<?= Url::to(['species/view', 'id' => $observation->plant_species_id]) ?>"><i class="fas fa-leaf" aria-hidden="true"></i><span>Abrir ficha da espécie</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
                     <?php if ($observation->publication?->publication_id !== null): ?><a href="<?= Url::to(['publication/view', 'id' => $observation->publication->publication_id]) ?>"><i class="fas fa-newspaper" aria-hidden="true"></i><span>Abrir publicação associada</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
                     <?php if ($observation->hasCoordinates() && $observation->observation_id !== null): ?><a href="<?= Url::to(['map/index', 'observationId' => $observation->observation_id]) ?>"><i class="fas fa-map-location-dot" aria-hidden="true"></i><span>Ver no mapa</span><i class="fas fa-arrow-right" aria-hidden="true"></i></a><?php endif; ?>
                 </div>

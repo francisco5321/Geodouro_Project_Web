@@ -28,7 +28,7 @@ class LoginForm extends Model
         return [
             'username' => 'Username ou Email',
             'password' => 'Password',
-            'rememberMe' => 'Manter sessao iniciada',
+            'rememberMe' => 'Manter sessão iniciada',
         ];
     }
 

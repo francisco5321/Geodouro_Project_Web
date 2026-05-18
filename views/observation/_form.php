@@ -38,7 +38,7 @@ if ($showLocationMap) {
                 ->dropDownList($userOptions, ['prompt' => 'Seleciona o autor']) ?>
             <?= $form->field($model, 'plant_species_id')
                 ->label($model->getAttributeLabel('plant_species_id'), ['class' => 'form-label'])
-                ->dropDownList($speciesOptions, ['prompt' => 'Sem especie associada']) ?>
+                ->dropDownList($speciesOptions, ['prompt' => 'Sem espécie associada']) ?>
         </div>
 
         <div>
@@ -52,9 +52,8 @@ if ($showLocationMap) {
     <fieldset class="form-section mb-4">
         <legend class="form-section-title">
             <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
-            Localização Geografica
+            Localização Geográfica
         </legend>
-
         <?php if ($showLocationMap): ?>
             <div
                 id="observation-location-map"
@@ -69,12 +68,12 @@ if ($showLocationMap) {
                     data-latitude="<?= Html::encode((string) $model->latitude) ?>"
                     data-longitude="<?= Html::encode((string) $model->longitude) ?>"
                     data-fallback="<?= Html::encode(number_format((float) $model->latitude, 5) . ', ' . number_format((float) $model->longitude, 5)) ?>"
-                >A carregar localizacao...</span>
+                >A carregar localização...</span>
             </div>
             <?= Html::activeHiddenInput($model, 'latitude') ?>
             <?= Html::activeHiddenInput($model, 'longitude') ?>
-            <?php if ($isAdminManualReview): ?>
-                <small class="form-text">Durante a revisao manual, a localizacao original da observacao nao pode ser alterada.</small>
+                <?php if ($isAdminManualReview): ?>
+                <small class="form-text">Durante a revisão manual, a localização original da observação não pode ser alterada.</small>
             <?php endif; ?>
         <?php else: ?>
             <div class="auth-grid-two mb-3">
@@ -96,7 +95,7 @@ if ($showLocationMap) {
                     ]) ?>
             </div>
             <?php if ($isAdminManualReview): ?>
-                <small class="form-text">Durante a revisao manual, a localizacao original da observacao nao pode ser alterada.</small>
+                <small class="form-text">Durante a revisão manual, a localização original da observação não pode ser alterada.</small>
             <?php endif; ?>
         <?php endif; ?>
 
@@ -172,7 +171,7 @@ if (mapEl && typeof L !== 'undefined') {
         }).addTo(map);
 
         L.marker([latitude, longitude]).addTo(map)
-            .bindPopup('Localizacao exata da observacao')
+            .bindPopup('Localização exata da observação')
             .openPopup();
 
         setTimeout(() => map.invalidateSize(), 0);
@@ -183,7 +182,7 @@ const locationEl = document.getElementById('observation-location-name');
 if (locationEl) {
     const latitude = locationEl.dataset.latitude;
     const longitude = locationEl.dataset.longitude;
-    const fallback = locationEl.dataset.fallback || 'Localizacao registada';
+    const fallback = locationEl.dataset.fallback || 'Localização registada';
     const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&zoom=16&addressdetails=1&accept-language=pt`;
 
     fetch(url)
