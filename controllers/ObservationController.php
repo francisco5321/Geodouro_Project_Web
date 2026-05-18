@@ -14,6 +14,11 @@ use yii\web\NotFoundHttpException;
 
 class ObservationController extends Controller
 {
+    /**
+     * @var array<int, array{scientificName: ?string, commonName: ?string, family: ?string}>
+     */
+    private array $speciesDataOverrides = [];
+
     public function behaviors(): array
     {
         return [
@@ -160,6 +165,14 @@ class ObservationController extends Controller
         if ($model->load(Yii::$app->request->post())) {
             try {
                 if ($model->needsManualReview() && (Yii::$app->user->identity?->isAdmin() ?? false)) {
+                    if (!$this->prepareSpeciesForManualReview($model)) {
+                        return $this->render('update', [
+                            'model' => $model,
+                            'userOptions' => $this->getUserOptions(),
+                            'speciesOptions' => $this->getSpeciesOptions(),
+                        ]);
+                    }
+
                     Yii::$app->observationApi->reviewObservation(
                         (string) $model->device_observation_id,
                         $this->manualReviewPayload($model)
@@ -310,7 +323,7 @@ class ObservationController extends Controller
         return [
             'deviceObservationId' => trim((string) $model->device_observation_id) !== '' ? $model->device_observation_id : null,
             'userId' => (int) $model->user_id,
-            'plantSpeciesId' => $model->plant_species_id ? (int) $model->plant_species_id : null,
+            'plantSpeciesId' => $model->plant_species_id && (int) $model->plant_species_id > 0 ? (int) $model->plant_species_id : null,
             'capturedAt' => time(),
             'predictedScientificName' => $species['scientificName'] ?? 'Observação botanica',
             'enrichedScientificName' => $species['scientificName'] ?? null,
@@ -335,6 +348,7 @@ class ObservationController extends Controller
         }
 
         return [
+            'plantSpeciesId' => $model->plant_species_id && (int) $model->plant_species_id > 0 ? (int) $model->plant_species_id : null,
             'scientificName' => $species['scientificName'] ?? null,
             'commonName' => $species['commonName'] ?? null,
             'family' => $species['family'] ?? null,
@@ -376,6 +390,9 @@ class ObservationController extends Controller
         if ($speciesId <= 0) {
             return [];
         }
+        if (isset($this->speciesDataOverrides[$speciesId])) {
+            return $this->speciesDataOverrides[$speciesId];
+        }
         try {
             $species = Yii::$app->speciesApi->listSpecies('', 'species', 0, 1000)['items'];
         } catch (RuntimeException) {
@@ -391,5 +408,54 @@ class ObservationController extends Controller
             }
         }
         return [];
+    }
+
+    private function prepareSpeciesForManualReview(Observation $model): bool
+    {
+        if (!$model->isNewSpeciesRequested()) {
+            if (!$model->plant_species_id) {
+                $model->addError('plant_species_id', 'Seleciona uma especie para concluir a revisao manual.');
+                return false;
+            }
+
+            return true;
+        }
+
+        if (!$model->validate([
+            'new_species_scientific_name',
+            'new_species_common_name',
+            'new_species_family',
+            'new_species_genus',
+            'new_species_species',
+        ])) {
+            return false;
+        }
+
+        try {
+            $createdSpecies = Yii::$app->speciesApi->createSpecies([
+                'scientificName' => trim((string) $model->new_species_scientific_name),
+                'commonName' => trim((string) $model->new_species_common_name),
+                'family' => trim((string) $model->new_species_family),
+                'genus' => trim((string) $model->new_species_genus),
+                'species' => trim((string) $model->new_species_species),
+            ]);
+        } catch (RuntimeException $exception) {
+            $model->addError('new_species_scientific_name', 'Nao foi possivel criar a nova especie: ' . $exception->getMessage());
+            return false;
+        }
+
+        if ((int) $createdSpecies->plant_species_id <= 0) {
+            $model->addError('new_species_scientific_name', 'A especie foi criada sem identificador valido no backend.');
+            return false;
+        }
+
+        $model->plant_species_id = (int) $createdSpecies->plant_species_id;
+        $this->speciesDataOverrides[$model->plant_species_id] = [
+            'scientificName' => $createdSpecies->scientific_name ?: trim((string) $model->new_species_scientific_name),
+            'commonName' => $createdSpecies->common_name ?: trim((string) $model->new_species_common_name),
+            'family' => $createdSpecies->family ?: trim((string) $model->new_species_family),
+        ];
+
+        return true;
     }
 }

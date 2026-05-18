@@ -43,8 +43,14 @@ class Observation extends ActiveRecord
     public const SYNC_SYNCED = 'SYNCED';
     public const SYNC_FAILED = 'FAILED';
     public const STATUS_MANUAL_REVIEW = 'MANUAL_REVIEW';
+    public const NEW_SPECIES_SENTINEL = -1;
 
     public bool $requires_manual_identification = false;
+    public ?string $new_species_scientific_name = null;
+    public ?string $new_species_common_name = null;
+    public ?string $new_species_family = null;
+    public ?string $new_species_genus = null;
+    public ?string $new_species_species = null;
 
     public static function tableName(): string
     {
@@ -82,6 +88,11 @@ class Observation extends ActiveRecord
                 'enriched_wikipedia_url',
                 'enriched_photo_url',
                 'sync_status',
+                'new_species_scientific_name',
+                'new_species_common_name',
+                'new_species_family',
+                'new_species_genus',
+                'new_species_species',
             ], 'string'],
             [['device_observation_id'], 'unique'],
             [['confidence'], 'compare', 'compareValue' => 0, 'operator' => '>='],
@@ -92,7 +103,8 @@ class Observation extends ActiveRecord
             [['longitude'], 'compare', 'compareValue' => 180, 'operator' => '<='],
             [['sync_status'], 'in', 'range' => [self::SYNC_PENDING, self::SYNC_SYNCED, self::SYNC_FAILED]],
             [['user_id'], 'exist', 'targetClass' => AppUser::class, 'targetAttribute' => ['user_id' => 'user_id']],
-            [['plant_species_id'], 'exist', 'targetClass' => PlantSpecies::class, 'targetAttribute' => ['plant_species_id' => 'plant_species_id']],
+            [['plant_species_id'], 'exist', 'targetClass' => PlantSpecies::class, 'targetAttribute' => ['plant_species_id' => 'plant_species_id'], 'when' => fn (): bool => !$this->isNewSpeciesRequested()],
+            [['new_species_scientific_name', 'new_species_common_name', 'new_species_family', 'new_species_genus', 'new_species_species'], 'required', 'when' => fn (): bool => $this->isNewSpeciesRequested(), 'whenClient' => "function () { return String(document.getElementById('observation-plant_species_id')?.value || '') === '-1'; }"],
         ];
     }
 
@@ -122,7 +134,17 @@ class Observation extends ActiveRecord
             'notes' => 'Notas',
             'created_at' => 'Criada em',
             'updated_at' => 'Atualizada em',
+            'new_species_scientific_name' => 'Nome Cientifico',
+            'new_species_common_name' => 'Nome Comum',
+            'new_species_family' => 'Familia',
+            'new_species_genus' => 'Genero',
+            'new_species_species' => 'Nome da Especie',
         ];
+    }
+
+    public function isNewSpeciesRequested(): bool
+    {
+        return (int) $this->plant_species_id === self::NEW_SPECIES_SENTINEL;
     }
 
     public function getUser(): ActiveQuery

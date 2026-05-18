@@ -60,6 +60,17 @@ class SpeciesApiService extends Component
         ];
     }
 
+    public function createSpecies(array $payload): ApiPlantSpecies
+    {
+        $response = Yii::$app->backendApi->postJson('/api/species', $payload, $this->headers());
+
+        $species = isset($response['species']) && is_array($response['species'])
+            ? $response['species']
+            : $response;
+
+        return ApiPlantSpecies::fromArray(is_array($species) ? $species : []);
+    }
+
     public function updateSpecies(int $speciesId, array $payload): ApiPlantSpecies
     {
         $speciesSlug = $this->findSpeciesSlug($speciesId);
