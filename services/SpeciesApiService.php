@@ -188,11 +188,11 @@ class SpeciesApiService extends Component
             if ($timestamp > 9999999999) {
                 $timestamp = (int) floor($timestamp / 1000);
             }
-            return date('Y-m-d H:i:s', $timestamp);
+            return gmdate('Y-m-d H:i:s', $timestamp);
         }
 
         $timestamp = strtotime($value);
-        return $timestamp !== false ? date('Y-m-d H:i:s', $timestamp) : $value;
+        return $timestamp !== false ? gmdate('Y-m-d H:i:s', $timestamp) : $value;
     }
 
     private function headers(): array

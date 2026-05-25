@@ -106,6 +106,6 @@ class ApiPublication extends ApiDataObject
         }
 
         $timestamp = strtotime($value);
-        return $timestamp !== false ? date('Y-m-d H:i:s', $timestamp) : $value;
+        return $timestamp !== false ? gmdate('Y-m-d H:i:s', $timestamp) : $value;
     }
 }
