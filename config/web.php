@@ -8,6 +8,7 @@ return [
     'name' => $params['appName'],
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
+    'timeZone' => 'Europe/Lisbon',
     'aliases' => [
         '@webroot' => dirname(__DIR__) . '/web',
         '@web' => '/',
@@ -26,6 +27,12 @@ return [
         ],
         'cache' => [
             'class' => yii\caching\FileCache::class,
+        ],
+        'formatter' => [
+            'class' => yii\i18n\Formatter::class,
+            'defaultTimeZone' => 'UTC',
+            'timeZone' => 'Europe/Lisbon',
+            'locale' => 'pt-PT',
         ],
         'db' => $db,
         'backendApi' => [
