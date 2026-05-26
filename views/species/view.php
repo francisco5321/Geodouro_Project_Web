@@ -154,7 +154,7 @@ if ($hasLocationBounds) {
                 <div class="species-location-copy">
                     <span class="species-kicker">Localização</span>
                     <p>
-                        Localizacoes registadas em <?= (int) ($locationBounds['count'] ?? $observationCount) ?>
+                        Localizações registadas em <?= (int) ($locationBounds['count'] ?? $observationCount) ?>
                         <?= ((int) ($locationBounds['count'] ?? $observationCount) === 1) ? 'observacao' : 'observacoes' ?>.
                     </p>
                     <?php if ($hasLocationBounds): ?>
