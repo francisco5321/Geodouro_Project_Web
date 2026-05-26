@@ -125,6 +125,7 @@ class SpeciesController extends Controller
             'pagination' => $pagination,
             'galleryImages' => $result['galleryImages'],
             'locationSummary' => $result['locationSummary'],
+            'locationBounds' => $result['locationBounds'] ?? null,
             'stats' => $result['stats'],
         ]);
     }

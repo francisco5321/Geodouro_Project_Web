@@ -3,7 +3,9 @@
 use app\models\Observation;
 use app\models\PlantSpecies;
 use yii\helpers\Html;
+use yii\helpers\Json;
 use yii\helpers\Url;
+use yii\web\View;
 use yii\widgets\LinkPager;
 
 /** @var yii\web\View $this */
@@ -12,6 +14,7 @@ use yii\widgets\LinkPager;
 /** @var yii\data\Pagination $pagination */
 /** @var array $galleryImages */
 /** @var string|null $locationSummary */
+/** @var array|null $locationBounds */
 /** @var array $stats */
 
 $this->title = $species->scientific_name;
@@ -26,6 +29,18 @@ $imageCount = (int) $species->image_count;
 $observationCount = (int) ($stats['observationsCount'] ?? 0);
 $syncedCount = (int) ($stats['syncedCount'] ?? 0);
 $publishedCount = (int) ($stats['publishedCount'] ?? 0);
+$hasLocationBounds = is_array($locationBounds ?? null)
+    && isset(
+        $locationBounds['minLatitude'],
+        $locationBounds['maxLatitude'],
+        $locationBounds['minLongitude'],
+        $locationBounds['maxLongitude']
+    );
+
+if ($hasLocationBounds) {
+    $this->registerCssFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+    $this->registerJsFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', ['position' => View::POS_END]);
+}
 ?>
 
 <div class="species-showcase">
@@ -130,7 +145,7 @@ $publishedCount = (int) ($stats['publishedCount'] ?? 0);
         </article>
     </section>
 
-    <?php if ($locationSummary !== null): ?>
+    <?php if ($locationSummary !== null || $hasLocationBounds): ?>
         <section class="species-section">
             <article class="species-location-panel">
                 <div class="species-location-icon">
@@ -138,7 +153,19 @@ $publishedCount = (int) ($stats['publishedCount'] ?? 0);
                 </div>
                 <div class="species-location-copy">
                     <span class="species-kicker">Localização</span>
-                    <p><?= Html::encode($locationSummary) ?></p>
+                    <p>
+                        Localizacoes registadas em <?= (int) ($locationBounds['count'] ?? $observationCount) ?>
+                        <?= ((int) ($locationBounds['count'] ?? $observationCount) === 1) ? 'observacao' : 'observacoes' ?>.
+                    </p>
+                    <?php if ($hasLocationBounds): ?>
+                        <div
+                            id="species-location-map"
+                            class="leaflet-shell species-location-map"
+                            data-bounds="<?= Html::encode(Json::encode($locationBounds)) ?>"
+                        ></div>
+                    <?php elseif ($locationSummary !== null): ?>
+                        <p><?= Html::encode($locationSummary) ?></p>
+                    <?php endif; ?>
                 </div>
             </article>
         </section>
@@ -263,5 +290,75 @@ if (savedSpeciesScrollPosition !== null) {
         });
     });
 }
+
+const speciesLocationMapEl = document.getElementById('species-location-map');
+if (speciesLocationMapEl && typeof L !== 'undefined') {
+    const boundsData = JSON.parse(speciesLocationMapEl.dataset.bounds || '{}');
+    const minLatitude = Number(boundsData.minLatitude);
+    const maxLatitude = Number(boundsData.maxLatitude);
+    const minLongitude = Number(boundsData.minLongitude);
+    const maxLongitude = Number(boundsData.maxLongitude);
+
+    if (
+        !Number.isNaN(minLatitude)
+        && !Number.isNaN(maxLatitude)
+        && !Number.isNaN(minLongitude)
+        && !Number.isNaN(maxLongitude)
+    ) {
+        const centerLatitude = (minLatitude + maxLatitude) / 2;
+        const centerLongitude = (minLongitude + maxLongitude) / 2;
+        const center = L.latLng(centerLatitude, centerLongitude);
+        const southWest = L.latLng(minLatitude, minLongitude);
+        const northEast = L.latLng(maxLatitude, maxLongitude);
+        const corners = [
+            L.latLng(minLatitude, minLongitude),
+            L.latLng(minLatitude, maxLongitude),
+            L.latLng(maxLatitude, minLongitude),
+            L.latLng(maxLatitude, maxLongitude),
+        ];
+        const radius = Math.max(
+            ...corners.map((corner) => center.distanceTo(corner)),
+            35
+        );
+
+        const map = L.map(speciesLocationMapEl, {
+            zoomControl: true,
+            scrollWheelZoom: false,
+            dragging: true,
+            doubleClickZoom: true,
+            touchZoom: true,
+            boxZoom: false,
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        L.circle([centerLatitude, centerLongitude], {
+            radius: radius,
+            color: '#20593f',
+            weight: 2,
+            fillColor: '#7fc084',
+            fillOpacity: 0.22,
+        }).addTo(map);
+
+        L.marker([centerLatitude, centerLongitude]).addTo(map)
+            .bindPopup('Centro aproximado da area observada');
+
+        map.fitBounds([southWest, northEast], {padding: [28, 28]});
+        setTimeout(() => map.invalidateSize(), 0);
+    }
+}
 JS);
 ?>
+
+<style>
+.species-location-map {
+    height: 260px;
+    min-height: 260px;
+    margin-top: 1rem;
+    border-radius: 20px;
+    overflow: hidden;
+}
+</style>

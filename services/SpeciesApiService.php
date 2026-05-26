@@ -56,6 +56,7 @@ class SpeciesApiService extends Component
             'totalCount' => count($apiObservations),
             'galleryImages' => $this->buildGalleryImages($response),
             'locationSummary' => $response['locationSummary'] ?? null,
+            'locationBounds' => $this->buildLocationBounds($apiObservations),
             'stats' => $this->normalizeStats($response['stats'] ?? $response),
         ];
     }
@@ -324,5 +325,37 @@ class SpeciesApiService extends Component
 
         $heroImagePath = trim((string) ($response['heroImagePath'] ?? $response['hero_image_path'] ?? ''));
         return $heroImagePath !== '' ? [['path' => $heroImagePath]] : [];
+    }
+
+    /**
+     * @param ApiObservation[] $observations
+     */
+    private function buildLocationBounds(array $observations): ?array
+    {
+        $points = array_values(array_filter(
+            $observations,
+            static fn (ApiObservation $observation): bool => $observation->hasCoordinates()
+        ));
+
+        if ($points === []) {
+            return null;
+        }
+
+        $latitudes = array_map(
+            static fn (ApiObservation $observation): float => (float) $observation->latitude,
+            $points
+        );
+        $longitudes = array_map(
+            static fn (ApiObservation $observation): float => (float) $observation->longitude,
+            $points
+        );
+
+        return [
+            'minLatitude' => min($latitudes),
+            'maxLatitude' => max($latitudes),
+            'minLongitude' => min($longitudes),
+            'maxLongitude' => max($longitudes),
+            'count' => count($points),
+        ];
     }
 }
