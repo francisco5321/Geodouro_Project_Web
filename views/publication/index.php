@@ -110,9 +110,6 @@ $this->title = 'Publicações';
                         </span>
                     </div>
                     <div class="publication-card-footer">
-                        <?php if ($publication->canBeManagedBy(Yii::$app->user->identity)): ?>
-                            <a href="<?= Url::to(['publication/update', 'id' => $publication->publication_id]) ?>">Editar</a>
-                        <?php endif; ?>
                         <?php if ($publication->plant_species_id): ?><a href="<?= Url::to(['species/view', 'id' => $publication->plant_species_id]) ?>">Espécie</a><?php endif; ?>
                         <a class="species-card-cta" href="<?= $publicationUrl ?>">
                             Abrir detalhe
