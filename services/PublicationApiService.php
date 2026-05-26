@@ -42,7 +42,11 @@ class PublicationApiService extends Component
 
     public function getPublicationById(int $publicationId): ?ApiPublication
     {
-        return ApiPublication::fromArray(Yii::$app->backendApi->getJson('/api/publications/by-id/' . $publicationId, $this->headers()));
+        $publication = ApiPublication::fromArray(
+            Yii::$app->backendApi->getJson('/api/publications/by-id/' . $publicationId, $this->headers())
+        );
+
+        return $this->enrichPublicationObservation($publication);
     }
 
     public function publishObservation(string $deviceObservationId, ?string $title, ?string $description): ApiPublication
@@ -78,5 +82,31 @@ class PublicationApiService extends Component
         }
 
         return array_is_list($response) ? $response : [];
+    }
+
+    private function enrichPublicationObservation(ApiPublication $publication): ApiPublication
+    {
+        $observation = $publication->observation;
+        $needsObservationEnrichment = $observation !== null
+            && (
+                $observation->getResolvedFamily() === null
+                || $observation->enriched_wikipedia_url === null
+            );
+
+        if (!$needsObservationEnrichment || $publication->observation_id === null) {
+            return $publication;
+        }
+
+        try {
+            $fullObservation = Yii::$app->observationApi->getObservationById((int) $publication->observation_id);
+        } catch (\RuntimeException) {
+            $fullObservation = null;
+        }
+
+        if ($fullObservation !== null) {
+            $publication->observation = $fullObservation;
+        }
+
+        return $publication;
     }
 }
