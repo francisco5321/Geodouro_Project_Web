@@ -2,9 +2,10 @@
 
 use yii\bootstrap5\ActiveForm;
 use yii\bootstrap5\Html;
+use yii\helpers\Url;
 
 /** @var yii\web\View $this */
-/** @var app\models\RoutePlan $model */
+/** @var app\models\RoutePlanForm $model */
 ?>
 <div class="content-card publication-form-card">
     <?php $form = ActiveForm::begin(['options' => ['class' => 'stacked-form']]); ?>
@@ -18,9 +19,9 @@ use yii\bootstrap5\Html;
         <div class="form-action-row">
             <?php if ($model->isNewRecord): ?>
                 <?= Html::submitButton('Criar percurso', ['class' => 'btn btn-brand btn-lg']) ?>
-                <a class="btn btn-outline-brand btn-lg" href="<?= yii\helpers\Url::to(['route-plan/index']) ?>">Cancelar</a>
+                <a class="btn btn-outline-brand btn-lg" href="<?= Url::to(['route-plan/index']) ?>">Cancelar</a>
             <?php else: ?>
-                <a class="btn btn-outline-brand btn-lg" href="<?= yii\helpers\Url::to(['route-plan/view', 'id' => $model->route_plan_id]) ?>">Cancelar</a>
+                <a class="btn btn-outline-brand btn-lg" href="<?= Url::to(['route-plan/view', 'id' => $model->route_plan_id]) ?>">Cancelar</a>
                 <?= Html::submitButton('Confirmar', ['class' => 'btn btn-brand btn-lg']) ?>
             <?php endif; ?>
         </div>

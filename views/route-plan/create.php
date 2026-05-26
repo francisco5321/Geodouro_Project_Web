@@ -1,7 +1,7 @@
 <?php
 
 /** @var yii\web\View $this */
-/** @var app\models\RoutePlan $model */
+/** @var app\models\RoutePlanForm $model */
 
 $this->title = 'Novo percurso';
 ?>

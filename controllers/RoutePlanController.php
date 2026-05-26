@@ -2,13 +2,14 @@
 
 namespace app\controllers;
 
-use app\models\RoutePlan;
+use app\models\RoutePlanForm;
 use app\services\ApiObservation;
 use app\services\ApiPlantSpecies;
 use RuntimeException;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
+use yii\helpers\Url;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
@@ -55,7 +56,7 @@ class RoutePlanController extends Controller
             'plans' => $plans,
             'pagination' => null,
             'backendError' => $backendError,
-            'newPlan' => new RoutePlan(),
+            'newPlan' => new RoutePlanForm(),
         ]);
     }
 
@@ -132,10 +133,10 @@ class RoutePlanController extends Controller
                 'id' => $observation->observation_id,
                 'latitude' => (float) $observation->latitude,
                 'longitude' => (float) $observation->longitude,
-                'title' => $observation->getResolvedCommonName() ?: 'Observação botanica',
+                'title' => $observation->getResolvedCommonName() ?: 'Observação botânica',
                 'scientificName' => $observation->getResolvedScientificName() ?: 'Sem classificação enriquecida',
                 'status' => $observation->is_published ? 'Publicada' : $observation->sync_status,
-                'detailUrl' => \yii\helpers\Url::to(['observation/view', 'id' => $observation->observation_id]),
+                'detailUrl' => Url::to(['observation/view', 'id' => $observation->observation_id]),
                 'isInRoute' => isset($routeObservationIds[(int) $observation->observation_id]),
             ];
         }, $backgroundObservations);
@@ -165,10 +166,11 @@ class RoutePlanController extends Controller
 
     public function actionCreate()
     {
-        $plan = new RoutePlan();
+        $plan = new RoutePlanForm();
         $plan->user_id = (int) Yii::$app->user->id;
+        $plan->isNewRecord = true;
 
-        if ($plan->load(Yii::$app->request->post()) && $plan->validate(['name', 'description'])) {
+        if ($plan->load(Yii::$app->request->post()) && $plan->validate()) {
             try {
                 $response = Yii::$app->routePlanApi->createRoutePlan($this->routePlanPayloadFromModel($plan));
                 Yii::$app->session->setFlash('success', $response['message'] ?? 'Percurso criado com sucesso.');
@@ -186,7 +188,7 @@ class RoutePlanController extends Controller
     {
         $plan = $this->routePlanModelFromApi($id);
 
-        if ($plan->load(Yii::$app->request->post()) && $plan->validate(['name', 'description'])) {
+        if ($plan->load(Yii::$app->request->post()) && $plan->validate()) {
             try {
                 $response = Yii::$app->routePlanApi->updateRoutePlan($id, $this->routePlanPayloadFromModel($plan));
                 Yii::$app->session->setFlash('success', $response['message'] ?? 'Percurso atualizado com sucesso.');
@@ -260,18 +262,18 @@ class RoutePlanController extends Controller
         return $this->redirect($routePlanId > 0 ? ['route-plan/view', 'id' => $routePlanId] : ['route-plan/index']);
     }
 
-    private function routePlanPayloadFromModel(RoutePlan $plan): array
+    private function routePlanPayloadFromModel(RoutePlanForm $plan): array
     {
         return [
             'name' => $plan->name,
             'description' => $plan->description,
-            'startLabel' => null,
-            'startLatitude' => null,
-            'startLongitude' => null,
+            'startLabel' => $plan->start_label,
+            'startLatitude' => $plan->start_latitude,
+            'startLongitude' => $plan->start_longitude,
         ];
     }
 
-    private function routePlanModelFromApi(int $id): RoutePlan
+    private function routePlanModelFromApi(int $id): RoutePlanForm
     {
         try {
             $data = Yii::$app->routePlanApi->getRoutePlan($id);
@@ -279,12 +281,16 @@ class RoutePlanController extends Controller
             throw new NotFoundHttpException('Percurso não encontrado.');
         }
 
-        $plan = new RoutePlan();
+        $plan = new RoutePlanForm();
         $plan->route_plan_id = $id;
         $plan->user_id = (int) Yii::$app->user->id;
         $plan->name = (string) ($data['name'] ?? '');
         $plan->description = $data['description'] ?? null;
-        $plan->setIsNewRecord(false);
+        $plan->start_label = isset($data['startLabel']) ? (string) $data['startLabel'] : null;
+        $plan->start_latitude = isset($data['startLatitude']) && $data['startLatitude'] !== null ? (float) $data['startLatitude'] : null;
+        $plan->start_longitude = isset($data['startLongitude']) && $data['startLongitude'] !== null ? (float) $data['startLongitude'] : null;
+        $plan->isNewRecord = false;
+
         return $plan;
     }
 
