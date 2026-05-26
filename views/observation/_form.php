@@ -4,6 +4,7 @@ use app\models\Observation;
 use app\models\ObservationForm;
 use yii\bootstrap5\ActiveForm;
 use yii\bootstrap5\Html;
+use yii\helpers\Json;
 use yii\web\View;
 
 /** @var yii\web\View $this */
@@ -28,6 +29,9 @@ if ($showLocationMap) {
     $this->registerCssFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
     $this->registerJsFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', ['position' => View::POS_END]);
 }
+
+$speciesSelectId = 'observation-species-select';
+$newSpeciesValue = (string) Observation::NEW_SPECIES_SENTINEL;
 ?>
 <div class="content-card publication-form-card">
     <?php $form = ActiveForm::begin(['options' => ['class' => 'stacked-form']]); ?>
@@ -44,13 +48,16 @@ if ($showLocationMap) {
                 ->dropDownList($userOptions, ['prompt' => 'Seleciona o autor']) ?>
             <?= $form->field($model, 'plant_species_id')
                 ->label($model->getAttributeLabel('plant_species_id'), ['class' => 'form-label'])
-                ->dropDownList($speciesOptions, ['prompt' => 'Sem espécie associada']) ?>
+                ->dropDownList($speciesOptions, [
+                    'prompt' => 'Sem espécie associada',
+                    'id' => $speciesSelectId,
+                ]) ?>
         </div>
 
         <?php if ($isAdminManualReview): ?>
             <div
                 id="new-species-fields"
-                class="new-species-panel"
+                class="new-species-panel<?= $model->isNewSpeciesRequested() ? '' : ' is-hidden' ?>"
             >
                 <p class="new-species-intro">Se escolheres <strong>Nova espécie</strong>, preenche estes campos para a criar e associar logo a esta revisão.</p>
                 <div class="auth-grid-two">
@@ -108,7 +115,7 @@ if ($showLocationMap) {
             </div>
             <?= Html::activeHiddenInput($model, 'latitude') ?>
             <?= Html::activeHiddenInput($model, 'longitude') ?>
-                <?php if ($isAdminManualReview): ?>
+            <?php if ($isAdminManualReview): ?>
                 <small class="form-text">Durante a revisão manual, a localização original da observação não pode ser alterada.</small>
             <?php endif; ?>
         <?php else: ?>
@@ -187,6 +194,21 @@ document.querySelectorAll('textarea[data-auto-resize]').forEach((ta) => {
     }
 });
 
+const speciesSelect = document.getElementById(__SPECIES_SELECT_ID__);
+const newSpeciesFields = document.getElementById('new-species-fields');
+if (speciesSelect && newSpeciesFields) {
+    const toggleNewSpeciesFields = () => {
+        const isNewSpeciesSelected = String(speciesSelect.value || '') === __NEW_SPECIES_VALUE__;
+        newSpeciesFields.classList.toggle('is-hidden', !isNewSpeciesSelected);
+        newSpeciesFields.querySelectorAll('input').forEach((input) => {
+            input.disabled = !isNewSpeciesSelected;
+        });
+    };
+
+    toggleNewSpeciesFields();
+    speciesSelect.addEventListener('change', toggleNewSpeciesFields);
+}
+
 const mapEl = document.getElementById('observation-location-map');
 if (mapEl && typeof L !== 'undefined') {
     const latitude = Number(mapEl.dataset.latitude);
@@ -236,6 +258,12 @@ if (locationEl) {
         });
 }
 JS;
+
+$js = str_replace(
+    ['__SPECIES_SELECT_ID__', '__NEW_SPECIES_VALUE__'],
+    [Json::htmlEncode($speciesSelectId), Json::htmlEncode($newSpeciesValue)],
+    $js
+);
 
 $this->registerJs($js, View::POS_END);
 ?>
