@@ -29,6 +29,7 @@ $imageCount = (int) $species->image_count;
 $observationCount = (int) ($stats['observationsCount'] ?? 0);
 $syncedCount = (int) ($stats['syncedCount'] ?? 0);
 $publishedCount = (int) ($stats['publishedCount'] ?? 0);
+$canOpenObservationDetail = !Yii::$app->user->isGuest;
 $hasLocationBounds = is_array($locationBounds ?? null)
     && isset(
         $locationBounds['minLatitude'],
@@ -199,7 +200,7 @@ if ($hasLocationBounds) {
                             ? Url::to(['media/observation-image', 'id' => $observation->observation_id, 'index' => 0])
                             : Url::to(['media/upload-path', 'path' => $thumbPath[0]]))
                         : null;
-                    $observationUrl = $observation->observation_id !== null
+                    $observationUrl = $canOpenObservationDetail && $observation->observation_id !== null
                         ? Url::to(['observation/view', 'id' => $observation->observation_id])
                         : null;
                     ?>
@@ -242,9 +243,11 @@ if ($hasLocationBounds) {
                             </div>
                         </div>
 
-                        <div class="species-observation-arrow">
-                            <i class="fas fa-chevron-right" aria-hidden="true"></i>
-                        </div>
+                        <?php if ($observationUrl !== null): ?>
+                            <div class="species-observation-arrow">
+                                <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                            </div>
+                        <?php endif; ?>
                     </<?= $observationUrl !== null ? 'a' : 'div' ?>>
                 <?php endforeach; ?>
             </div>
