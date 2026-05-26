@@ -1,16 +1,16 @@
 <?php
 
-use app\models\Publication;
+use app\models\PublicationForm;
 
 /** @var yii\web\View $this */
-/** @var Publication $model */
+/** @var PublicationForm $model */
 /** @var array $observationOptions */
 /** @var array $speciesOptions */
 
 $this->title = 'Editar publicação';
 ?>
 <div class="module-shell">
-    <a class="back-link" href="<?= yii\helpers\Url::to(['publication/view', 'id' => $model->publication_id]) ?>">&larr; Voltar a publicação</a>
+    <a class="back-link" href="<?= yii\helpers\Url::to(['publication/view', 'id' => $model->publication_id]) ?>">&larr; Voltar à publicação</a>
 
     <section class="species-hero mb-4">
         <div>

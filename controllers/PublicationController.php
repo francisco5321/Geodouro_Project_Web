@@ -3,6 +3,8 @@
 namespace app\controllers;
 
 use app\models\Publication;
+use app\models\PublicationForm;
+use app\services\ApiPublication;
 use RuntimeException;
 use Yii;
 use yii\data\Pagination;
@@ -85,9 +87,10 @@ class PublicationController extends Controller
 
     public function actionCreate(?int $observationId = null)
     {
-        $publication = new Publication();
+        $publication = new PublicationForm();
         $publication->status = Publication::STATUS_PUBLISHED;
         $publication->user_id = (int) Yii::$app->user->id;
+        $publication->isNewRecord = true;
         if ($observationId !== null) {
             $publication->observation_id = $observationId;
         }
@@ -98,7 +101,7 @@ class PublicationController extends Controller
             return $this->redirect(['publication/index']);
         }
 
-        if ($publication->load(Yii::$app->request->post())) {
+        if ($publication->load(Yii::$app->request->post()) && $publication->validate()) {
             try {
                 $observation = Yii::$app->observationApi->getObservationById((int) $publication->observation_id);
                 if ($observation === null || $observation->device_observation_id === null) {
@@ -121,10 +124,10 @@ class PublicationController extends Controller
 
     public function actionUpdate(int $id)
     {
-        $publication = $this->publicationModelFromApi($id);
-        $this->ensureManageAccess($publication);
+        $publication = $this->publicationFormFromApi($id);
+        $this->ensureManageAccess($this->publicationApiModel($id));
 
-        if ($publication->load(Yii::$app->request->post())) {
+        if ($publication->load(Yii::$app->request->post()) && $publication->validate()) {
             try {
                 Yii::$app->publicationApi->updatePublication($id, [
                     'title' => $publication->title,
@@ -147,7 +150,7 @@ class PublicationController extends Controller
 
     public function actionPublish(int $id)
     {
-        $publication = $this->publicationModelFromApi($id);
+        $publication = $this->publicationApiModel($id);
         $this->ensureManageAccess($publication);
 
         try {
@@ -166,7 +169,7 @@ class PublicationController extends Controller
 
     public function actionDelete(int $id)
     {
-        $publication = $this->publicationModelFromApi($id);
+        $publication = $this->publicationApiModel($id);
         $this->ensureManageAccess($publication);
 
         try {
@@ -175,6 +178,7 @@ class PublicationController extends Controller
         } catch (RuntimeException $exception) {
             Yii::$app->session->setFlash('error', 'Não foi possível remover no backend: ' . $exception->getMessage());
         }
+
         return $this->redirect(['publication/index']);
     }
 
@@ -198,10 +202,11 @@ class PublicationController extends Controller
             $options[$observation->observation_id] = sprintf(
                 '#%d - %s - %s',
                 $observation->observation_id,
-                $observation->getResolvedCommonName() ?: 'Observação botanica',
+                $observation->getResolvedCommonName() ?: 'Observação botânica',
                 Yii::$app->formatter->asDate($observation->observed_at, 'php:d/m/Y')
             );
         }
+
         return $options;
     }
 
@@ -212,28 +217,37 @@ class PublicationController extends Controller
         } catch (RuntimeException) {
             $species = [];
         }
+
         $options = [];
         foreach ($species as $item) {
             $options[$item->plant_species_id] = $item->getDisplayName() . ' (' . $item->scientific_name . ')';
         }
+
         return $options;
     }
 
-    private function ensureManageAccess(Publication $publication): void
+    private function ensureManageAccess(object $publication): void
     {
-        if (!$publication->canBeManagedBy(Yii::$app->user->identity)) {
+        if (!method_exists($publication, 'canBeManagedBy') || !$publication->canBeManagedBy(Yii::$app->user->identity)) {
             throw new ForbiddenHttpException('Não tens permissão para gerir esta publicação.');
         }
     }
 
-    private function publicationModelFromApi(int $id): Publication
+    private function publicationApiModel(int $id): ApiPublication
     {
         $apiPublication = Yii::$app->publicationApi->getPublicationById($id);
         if ($apiPublication === null) {
             throw new NotFoundHttpException('Publicação não encontrada.');
         }
 
-        $publication = new Publication();
+        return $apiPublication;
+    }
+
+    private function publicationFormFromApi(int $id): PublicationForm
+    {
+        $apiPublication = $this->publicationApiModel($id);
+
+        $publication = new PublicationForm();
         $publication->publication_id = $apiPublication->publication_id;
         $publication->observation_id = $apiPublication->observation_id;
         $publication->user_id = $apiPublication->user_id ?? (int) Yii::$app->user->id;
@@ -242,7 +256,8 @@ class PublicationController extends Controller
         $publication->description = $apiPublication->description;
         $publication->status = $apiPublication->status ?: Publication::STATUS_PUBLISHED;
         $publication->published_at = $apiPublication->published_at;
-        $publication->setIsNewRecord(false);
+        $publication->isNewRecord = false;
+
         return $publication;
     }
 }

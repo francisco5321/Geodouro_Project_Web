@@ -1,9 +1,9 @@
 <?php
 
-use app\models\Publication;
+use app\models\PublicationForm;
 
 /** @var yii\web\View $this */
-/** @var Publication $model */
+/** @var PublicationForm $model */
 /** @var array $observationOptions */
 /** @var array $speciesOptions */
 

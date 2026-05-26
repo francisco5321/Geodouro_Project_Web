@@ -1,11 +1,11 @@
 <?php
 
-use app\models\Publication;
+use app\models\PublicationForm;
 use yii\bootstrap5\ActiveForm;
 use yii\bootstrap5\Html;
 
 /** @var yii\web\View $this */
-/** @var Publication $model */
+/** @var PublicationForm $model */
 /** @var array $observationOptions */
 /** @var array $speciesOptions */
 ?>
