@@ -19,10 +19,10 @@ $this->title = 'Publicações';
         <div>
             <span class="eyebrow">
                 <i class="fas fa-newspaper" aria-hidden="true"></i>
-                Módulo Editorial
+                Catálogo de publicações
             </span>
-            <h1 class="hero-title hero-title-tight">Publicações geridas por autores e administradores</h1>
-            <p class="hero-text">Cada utilizador autenticado pode gerir as suas publicações e o administrador ganha controlo editorial total sobre o catálogo.</p>
+            <h1 class="hero-title hero-title-tight">Publicações</h1>
+            <p class="hero-text">Visualiza todas as publicações feitas por outros utilizadores</p>
         </div>
         <div class="detail-stat-grid">
             <?= StatCard::widget([
