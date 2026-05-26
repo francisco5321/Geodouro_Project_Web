@@ -119,7 +119,7 @@ $this->title = 'Espécies';
                             <div class="species-card-footer">
                                 <span class="icon-text">
                                     <i class="fas fa-image" aria-hidden="true"></i>
-                                    <?= (int) $item->image_count ?> imagens
+                                    <?= (int) $item->image_count ?>
                                 </span>
                                 <span class="species-card-cta">
                                     Abrir detalhe
