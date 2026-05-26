@@ -39,15 +39,25 @@ class ObservationController extends Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['create', 'update', 'delete', 'request-review'],
+                        'actions' => ['create'],
                         'roles' => ['@'],
                         'matchCallback' => static function () {
                             $identity = Yii::$app->user->identity;
-                            if ($identity === null) {
-                                return false;
-                            }
-
-                            return in_array(Yii::$app->requestedAction?->id, ['update', 'delete', 'request-review'], true) || $identity->isAdmin();
+                            return $identity?->isAdmin() ?? false;
+                        },
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['update', 'request-review'],
+                        'roles' => ['@'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['delete'],
+                        'roles' => ['@'],
+                        'matchCallback' => static function () {
+                            $identity = Yii::$app->user->identity;
+                            return $identity?->isAdmin() ?? false;
                         },
                     ],
                 ],
