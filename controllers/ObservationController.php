@@ -8,6 +8,7 @@ use Yii;
 use yii\data\Pagination;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
+use yii\helpers\Url;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
@@ -115,7 +116,10 @@ class ObservationController extends Controller
             throw new NotFoundHttpException('Observação não encontrada.');
         }
 
-        return $this->render('view', ['observation' => $observation]);
+        return $this->render('view', [
+            'observation' => $observation,
+            'returnUrl' => $this->resolveObservationReturnUrl(),
+        ]);
     }
 
     public function actionCreate()
@@ -312,6 +316,26 @@ class ObservationController extends Controller
         $model->requires_manual_identification = $apiObservation->requires_manual_identification;
         $model->setIsNewRecord(false);
         return $model;
+    }
+
+    private function resolveObservationReturnUrl(): string
+    {
+        $fallbackUrl = Url::to(['observation/index']);
+        $returnUrl = trim((string) Yii::$app->request->get('returnUrl', ''));
+        if ($returnUrl === '') {
+            return $fallbackUrl;
+        }
+
+        $parsedUrl = parse_url($returnUrl);
+        if ($parsedUrl === false) {
+            return $fallbackUrl;
+        }
+
+        if (isset($parsedUrl['scheme']) || isset($parsedUrl['host'])) {
+            return $fallbackUrl;
+        }
+
+        return str_starts_with($returnUrl, '/') ? $returnUrl : $fallbackUrl;
     }
 
     private function observationPayload(Observation $model): array

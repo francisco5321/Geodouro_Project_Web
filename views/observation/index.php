@@ -17,6 +17,7 @@ use yii\widgets\LinkPager;
 
 $this->title = 'Observações';
 $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
+$currentIndexUrl = Url::current();
 ?>
 <div class="module-shell">
     <section class="species-hero observation-hero mb-4">
@@ -233,7 +234,7 @@ $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
                                 Ver especie
                             </a>
                         <?php endif; ?>
-                        <a href="<?= Url::to(['observation/view', 'id' => $observation->observation_id]) ?>" class="timeline-item-action-link" title="Ver detalhes da observação">
+                        <a href="<?= Url::to(['observation/view', 'id' => $observation->observation_id, 'returnUrl' => $currentIndexUrl]) ?>" class="timeline-item-action-link" title="Ver detalhes da observação">
                             <i class="fas fa-eye" aria-hidden="true"></i>
                             Ver observação
                         </a>
