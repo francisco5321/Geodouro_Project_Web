@@ -1,9 +1,9 @@
 <?php
 
-use app\models\Observation;
+use app\models\ObservationForm;
 
 /** @var yii\web\View $this */
-/** @var Observation $model */
+/** @var ObservationForm $model */
 /** @var array $userOptions */
 /** @var array $speciesOptions */
 

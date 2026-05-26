@@ -1,12 +1,13 @@
 <?php
 
 use app\models\Observation;
+use app\models\ObservationForm;
 use yii\bootstrap5\ActiveForm;
 use yii\bootstrap5\Html;
 use yii\web\View;
 
 /** @var yii\web\View $this */
-/** @var Observation $model */
+/** @var ObservationForm $model */
 /** @var array $userOptions */
 /** @var array $speciesOptions */
 

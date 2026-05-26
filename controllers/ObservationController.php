@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Observation;
+use app\models\ObservationForm;
 use RuntimeException;
 use Yii;
 use yii\data\Pagination;
@@ -45,6 +46,7 @@ class ObservationController extends Controller
                             if ($identity === null) {
                                 return false;
                             }
+
                             return in_array(Yii::$app->requestedAction?->id, ['update', 'delete', 'request-review'], true) || $identity->isAdmin();
                         },
                     ],
@@ -53,6 +55,7 @@ class ObservationController extends Controller
                     if (Yii::$app->user->isGuest) {
                         return Yii::$app->user->loginRequired();
                     }
+
                     throw new ForbiddenHttpException('Não tens permissão para criar observações manualmente.');
                 },
             ],
@@ -124,7 +127,7 @@ class ObservationController extends Controller
 
     public function actionCreate()
     {
-        $model = new Observation();
+        $model = new ObservationForm();
         $model->user_id = (int) Yii::$app->user->id;
         $model->observed_at = date('Y-m-d\TH:i');
         $model->captured_at = time();
@@ -132,6 +135,7 @@ class ObservationController extends Controller
         $model->sync_status = Observation::SYNC_PENDING;
         $model->is_synced = false;
         $model->is_published = false;
+        $model->isNewRecord = true;
 
         $latitude = Yii::$app->request->get('latitude');
         $longitude = Yii::$app->request->get('longitude');
@@ -144,6 +148,7 @@ class ObservationController extends Controller
             try {
                 $response = Yii::$app->observationApi->saveObservation($this->observationPayload($model));
                 Yii::$app->session->setFlash('success', 'Observação criada com sucesso.');
+
                 return $this->redirect(['observation/view', 'id' => (int) ($response['observationId'] ?? 0)]);
             } catch (RuntimeException $exception) {
                 $model->addError('notes', 'Não foi possível guardar a observação no backend: ' . $exception->getMessage());
@@ -186,6 +191,7 @@ class ObservationController extends Controller
                     Yii::$app->observationApi->saveObservation($this->observationPayload($model));
                     Yii::$app->session->setFlash('success', 'Observação atualizada com sucesso.');
                 }
+
                 return $this->redirect(['observation/view', 'id' => $model->observation_id]);
             } catch (RuntimeException $exception) {
                 $model->addError('notes', 'Não foi possível atualizar a observação no backend: ' . $exception->getMessage());
@@ -264,6 +270,7 @@ class ObservationController extends Controller
                 $options[$userId] = ($name !== '' ? $name : $username) . ' (@' . ($username ?: 'sem-username') . ')';
             }
         }
+
         return $options;
     }
 
@@ -279,10 +286,11 @@ class ObservationController extends Controller
         foreach ($species as $item) {
             $options[$item->plant_species_id] = $item->getDisplayName() . ' (' . $item->scientific_name . ')';
         }
+
         return $options;
     }
 
-    private function ensureManageAccess(Observation $observation): void
+    private function ensureManageAccess(ObservationForm $observation): void
     {
         $identity = Yii::$app->user->identity;
         if ($identity === null) {
@@ -293,14 +301,14 @@ class ObservationController extends Controller
         }
     }
 
-    private function findApiModel(int $id): Observation
+    private function findApiModel(int $id): ObservationForm
     {
         $apiObservation = Yii::$app->observationApi->getObservationById($id);
         if ($apiObservation === null) {
             throw new NotFoundHttpException('Observação não encontrada.');
         }
 
-        $model = new Observation();
+        $model = new ObservationForm();
         $model->observation_id = $apiObservation->observation_id;
         $model->device_observation_id = $apiObservation->device_observation_id;
         $model->user_id = $apiObservation->user_id ?? (int) Yii::$app->user->id;
@@ -312,9 +320,15 @@ class ObservationController extends Controller
         $model->confidence = $apiObservation->confidence;
         $model->sync_status = $apiObservation->sync_status;
         $model->is_published = $apiObservation->is_published;
+        $model->is_synced = $apiObservation->is_synced;
+        $model->captured_at = $apiObservation->captured_at;
         $model->predicted_scientific_name = $apiObservation->predicted_scientific_name;
+        $model->enriched_scientific_name = $apiObservation->enriched_scientific_name;
+        $model->enriched_common_name = $apiObservation->enriched_common_name;
+        $model->enriched_family = $apiObservation->enriched_family;
         $model->requires_manual_identification = $apiObservation->requires_manual_identification;
-        $model->setIsNewRecord(false);
+        $model->isNewRecord = false;
+
         return $model;
     }
 
@@ -338,7 +352,7 @@ class ObservationController extends Controller
         return str_starts_with($returnUrl, '/') ? $returnUrl : $fallbackUrl;
     }
 
-    private function observationPayload(Observation $model): array
+    private function observationPayload(ObservationForm $model): array
     {
         $observedAt = trim((string) $model->observed_at);
         $timestamp = $observedAt !== '' ? strtotime(str_replace('T', ' ', $observedAt)) : time();
@@ -364,11 +378,11 @@ class ObservationController extends Controller
         ];
     }
 
-    private function manualReviewPayload(Observation $model): array
+    private function manualReviewPayload(ObservationForm $model): array
     {
         $species = $this->speciesData((int) $model->plant_species_id);
         if ($species === []) {
-            throw new RuntimeException('Seleciona uma especie valida para concluir a identificação manual.');
+            throw new RuntimeException('Seleciona uma espécie válida para concluir a identificação manual.');
         }
 
         return [
@@ -380,7 +394,7 @@ class ObservationController extends Controller
         ];
     }
 
-    private function manualReviewRequestPayload(Observation $model): array
+    private function manualReviewRequestPayload(ObservationForm $model): array
     {
         $observedAt = trim((string) $model->observed_at);
         $timestamp = $observedAt !== '' ? strtotime(str_replace('T', ' ', $observedAt)) : time();
@@ -431,14 +445,15 @@ class ObservationController extends Controller
                 ];
             }
         }
+
         return [];
     }
 
-    private function prepareSpeciesForManualReview(Observation $model): bool
+    private function prepareSpeciesForManualReview(ObservationForm $model): bool
     {
         if (!$model->isNewSpeciesRequested()) {
             if (!$model->plant_species_id) {
-                $model->addError('plant_species_id', 'Seleciona uma especie para concluir a revisao manual.');
+                $model->addError('plant_species_id', 'Seleciona uma espécie para concluir a revisão manual.');
                 return false;
             }
 
@@ -464,12 +479,12 @@ class ObservationController extends Controller
                 'species' => trim((string) $model->new_species_species),
             ]);
         } catch (RuntimeException $exception) {
-            $model->addError('new_species_scientific_name', 'Nao foi possivel criar a nova especie: ' . $exception->getMessage());
+            $model->addError('new_species_scientific_name', 'Não foi possível criar a nova espécie: ' . $exception->getMessage());
             return false;
         }
 
         if ((int) $createdSpecies->plant_species_id <= 0) {
-            $model->addError('new_species_scientific_name', 'A especie foi criada sem identificador valido no backend.');
+            $model->addError('new_species_scientific_name', 'A espécie foi criada sem identificador válido no backend.');
             return false;
         }
 
