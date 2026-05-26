@@ -1,11 +1,11 @@
 <?php
 
-use app\models\PlantSpecies;
+use app\models\SpeciesForm;
 use yii\bootstrap5\ActiveForm;
 use yii\bootstrap5\Html;
 
 /** @var yii\web\View $this */
-/** @var PlantSpecies $model */
+/** @var SpeciesForm $model */
 ?>
 <div class="content-card publication-form-card">
     <?php $form = ActiveForm::begin(['options' => ['class' => 'stacked-form']]); ?>

@@ -2,7 +2,7 @@
 
 namespace app\controllers;
 
-use app\models\PlantSpecies;
+use app\models\SpeciesForm;
 use RuntimeException;
 use Yii;
 use yii\data\Pagination;
@@ -133,7 +133,7 @@ class SpeciesController extends Controller
     public function actionUpdate(int $id)
     {
         $this->ensureAdminAccess();
-        $model = $this->speciesModelFromApi($id);
+        $model = $this->speciesFormFromApi($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             try {
@@ -166,7 +166,7 @@ class SpeciesController extends Controller
         return $this->render('update', ['model' => $model]);
     }
 
-    private function speciesModelFromApi(int $id): PlantSpecies
+    private function speciesFormFromApi(int $id): SpeciesForm
     {
         $result = Yii::$app->speciesApi->getSpecies($id, 0, 1);
         $apiSpecies = $result['species'] ?? null;
@@ -174,8 +174,7 @@ class SpeciesController extends Controller
             throw new NotFoundHttpException('Especie nao encontrada.');
         }
 
-        $model = new PlantSpecies();
-        $model->scenario = PlantSpecies::SCENARIO_API_FORM;
+        $model = new SpeciesForm();
         $model->plant_species_id = (int) $apiSpecies->plant_species_id;
         $model->scientific_name = (string) $apiSpecies->scientific_name;
         $model->common_name = $apiSpecies->common_name;
@@ -184,7 +183,6 @@ class SpeciesController extends Controller
         $model->species = (string) $apiSpecies->species;
         $model->description = $apiSpecies->description;
         $model->image_count = (int) $apiSpecies->image_count;
-        $model->setIsNewRecord(false);
         return $model;
     }
 

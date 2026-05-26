@@ -1,10 +1,10 @@
 <?php
 
-use app\models\PlantSpecies;
+use app\models\SpeciesForm;
 use yii\helpers\Url;
 
 /** @var yii\web\View $this */
-/** @var PlantSpecies $model */
+/** @var SpeciesForm $model */
 
 $this->title = 'Atualizar espécie';
 ?>
