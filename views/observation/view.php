@@ -101,17 +101,6 @@ JS, View::POS_END);
                         Completar identificação
                     </a>
                 <?php endif; ?>
-                <?php if ($canRequestManualReview && $observation->observation_id !== null): ?>
-                    <?= Html::a(
-                        '<i class="fas fa-flag" aria-hidden="true"></i> Enviar para a administração',
-                        ['observation/request-review', 'id' => $observation->observation_id],
-                        [
-                            'class' => 'btn btn-outline-brand',
-                            'data-method' => 'post',
-                            'data-confirm' => 'Queres enviar esta observação para revisão manual da administração?',
-                        ]
-                    ) ?>
-                <?php endif; ?>
                 <?php if ($canDeleteObservation && $observation->observation_id !== null): ?>
                     <?= Html::a(
                         '<i class="fas fa-trash" aria-hidden="true"></i> Remover observação',
