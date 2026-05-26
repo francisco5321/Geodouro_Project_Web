@@ -28,6 +28,8 @@ if ($showLocationMap) {
     $this->registerCssFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
     $this->registerJsFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', ['position' => View::POS_END]);
 }
+
+$speciesInputId = Html::getInputId($model, 'plant_species_id');
 ?>
 <div class="content-card publication-form-card">
     <?php $form = ActiveForm::begin(['options' => ['class' => 'stacked-form']]); ?>
@@ -187,7 +189,7 @@ document.querySelectorAll('textarea[data-auto-resize]').forEach((ta) => {
     }
 });
 
-const speciesSelect = document.getElementById('observation-plant_species_id');
+const speciesSelect = document.getElementById(<?= json_encode($speciesInputId, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
 const newSpeciesFields = document.getElementById('new-species-fields');
 if (speciesSelect && newSpeciesFields) {
     const toggleNewSpeciesFields = () => {
