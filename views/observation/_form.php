@@ -21,15 +21,13 @@ $submitLabel = $isNewRecord ? 'Criar Observação' : 'Guardar alterações';
 $cancelUrl = $isNewRecord ? ['map/index'] : ['observation/view', 'id' => $model->observation_id];
 $speciesOptionsForForm = $speciesOptions;
 if ($isAdminManualReview) {
-    $speciesOptionsForForm[Observation::NEW_SPECIES_SENTINEL] = 'Nova especie';
+    $speciesOptionsForForm[Observation::NEW_SPECIES_SENTINEL] = 'Nova espécie';
 }
 $speciesOptions = $speciesOptionsForForm;
 if ($showLocationMap) {
     $this->registerCssFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
     $this->registerJsFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', ['position' => View::POS_END]);
 }
-
-$speciesInputId = Html::getInputId($model, 'plant_species_id');
 ?>
 <div class="content-card publication-form-card">
     <?php $form = ActiveForm::begin(['options' => ['class' => 'stacked-form']]); ?>
@@ -52,9 +50,9 @@ $speciesInputId = Html::getInputId($model, 'plant_species_id');
         <?php if ($isAdminManualReview): ?>
             <div
                 id="new-species-fields"
-                class="new-species-panel<?= $model->isNewSpeciesRequested() ? '' : ' is-hidden' ?>"
+                class="new-species-panel"
             >
-                <p class="new-species-intro">Se a especie ainda nao existir, cria-a aqui e associa-a logo a esta revisao.</p>
+                <p class="new-species-intro">Se escolheres <strong>Nova espécie</strong>, preenche estes campos para a criar e associar logo a esta revisão.</p>
                 <div class="auth-grid-two">
                     <?= $form->field($model, 'new_species_common_name')
                         ->label($model->getAttributeLabel('new_species_common_name') . ' <span class="is-required">*</span>', ['encode' => false])
@@ -172,9 +170,7 @@ $speciesInputId = Html::getInputId($model, 'plant_species_id');
 </div>
 
 <?php
-$speciesInputIdJs = json_encode($speciesInputId, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-
-$js = <<<JS
+$js = <<<'JS'
 const form = document.querySelector('.stacked-form');
 const submitBtn = document.getElementById('submit-btn');
 if (form && submitBtn) {
@@ -190,21 +186,6 @@ document.querySelectorAll('textarea[data-auto-resize]').forEach((ta) => {
         UIHelpers.autoResizeTextarea(ta);
     }
 });
-
-const speciesSelect = document.getElementById($speciesInputIdJs);
-const newSpeciesFields = document.getElementById('new-species-fields');
-if (speciesSelect && newSpeciesFields) {
-    const toggleNewSpeciesFields = () => {
-        const isNewSpecies = String(speciesSelect.value || '') === '-1';
-        newSpeciesFields.classList.toggle('is-hidden', !isNewSpecies);
-        newSpeciesFields.querySelectorAll('input').forEach((input) => {
-            input.disabled = !isNewSpecies;
-        });
-    };
-
-    toggleNewSpeciesFields();
-    speciesSelect.addEventListener('change', toggleNewSpeciesFields);
-}
 
 const mapEl = document.getElementById('observation-location-map');
 if (mapEl && typeof L !== 'undefined') {
