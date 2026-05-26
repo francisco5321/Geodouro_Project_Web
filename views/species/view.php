@@ -317,7 +317,7 @@ if (speciesLocationMapEl && typeof L !== 'undefined') {
     if (mapPoints.length > 0) {
         const map = L.map(speciesLocationMapEl, {
             zoomControl: true,
-            scrollWheelZoom: false,
+            scrollWheelZoom: true,
             dragging: true,
             doubleClickZoom: true,
             touchZoom: true,
