@@ -25,9 +25,27 @@ use yii\db\Expression;
  */
 class PlantSpecies extends ActiveRecord
 {
+    public const SCENARIO_API_FORM = 'api-form';
+
     public static function tableName(): string
     {
         return '{{%plant_species}}';
+    }
+
+    public function scenarios(): array
+    {
+        $scenarios = parent::scenarios();
+        $scenarios[self::SCENARIO_API_FORM] = [
+            'scientific_name',
+            'common_name',
+            'family',
+            'genus',
+            'species',
+            'description',
+            'image_count',
+        ];
+
+        return $scenarios;
     }
 
     public function behaviors(): array
@@ -50,7 +68,7 @@ class PlantSpecies extends ActiveRecord
             [['image_count'], 'integer', 'min' => 0],
             [['created_at', 'updated_at'], 'safe'],
             [['scientific_name', 'common_name', 'family', 'genus', 'species'], 'string'],
-            [['scientific_name'], 'unique'],
+            [['scientific_name'], 'unique', 'on' => [self::SCENARIO_DEFAULT]],
         ];
     }
 

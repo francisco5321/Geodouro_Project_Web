@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\PlantSpecies;
 use RuntimeException;
 use Yii;
 use yii\data\Pagination;
@@ -9,7 +10,6 @@ use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
-use app\models\PlantSpecies;
 
 class SpeciesController extends Controller
 {
@@ -59,14 +59,14 @@ class SpeciesController extends Controller
             );
         } catch (RuntimeException $exception) {
             if (Yii::$app->user->isGuest) {
-                Yii::$app->session->setFlash('error', 'Tens de iniciar sessão para consultar o catálogo de espécies.');
+                Yii::$app->session->setFlash('error', 'Tens de iniciar sessao para consultar o catalogo de especies.');
                 Yii::$app->user->setReturnUrl(Yii::$app->request->url);
                 Yii::$app->user->loginRequired();
                 return '';
             }
 
             Yii::error($exception->getMessage(), __METHOD__);
-            Yii::$app->session->setFlash('error', 'Não foi possível carregar as espécies a partir da API.');
+            Yii::$app->session->setFlash('error', 'Nao foi possivel carregar as especies a partir da API.');
             $result = [
                 'items' => [],
                 'totalCount' => 0,
@@ -103,18 +103,18 @@ class SpeciesController extends Controller
             );
         } catch (RuntimeException $exception) {
             if (Yii::$app->user->isGuest) {
-                Yii::$app->session->setFlash('error', 'Tens de iniciar sessão para abrir o detalhe de uma espécie.');
+                Yii::$app->session->setFlash('error', 'Tens de iniciar sessao para abrir o detalhe de uma especie.');
                 Yii::$app->user->setReturnUrl(Yii::$app->request->url);
                 Yii::$app->user->loginRequired();
                 return '';
             }
 
             Yii::error($exception->getMessage(), __METHOD__);
-            throw new NotFoundHttpException('Espécie não encontrada na API.');
+            throw new NotFoundHttpException('Especie nao encontrada na API.');
         }
 
         if ($result['species'] === null) {
-            throw new NotFoundHttpException('Espécie não encontrada.');
+            throw new NotFoundHttpException('Especie nao encontrada.');
         }
 
         $pagination->totalCount = (int) $result['totalCount'];
@@ -145,10 +145,21 @@ class SpeciesController extends Controller
                     'species' => $model->species,
                     'description' => $model->description,
                 ]);
-                Yii::$app->session->setFlash('success', 'Espécie atualizada com sucesso.');
+                Yii::$app->session->setFlash('success', 'Especie atualizada com sucesso.');
                 return $this->redirect(['species/view', 'id' => $id]);
             } catch (RuntimeException $exception) {
-                $model->addError('scientific_name', 'Não foi possível atualizar a espécie no backend: ' . $exception->getMessage());
+                $message = $exception->getMessage();
+                $normalizedMessage = mb_strtolower($message);
+
+                if (
+                    str_contains($normalizedMessage, 'duplicate')
+                    || str_contains($normalizedMessage, 'unique')
+                    || str_contains($normalizedMessage, 'scientific_name')
+                ) {
+                    $model->addError('scientific_name', 'Ja existe outra especie com esse nome cientifico.');
+                } else {
+                    $model->addError('scientific_name', 'Nao foi possivel atualizar a especie no backend: ' . $message);
+                }
             }
         }
 
@@ -160,10 +171,11 @@ class SpeciesController extends Controller
         $result = Yii::$app->speciesApi->getSpecies($id, 0, 1);
         $apiSpecies = $result['species'] ?? null;
         if ($apiSpecies === null) {
-            throw new NotFoundHttpException('Espécie não encontrada.');
+            throw new NotFoundHttpException('Especie nao encontrada.');
         }
 
         $model = new PlantSpecies();
+        $model->scenario = PlantSpecies::SCENARIO_API_FORM;
         $model->plant_species_id = (int) $apiSpecies->plant_species_id;
         $model->scientific_name = (string) $apiSpecies->scientific_name;
         $model->common_name = $apiSpecies->common_name;
