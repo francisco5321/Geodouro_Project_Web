@@ -15,6 +15,7 @@ use yii\widgets\LinkPager;
 /** @var array $galleryImages */
 /** @var string|null $locationSummary */
 /** @var array|null $locationBounds */
+/** @var array $locationPoints */
 /** @var array $stats */
 
 $this->title = $species->scientific_name;
@@ -29,6 +30,7 @@ $imageCount = (int) $species->image_count;
 $observationCount = (int) ($stats['observationsCount'] ?? 0);
 $syncedCount = (int) ($stats['syncedCount'] ?? 0);
 $publishedCount = (int) ($stats['publishedCount'] ?? 0);
+$hasLocationPoints = !empty($locationPoints);
 $canOpenObservationDetail = !Yii::$app->user->isGuest;
 $hasLocationBounds = is_array($locationBounds ?? null)
     && isset(
@@ -38,7 +40,7 @@ $hasLocationBounds = is_array($locationBounds ?? null)
         $locationBounds['maxLongitude']
     );
 
-if ($hasLocationBounds) {
+if ($hasLocationPoints || $hasLocationBounds) {
     $this->registerCssFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
     $this->registerJsFile('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', ['position' => View::POS_END]);
 }
@@ -158,11 +160,17 @@ if ($hasLocationBounds) {
                         Localizações registadas em <?= (int) ($locationBounds['count'] ?? $observationCount) ?>
                         <?= ((int) ($locationBounds['count'] ?? $observationCount) === 1) ? 'observacao' : 'observacoes' ?>.
                     </p>
-                    <?php if ($hasLocationBounds): ?>
+                    <?php if ($hasLocationPoints): ?>
                         <div
                             id="species-location-map"
                             class="leaflet-shell species-location-map"
-                            data-bounds="<?= Html::encode(Json::encode($locationBounds)) ?>"
+                            data-points="<?= Html::encode(Json::encode($locationPoints)) ?>"
+                        ></div>
+                    <?php elseif ($hasLocationBounds): ?>
+                        <div
+                            id="species-location-map"
+                            class="leaflet-shell species-location-map"
+                            data-points="[]"
                         ></div>
                     <?php elseif ($locationSummary !== null): ?>
                         <p><?= Html::encode($locationSummary) ?></p>
@@ -296,34 +304,17 @@ if (savedSpeciesScrollPosition !== null) {
 
 const speciesLocationMapEl = document.getElementById('species-location-map');
 if (speciesLocationMapEl && typeof L !== 'undefined') {
-    const boundsData = JSON.parse(speciesLocationMapEl.dataset.bounds || '{}');
-    const minLatitude = Number(boundsData.minLatitude);
-    const maxLatitude = Number(boundsData.maxLatitude);
-    const minLongitude = Number(boundsData.minLongitude);
-    const maxLongitude = Number(boundsData.maxLongitude);
+    const pointData = JSON.parse(speciesLocationMapEl.dataset.points || '[]');
+    const mapPoints = pointData
+        .map((point) => ({
+            latitude: Number(point.latitude),
+            longitude: Number(point.longitude),
+            title: point.title || 'Observação botânica',
+            scientificName: point.scientificName || '',
+        }))
+        .filter((point) => !Number.isNaN(point.latitude) && !Number.isNaN(point.longitude));
 
-    if (
-        !Number.isNaN(minLatitude)
-        && !Number.isNaN(maxLatitude)
-        && !Number.isNaN(minLongitude)
-        && !Number.isNaN(maxLongitude)
-    ) {
-        const centerLatitude = (minLatitude + maxLatitude) / 2;
-        const centerLongitude = (minLongitude + maxLongitude) / 2;
-        const center = L.latLng(centerLatitude, centerLongitude);
-        const southWest = L.latLng(minLatitude, minLongitude);
-        const northEast = L.latLng(maxLatitude, maxLongitude);
-        const corners = [
-            L.latLng(minLatitude, minLongitude),
-            L.latLng(minLatitude, maxLongitude),
-            L.latLng(maxLatitude, minLongitude),
-            L.latLng(maxLatitude, maxLongitude),
-        ];
-        const radius = Math.max(
-            ...corners.map((corner) => center.distanceTo(corner)),
-            35
-        );
-
+    if (mapPoints.length > 0) {
         const map = L.map(speciesLocationMapEl, {
             zoomControl: true,
             scrollWheelZoom: false,
@@ -338,18 +329,21 @@ if (speciesLocationMapEl && typeof L !== 'undefined') {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        L.circle([centerLatitude, centerLongitude], {
-            radius: radius,
-            color: '#20593f',
-            weight: 2,
-            fillColor: '#7fc084',
-            fillOpacity: 0.22,
-        }).addTo(map);
+        const bounds = [];
+        mapPoints.forEach((point) => {
+            const latLng = [point.latitude, point.longitude];
+            bounds.push(latLng);
 
-        L.marker([centerLatitude, centerLongitude]).addTo(map)
-            .bindPopup('Centro aproximado da area observada');
+            const popupParts = [point.title];
+            if (point.scientificName && point.scientificName !== point.title) {
+                popupParts.push(point.scientificName);
+            }
 
-        map.fitBounds([southWest, northEast], {padding: [28, 28]});
+            L.marker(latLng).addTo(map)
+                .bindPopup(popupParts.map((part) => `<div>${part}</div>`).join(''));
+        });
+
+        map.fitBounds(bounds, {padding: [28, 28]});
         setTimeout(() => map.invalidateSize(), 0);
     }
 }

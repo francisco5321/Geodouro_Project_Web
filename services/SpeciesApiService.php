@@ -57,6 +57,7 @@ class SpeciesApiService extends Component
             'galleryImages' => $this->buildGalleryImages($response),
             'locationSummary' => $response['locationSummary'] ?? null,
             'locationBounds' => $this->buildLocationBounds($apiObservations),
+            'locationPoints' => $this->buildLocationPoints($apiObservations),
             'stats' => $this->normalizeStats($response['stats'] ?? $response),
         ];
     }
@@ -357,5 +358,30 @@ class SpeciesApiService extends Component
             'maxLongitude' => max($longitudes),
             'count' => count($points),
         ];
+    }
+
+    /**
+     * @param ApiObservation[] $observations
+     * @return array<int, array<string, float|int|string|null>>
+     */
+    private function buildLocationPoints(array $observations): array
+    {
+        $points = [];
+
+        foreach ($observations as $observation) {
+            if (!$observation->hasCoordinates()) {
+                continue;
+            }
+
+            $points[] = [
+                'id' => $observation->observation_id,
+                'latitude' => (float) $observation->latitude,
+                'longitude' => (float) $observation->longitude,
+                'title' => $observation->getResolvedCommonName() ?: 'Observação botânica',
+                'scientificName' => $observation->getResolvedScientificName(),
+            ];
+        }
+
+        return $points;
     }
 }
