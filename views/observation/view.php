@@ -91,7 +91,6 @@ JS, View::POS_END);
             <?php if ($observation->needsManualReview()): ?>
                 <p class="hero-text">O YOLO detetou uma planta, mas o MobileNet não conseguiu reconhecer a espécie. Esta observação está na fila de revisão manual.</p>
             <?php elseif ($canRequestManualReview): ?>
-                <p class="hero-text">A previsão está incorreta? Podes enviar esta observação para a administração rever manualmente, tal como acontece quando o MobileNet não consegue identificar a planta.</p>
             <?php endif; ?>
             <p class="hero-text"><?= Html::encode($observation->notes ?: 'Sem notas de campo registadas para esta observação.') ?></p>
             <div class="hero-cta-row mt-4">
