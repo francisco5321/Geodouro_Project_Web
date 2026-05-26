@@ -9,6 +9,7 @@ class ApiObservation extends ApiDataObject
     public ?int $plant_species_id = null;
     public bool $requires_manual_identification = false;
     public ?string $image_uri = null;
+    public ?int $captured_at = null;
     public ?string $predicted_scientific_name = null;
     public ?float $confidence = null;
     public ?string $enriched_scientific_name = null;
@@ -22,7 +23,9 @@ class ApiObservation extends ApiDataObject
     public ?string $observed_at = null;
     public ?string $notes = null;
     public bool $is_published = false;
+    public bool $is_synced = false;
     public string $sync_status = 'PENDING';
+    public ?int $last_sync_attempt_at = null;
     public ?ApiPublication $publication = null;
     /** @var ApiObservationImage[] */
     public array $observationImages = [];
@@ -42,6 +45,7 @@ class ApiObservation extends ApiDataObject
             'plant_species_id' => self::first($data, ['plant_species_id', 'plantSpeciesId', 'speciesId']) !== null ? (int) self::first($data, ['plant_species_id', 'plantSpeciesId', 'speciesId']) : null,
             'requires_manual_identification' => (bool) self::first($data, ['requires_manual_identification', 'requiresManualIdentification'], false),
             'image_uri' => self::stringOrNull(self::first($data, ['image_uri', 'imageUri', 'image'])),
+            'captured_at' => self::first($data, ['captured_at', 'capturedAt']) !== null ? (int) self::first($data, ['captured_at', 'capturedAt']) : null,
             'predicted_scientific_name' => self::stringOrNull(self::first($data, ['predicted_scientific_name', 'predictedScientificName'])),
             'confidence' => self::first($data, ['confidence']) !== null ? (float) self::first($data, ['confidence']) : null,
             'enriched_scientific_name' => self::stringOrNull(self::first($data, ['enriched_scientific_name', 'enrichedScientificName'])),
@@ -54,7 +58,9 @@ class ApiObservation extends ApiDataObject
             'observed_at' => self::stringOrNull(self::first($data, ['observed_at', 'observedAt'])),
             'notes' => self::stringOrNull(self::first($data, ['notes'])),
             'is_published' => (bool) self::first($data, ['is_published', 'isPublished'], false),
+            'is_synced' => (bool) self::first($data, ['is_synced', 'isSynced'], false),
             'sync_status' => (string) self::first($data, ['sync_status', 'syncStatus'], 'PENDING'),
+            'last_sync_attempt_at' => self::first($data, ['last_sync_attempt_at', 'lastSyncAttemptAt']) !== null ? (int) self::first($data, ['last_sync_attempt_at', 'lastSyncAttemptAt']) : null,
             'publication' => $publicationObject,
             'observationImages' => self::imageObjects($images),
         ]);
