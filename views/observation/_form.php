@@ -172,7 +172,9 @@ $speciesInputId = Html::getInputId($model, 'plant_species_id');
 </div>
 
 <?php
-$js = <<<'JS'
+$speciesInputIdJs = json_encode($speciesInputId, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+$js = <<<JS
 const form = document.querySelector('.stacked-form');
 const submitBtn = document.getElementById('submit-btn');
 if (form && submitBtn) {
@@ -189,7 +191,7 @@ document.querySelectorAll('textarea[data-auto-resize]').forEach((ta) => {
     }
 });
 
-const speciesSelect = document.getElementById(<?= json_encode($speciesInputId, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
+const speciesSelect = document.getElementById($speciesInputIdJs);
 const newSpeciesFields = document.getElementById('new-species-fields');
 if (speciesSelect && newSpeciesFields) {
     const toggleNewSpeciesFields = () => {
