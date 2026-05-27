@@ -193,7 +193,7 @@ $this->beginPage();
                     </div>
                 </div>
                 <span class="footer-kicker">Sobre o projeto</span>
-                <p class="footer-brand-text">O GeoFlora apoia a inventariação, consulta e valorização de espécies e observações botânicas associadas ao território Português.</p>
+                <p class="footer-brand-text">O projeto GeoFlora foi desenvolvido por Francisco Vitorino, aluno do Instituto Politécnico de Viseu, no âmbito do projeto de estágio realizado em colaboração com a Geodouro.</p>
                 <div class="footer-social-row">
                     <span class="footer-social-badge" aria-hidden="true"><i class="fas fa-envelope"></i></span>
                     <span class="footer-social-badge" aria-hidden="true"><i class="fas fa-phone-alt"></i></span>
