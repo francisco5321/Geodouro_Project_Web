@@ -55,14 +55,14 @@ class SiteController extends Controller
                 ? 'guest'
                 : (($identity?->isAdmin() ?? false) ? 'admin' : 'user-' . (string) Yii::$app->user->id);
 
-            $counts = Yii::$app->cache->getOrSet('dashboard.stats.api.v2.' . $cacheScope, static function (): array {
+            $counts = Yii::$app->cache->getOrSet('dashboard.stats.api.v3.' . $cacheScope, static function (): array {
                 $dashboardStats = Yii::$app->dashboardApi->getStats();
                 $speciesSummary = Yii::$app->speciesApi->listSpecies('', 'species', 0, 1)['summary'] ?? [];
                 $observationSummary = Yii::$app->observationApi->listObservations('', 'all', false, 0, 1)['summary'] ?? [];
 
                 return [
                     'speciesCount' => (int) ($speciesSummary['speciesCount'] ?? 0),
-                    'observationCount' => (int) ($observationSummary['total'] ?? 0),
+                    'observationCount' => (int) ($dashboardStats['observationCount'] ?? $observationSummary['total'] ?? 0),
                     'manualReviewCount' => (int) ($observationSummary['manualReview'] ?? 0),
                     'publicationCount' => (int) ($dashboardStats['publicationCount'] ?? 0),
                     'userCount' => (int) ($dashboardStats['userCount'] ?? 0),
