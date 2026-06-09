@@ -29,8 +29,10 @@ class MapController extends Controller
     public function actionIndex(): string
     {
         $focusObservationId = (int) Yii::$app->request->get('observationId', 0);
+        $totalObservationCount = 0;
 
         try {
+            $totalObservationCount = (int) (Yii::$app->dashboardApi->getStats()['observationCount'] ?? 0);
             $result = Yii::$app->observationApi->listObservations('', 'all', false, 0, 250);
             $observations = array_values(array_filter(
                 $result['items'],
@@ -102,6 +104,7 @@ class MapController extends Controller
 
         return $this->render('index', [
             'observations' => $observations,
+            'totalObservationCount' => $totalObservationCount,
             'visitTargetCount' => count($visitTargets),
             'canCreateObservation' => Yii::$app->user->identity?->isAdmin() ?? false,
             'createObservationUrl' => \yii\helpers\Url::to(['observation/create']),

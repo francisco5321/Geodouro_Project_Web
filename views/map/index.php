@@ -7,6 +7,7 @@ use yii\web\View;
 
 /** @var yii\web\View $this */
 /** @var app\services\ApiObservation[] $observations */
+/** @var int $totalObservationCount */
 /** @var string $markersJson */
 /** @var int $visitTargetCount */
 /** @var bool $canCreateObservation */
@@ -205,7 +206,7 @@ $this->registerJs($js, View::POS_END);
         <div class="detail-stat-grid">
             <?= StatCard::widget([
                 'label' => 'Observações',
-                'value' => (int) count($observations),
+                'value' => (int) $totalObservationCount,
                 'icon' => 'fas fa-binoculars',
             ]) ?>
         </div>
