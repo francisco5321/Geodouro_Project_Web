@@ -105,6 +105,12 @@ class ObservationController extends Controller
             $result = ['items' => [], 'totalCount' => 0, 'summary' => ['total' => 0, 'published' => 0, 'pending' => 0, 'failed' => 0]];
         }
         $pagination->totalCount = (int) $result['totalCount'];
+        $totalObservationCount = (int) ($result['summary']['total'] ?? 0);
+        try {
+            $totalObservationCount = (int) (Yii::$app->dashboardApi->getStats()['observationCount'] ?? $totalObservationCount);
+        } catch (RuntimeException $exception) {
+            Yii::error($exception->getMessage(), __METHOD__);
+        }
 
         return $this->render('index', [
             'observations' => $result['items'],
@@ -113,6 +119,7 @@ class ObservationController extends Controller
             'status' => $status,
             'myObservationsOnly' => $myObservationsOnly,
             'summary' => $result['summary'],
+            'totalObservationCount' => $totalObservationCount,
         ]);
     }
 

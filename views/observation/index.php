@@ -14,6 +14,7 @@ use yii\widgets\LinkPager;
 /** @var string $status */
 /** @var bool $myObservationsOnly */
 /** @var array $summary */
+/** @var int $totalObservationCount */
 
 $this->title = 'Observações';
 $isAdmin = Yii::$app->user->identity?->isAdmin() ?? false;
@@ -46,7 +47,7 @@ $currentIndexUrl = Url::current();
             ]) ?>
             <?= StatCard::widget([
                 'label' => 'Total',
-                'value' => (int) $summary['total'],
+                'value' => (int) $totalObservationCount,
                 'icon' => 'fas fa-chart-line',
                 'cssClass' => 'obs-stat-total',
             ]) ?>
